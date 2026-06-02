@@ -1,0 +1,94 @@
+<view class="container" wx:if="{{detail}}">
+  <view class="detail-header">
+    <view class="detail-title">{{detail.title}}</view>
+    <view class="detail-meta">
+      <view class="meta-item">
+        <text class="meta-label">公告类型</text>
+        <text class="meta-value">{{detail.bid_type || '-'}}</text>
+      </view>
+      <view class="meta-item">
+        <text class="meta-label">发布时间</text>
+        <text class="meta-value">{{formatDate(detail.publish_date)}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="detail-section">
+    <view class="section-title">基本信息</view>
+    <view class="info-list">
+      <view class="info-item" wx:if="{{detail.source}}">
+        <text class="info-label">数据来源</text>
+        <text class="info-value">{{detail.source}}</text>
+      </view>
+      <view class="info-item" wx:if="{{detail.bidding_method}}">
+        <text class="info-label">招标方式</text>
+        <text class="info-value">{{detail.bidding_method}}</text>
+      </view>
+      <view class="info-item" wx:if="{{detail.budget}}">
+        <text class="info-label">预算金额</text>
+        <text class="info-value highlight">{{detail.budget}}</text>
+      </view>
+      <view class="info-item" wx:if="{{detail.province || detail.city}}">
+        <text class="info-label">地区</text>
+        <text class="info-value">{{detail.province || ''}}{{detail.city || ''}}</text>
+      </view>
+      <view class="info-item" wx:if="{{detail.deadline}}">
+        <text class="info-label">投标截止</text>
+        <text class="info-value">{{detail.deadline}}</text>
+      </view>
+      <view class="info-item" wx:if="{{detail.buyer}}">
+        <text class="info-label">采购单位</text>
+        <text class="info-value">{{detail.buyer}}</text>
+      </view>
+      <view class="info-item" wx:if="{{detail.agent}}">
+        <text class="info-label">代理机构</text>
+        <text class="info-value">{{detail.agent}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="detail-section" wx:if="{{detail.content}}">
+    <view class="section-title">公告内容</view>
+    <view class="content-text">{{detail.content}}</view>
+  </view>
+
+  <view class="detail-section" wx:if="{{detail.parent_bid}}">
+    <view class="section-title">关联招标公告</view>
+    <view class="related-item">
+      <view class="related-title">{{detail.parent_bid.title}}</view>
+      <view class="related-meta">
+        <text>{{detail.parent_bid.bid_type}}</text>
+        <text>{{formatDate(detail.parent_bid.publish_date)}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="detail-section" wx:if="{{detail.child_bids && detail.child_bids.length > 0}}">
+    <view class="section-title">关联中标公告</view>
+    <view class="related-item" wx:for="{{detail.child_bids}}" wx:key="id">
+      <view class="related-title">{{item.title}}</view>
+      <view class="related-meta">
+        <text>{{item.bid_type}}</text>
+        <text wx:if="{{item.win_amount}}">{{item.win_amount}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-bar">
+    <view class="bar-item">
+      <image class="bar-icon" src="/images/icon-collect.png" mode="aspectFit"></image>
+      <text>收藏</text>
+    </view>
+    <view class="bar-item">
+      <image class="bar-icon" src="/images/icon-share.png" mode="aspectFit"></image>
+      <text>分享</text>
+    </view>
+    <view class="bar-btn">
+      <text>立即订阅</text>
+    </view>
+  </view>
+</view>
+
+<view class="loading" wx:if="{{loading}}">
+  <text>加载中...</text>
+</view>

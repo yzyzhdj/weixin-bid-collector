@@ -1,0 +1,66 @@
+<view class="container">
+  <view class="top-tabs">
+    <view class="top-tab {{currentTopTab === index ? 'active' : ''}}" wx:for="{{topTabs}}" wx:key="index" bindtap="switchTopTab" data-index="{{index}}">
+      {{item.name}}
+    </view>
+  </view>
+
+  <view class="filter-bar">
+    <view class="filter-item" bindtap="showFilter">
+      <text>甘肃</text>
+      <image class="arrow-down" src="/images/arrow-down.png" mode="aspectFit"></image>
+    </view>
+    <view class="filter-item" bindtap="showFilter">
+      <text>订阅</text>
+      <image class="arrow-down" src="/images/arrow-down.png" mode="aspectFit"></image>
+    </view>
+    <view class="filter-item" bindtap="showFilter">
+      <text>更多筛选</text>
+      <image class="arrow-down" src="/images/arrow-down.png" mode="aspectFit"></image>
+    </view>
+    <view class="filter-btn" bindtap="showFilter">
+      <text>修改订阅</text>
+    </view>
+  </view>
+
+  <view class="result-info">
+    <text>已为您查询到 {{totalCount}} 条商机信息</text>
+    <view class="export-btn">批量导出</view>
+  </view>
+
+  <view class="ad-banner">
+    <view class="ad-left">
+      <view class="ad-tag">独家项目</view>
+      <view class="ad-tag">商机推荐</view>
+    </view>
+    <view class="ad-right">
+      <text class="ad-text">多项功能协助寻找商机</text>
+      <view class="ad-btn">点击咨询了解 ></view>
+    </view>
+  </view>
+
+  <view class="bid-list">
+    <view class="bid-item" wx:for="{{bidList}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <view class="bid-title">{{item.title}}</view>
+      <view class="bid-meta">
+        <text wx:if="{{item.source}}">可通过{{item.source}}</text>
+        <text wx:if="{{item.province}} || item.city">{{item.province || ''}}{{item.city || ''}}</text>
+      </view>
+      <view class="bid-bottom">
+        <view class="bid-type">{{item.bid_type || '招标公告'}}</view>
+        <text class="bid-date">{{formatDate(item.publish_date)}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="template-section">
+    <view class="template-header">
+      <text class="template-title">标书模版精选</text>
+      <text class="template-more">模版库 ></text>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

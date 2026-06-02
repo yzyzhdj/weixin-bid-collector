@@ -1,0 +1,5 @@
+{
+  "navigationBarTitleText": "查标讯",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50
+}

@@ -1,0 +1,70 @@
+<view class="container">
+  <view class="header">
+    <view class="tabs">
+      <view class="tab active" bindtap="switchTab" data-tab="bids">查标识</view>
+      <view class="tab" bindtap="switchTab" data-tab="companies">查企业</view>
+    </view>
+  </view>
+
+  <view class="search-box">
+    <view class="search-input-wrapper">
+      <image class="search-icon" src="/images/search-icon.png" mode="aspectFit"></image>
+      <input class="search-input" placeholder="请输入产品、行业或项目名称" value="{{searchText}}" bindconfirm="onSearch" bindinput="onInput" confirm-type="search"></input>
+    </view>
+  </view>
+
+  <view class="hot-tags">
+    <scroll-view scroll-x="true" class="tags-scroll">
+      <view class="tags-list">
+        <view class="tag" wx:for="{{hotTags}}" wx:key="index" bindtap="onTagClick" data-keyword="{{item}}">{{item}}</view>
+      </view>
+    </scroll-view>
+    <image class="refresh-icon" src="/images/refresh-icon.png" mode="aspectFit"></image>
+  </view>
+
+  <view class="function-grid">
+    <view class="function-item" wx:for="{{functionList}}" wx:key="index" bindtap="onFunctionClick" data-type="{{item.type}}">
+      <view class="function-icon" style="background: {{item.color}}">
+        <image class="icon-img" src="{{item.icon}}" mode="aspectFit"></image>
+      </view>
+      <text class="function-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="exhibition-banner">
+    <view class="banner-left">
+      <image class="exhibition-icon" src="/images/exhibition-icon.png" mode="aspectFit"></image>
+      <view class="banner-text">
+        <text class="banner-title">找展会</text>
+        <text class="banner-subtitle">一站式查询海量展会信息</text>
+      </view>
+    </view>
+    <view class="banner-btn">立即查询 ></view>
+  </view>
+
+  <view class="stats-section">
+    <view class="stats-header">
+      <view class="stats-title">
+        <image class="chart-icon" src="/images/chart-icon.png" mode="aspectFit"></image>
+        <text>招标统计</text>
+      </view>
+      <text class="stats-date">{{statsDate}}更新</text>
+      <view class="more-link">查看更多 ></view>
+    </view>
+    <view class="stats-tabs">
+      <view class="stat-tab" wx:for="{{statTabs}}" wx:key="index" bindtap="switchStatTab" data-index="{{index}}" class="stat-tab {{currentStatTab === index ? 'active' : ''}}">
+        {{item.name}}
+      </view>
+    </view>
+    <view class="stats-data">
+      <view class="data-row">
+        <view class="data-label">今日更新</view>
+        <view class="data-value">{{stats.today || 0}}</view>
+      </view>
+      <view class="data-row">
+        <view class="data-label">30天累计</view>
+        <view class="data-value">{{stats.total || 0}}</view>
+      </view>
+    </view>
+  </view>
+</view>

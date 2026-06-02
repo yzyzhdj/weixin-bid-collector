@@ -1,0 +1,91 @@
+<view class="container">
+  <view class="top-tabs">
+    <scroll-view scroll-x="true" class="tabs-scroll">
+      <view class="top-tab {{currentTab === index ? 'active' : ''}}" wx:for="{{topTabs}}" wx:key="index" bindtap="switchTab" data-index="{{index}}" data-type="{{item.type}}">
+        {{item.name}}
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="filter-bar">
+    <view class="filter-item {{activeFilter === 'province' ? 'active' : ''}}" bindtap="showFilter" data-field="province">
+      <text>{{filterCity ? filterCity : (filterProvince || '地区')}}</text>
+      <image class="arrow-down" src="/images/arrow-down.png" mode="aspectFit"></image>
+    </view>
+    <view class="filter-item {{activeFilter === 'bid_type' ? 'active' : ''}}" bindtap="showFilter" data-field="bid_type">
+      <text>{{filterBidType || '公告类型'}}</text>
+      <image class="arrow-down" src="/images/arrow-down.png" mode="aspectFit"></image>
+    </view>
+    <view class="filter-item {{activeFilter === 'method' ? 'active' : ''}}" bindtap="showFilter" data-field="method">
+      <text>{{filterMethod || '招标方式'}}</text>
+      <image class="arrow-down" src="/images/arrow-down.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <view class="filter-dropdown-mask" wx:if="{{activeFilter}}" bindtap="closeFilter"></view>
+
+  <view class="filter-dropdown region-dropdown" wx:if="{{activeFilter === 'province'}}">
+    <view class="region-columns">
+      <scroll-view scroll-y="true" class="region-left">
+        <view class="region-province {{selectedProvince === item ? 'selected' : ''}}" wx:for="{{provinceList}}" wx:key="index" bindtap="selectProvince" data-province="{{item}}">
+          {{item}}
+        </view>
+      </scroll-view>
+      <scroll-view scroll-y="true" class="region-right">
+        <view class="region-city {{!filterCity && filterProvince === selectedProvince ? 'selected' : ''}}" bindtap="selectCity" data-city="">
+          全部
+        </view>
+        <view class="region-city {{filterCity === item ? 'selected' : ''}}" wx:for="{{cityList}}" wx:key="index" bindtap="selectCity" data-city="{{item}}">
+          {{item}}
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <view class="filter-dropdown" wx:if="{{activeFilter === 'bid_type'}}">
+    <view class="filter-option {{filterBidType === item ? 'selected' : ''}}" wx:for="{{bidTypeOptions}}" wx:key="index" bindtap="selectSimpleFilter" data-field="bid_type" data-value="{{item}}">
+      <text>{{item}}</text>
+      <image class="check-icon" wx:if="{{filterBidType === item}}" src="/images/check-icon.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <view class="filter-dropdown" wx:if="{{activeFilter === 'method'}}">
+    <view class="filter-option {{filterMethod === item ? 'selected' : ''}}" wx:for="{{methodOptions}}" wx:key="index" bindtap="selectSimpleFilter" data-field="method" data-value="{{item}}">
+      <text>{{item}}</text>
+      <image class="check-icon" wx:if="{{filterMethod === item}}" src="/images/check-icon.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <view class="result-info">
+    <text>共 {{totalCount}} 条标讯</text>
+    <view class="clear-filter" wx:if="{{filterProvince || filterBidType || filterMethod}}" bindtap="clearAllFilters">清除筛选</view>
+  </view>
+
+  <view class="bid-list">
+    <view class="bid-item" wx:for="{{bidList}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <view class="bid-title">{{item.title}}</view>
+      <view class="bid-info-row">
+        <view class="bid-type-tag">{{item.bid_type || '招标公告'}}</view>
+        <view class="bid-method-tag" wx:if="{{item.bidding_method}}">{{item.bidding_method}}</view>
+      </view>
+      <view class="bid-meta-row">
+        <text class="bid-source" wx:if="{{item.source}}">{{item.source}}</text>
+        <text class="bid-region" wx:if="{{item.province || item.city}}">{{item.province || ''}}{{item.city || ''}}</text>
+      </view>
+      <view class="bid-bottom">
+        <text class="bid-budget" wx:if="{{item.budget}}">预算: {{item.budget}}</text>
+        <text class="bid-date">{{formatDate(item.publish_date)}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="load-more" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+  <view class="load-more" wx:if="{{!loading && bidList.length > 0 && noMore}}">
+    <text>没有更多了</text>
+  </view>
+  <view class="empty" wx:if="{{!loading && bidList.length === 0}}">
+    <text>暂无标讯数据</text>
+  </view>
+</view>

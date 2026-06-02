@@ -1,0 +1,111 @@
+<view class="container">
+  <view class="header-bg"></view>
+  
+  <view class="profile-header">
+    <view class="user-info">
+      <image class="avatar" src="/images/avatar.png" mode="aspectFill"></image>
+      <view class="user-detail">
+        <view class="username">金雷杰</view>
+        <view class="user-status">暂无职位信息</view>
+      </view>
+    </view>
+    <view class="edit-btn">编辑资料 ></view>
+  </view>
+
+  <view class="quick-actions">
+    <view class="action-item">
+      <image class="action-icon" src="/images/icon-history.png" mode="aspectFit"></image>
+      <text class="action-text">历史浏览</text>
+    </view>
+    <view class="action-item">
+      <image class="action-icon" src="/images/icon-favorite.png" mode="aspectFit"></image>
+      <text class="action-text">收藏项目</text>
+    </view>
+    <view class="action-item">
+      <image class="action-icon" src="/images/icon-note.png" mode="aspectFit"></image>
+      <text class="action-text">我的笔记</text>
+    </view>
+  </view>
+
+  <view class="vip-card">
+    <view class="vip-info">
+      <view class="vip-title">
+        <image class="vip-icon" src="/images/vip-icon.png" mode="aspectFit"></image>
+        <text>基础版会员</text>
+      </view>
+      <view class="vip-desc">甘肃 2026.06.16到期</view>
+    </view>
+    <view class="vip-btn">去续费</view>
+  </view>
+
+  <view class="order-section">
+    <view class="order-item">
+      <image class="order-icon" src="/images/icon-order.png" mode="aspectFit"></image>
+      <view class="order-info">
+        <text class="order-title">我的订单</text>
+        <text class="order-desc">开具发票</text>
+      </view>
+      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+    </view>
+    <view class="order-item">
+      <image class="order-icon" src="/images/icon-coupon.png" mode="aspectFit"></image>
+      <view class="order-info">
+        <text class="order-title">优惠券</text>
+      </view>
+      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <view class="section-title">更多功能</view>
+  <view class="menu-list">
+    <view class="menu-item">
+      <image class="menu-icon" src="/images/icon-publish.png" mode="aspectFit"></image>
+      <text class="menu-text">我的发布</text>
+      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+    </view>
+    <view class="menu-item">
+      <image class="menu-icon" src="/images/icon-download.png" mode="aspectFit"></image>
+      <text class="menu-text">我的下载</text>
+      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+    </view>
+    <view class="menu-item">
+      <image class="menu-icon" src="/images/icon-notice.png" mode="aspectFit"></image>
+      <text class="menu-text">消息通知</text>
+      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+    </view>
+    <view class="menu-item">
+      <image class="menu-icon" src="/images/icon-pc.png" mode="aspectFit"></image>
+      <text class="menu-text">电脑端查看</text>
+      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <view class="menu-list">
+    <view class="menu-item">
+      <image class="menu-icon" src="/images/icon-service.png" mode="aspectFit"></image>
+      <text class="menu-text">联系客服</text>
+      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+    </view>
+    <view class="menu-item">
+      <image class="menu-icon" src="/images/icon-settings.png" mode="aspectFit"></image>
+      <text class="menu-text">设置</text>
+      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+    </view>
+    <view class="menu-item">
+      <image class="menu-icon" src="/images/icon-help.png" mode="aspectFit"></image>
+      <text class="menu-text">帮助与反馈</text>
+      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <view class="loan-banner">
+    <view class="loan-left">
+      <image class="loan-icon" src="/images/loan-icon.png" mode="aspectFit"></image>
+      <view class="loan-info">
+        <text class="loan-title">预计可借额度</text>
+        <text class="loan-amount">200,000.00</text>
+      </view>
+    </view>
+    <view class="loan-btn">去借钱</view>
+  </view>
+</view>

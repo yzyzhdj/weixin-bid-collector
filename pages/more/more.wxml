@@ -1,0 +1,84 @@
+<view class="container">
+  <view class="section-title">标书模版</view>
+  <view class="grid-row">
+    <view class="grid-item">
+      <view class="item-icon" style="background: #fef3c7;">
+        <image class="icon-img" src="/images/tpl-icon1.png" mode="aspectFit"></image>
+      </view>
+      <text class="item-name">标书模版</text>
+    </view>
+    <view class="grid-item">
+      <view class="item-icon" style="background: #dbeafe;">
+        <image class="icon-img" src="/images/tpl-icon2.png" mode="aspectFit"></image>
+      </view>
+      <text class="item-name">标书代写</text>
+    </view>
+  </view>
+
+  <view class="section-title">业务拓展</view>
+  <view class="grid-row">
+    <view class="grid-item">
+      <view class="item-icon" style="background: #fef3c7;">
+        <image class="icon-img" src="/images/biz-icon1.png" mode="aspectFit"></image>
+      </view>
+      <text class="item-name">附近项目</text>
+    </view>
+    <view class="grid-item">
+      <view class="item-icon" style="background: #dbeafe;">
+        <image class="icon-img" src="/images/biz-icon2.png" mode="aspectFit"></image>
+      </view>
+      <text class="item-name">供求市场</text>
+    </view>
+    <view class="grid-item">
+      <view class="item-icon" style="background: #e0e7ff;">
+        <image class="icon-img" src="/images/biz-icon3.png" mode="aspectFit"></image>
+        <view class="badge">展会</view>
+      </view>
+      <text class="item-name">行业展会</text>
+    </view>
+    <view class="grid-item">
+      <view class="item-icon" style="background: #fef3c7;">
+        <image class="icon-img" src="/images/biz-icon4.png" mode="aspectFit"></image>
+      </view>
+      <text class="item-name">AI推荐</text>
+    </view>
+  </view>
+
+  <view class="section-title">数据服务</view>
+  <view class="grid-row">
+    <view class="grid-item">
+      <view class="item-icon" style="background: #fee2e2;">
+        <image class="icon-img" src="/images/data-icon1.png" mode="aspectFit"></image>
+      </view>
+      <text class="item-name">投标风险评估</text>
+    </view>
+    <view class="grid-item">
+      <view class="item-icon" style="background: #dbeafe;">
+        <image class="icon-img" src="/images/data-icon2.png" mode="aspectFit"></image>
+        <view class="badge">芝麻信用</view>
+      </view>
+      <text class="item-name">投标信用报告</text>
+    </view>
+    <view class="grid-item">
+      <view class="item-icon" style="background: #fecaca;">
+        <image class="icon-img" src="/images/data-icon3.png" mode="aspectFit"></image>
+      </view>
+      <text class="item-name">中标动态</text>
+    </view>
+    <view class="grid-item">
+      <view class="item-icon" style="background: #dbeafe;">
+        <image class="icon-img" src="/images/data-icon4.png" mode="aspectFit"></image>
+      </view>
+      <text class="item-name">政府采购中心</text>
+    </view>
+  </view>
+
+  <view class="grid-row">
+    <view class="grid-item">
+      <view class="item-icon" style="background: #dcfce7;">
+        <image class="icon-img" src="/images/eng-icon1.png" mode="aspectFit"></image>
+      </view>
+      <text class="item-name">工程交易中心</text>
+    </view>
+  </view>
+</view>
