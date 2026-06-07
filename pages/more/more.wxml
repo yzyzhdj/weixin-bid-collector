@@ -1,84 +1,81 @@
 <view class="container">
-  <view class="section-title">标书模版</view>
-  <view class="grid-row">
-    <view class="grid-item">
-      <view class="item-icon" style="background: #fef3c7;">
-        <image class="icon-img" src="/images/tpl-icon1.png" mode="aspectFit"></image>
-      </view>
-      <text class="item-name">标书模版</text>
-    </view>
-    <view class="grid-item">
-      <view class="item-icon" style="background: #dbeafe;">
-        <image class="icon-img" src="/images/tpl-icon2.png" mode="aspectFit"></image>
-      </view>
-      <text class="item-name">标书代写</text>
+  <!-- 顶部深色区域 -->
+  <view class="header">
+    <!-- 状态栏占位（适配刘海屏） -->
+    <view class="status-bar" style="height: {{statusBarHeight}}px"></view>
+
+    <view class="header-top">
+      <view class="back-btn" bindtap="onBack">‹</view>
+      <view class="header-title">会员中心</view>
     </view>
   </view>
 
-  <view class="section-title">业务拓展</view>
-  <view class="grid-row">
-    <view class="grid-item">
-      <view class="item-icon" style="background: #fef3c7;">
-        <image class="icon-img" src="/images/biz-icon1.png" mode="aspectFit"></image>
-      </view>
-      <text class="item-name">附近项目</text>
+  <!-- 会员卡片 -->
+  <view class="vip-card">
+    <view class="vip-avatar">
+      <text class="avatar-emoji">👨‍💼</text>
     </view>
-    <view class="grid-item">
-      <view class="item-icon" style="background: #dbeafe;">
-        <image class="icon-img" src="/images/biz-icon2.png" mode="aspectFit"></image>
-      </view>
-      <text class="item-name">供求市场</text>
+    <view class="vip-info">
+      <view class="vip-phone">15117088876</view>
+      <view class="vip-type">普通用户</view>
     </view>
-    <view class="grid-item">
-      <view class="item-icon" style="background: #e0e7ff;">
-        <image class="icon-img" src="/images/biz-icon3.png" mode="aspectFit"></image>
-        <view class="badge">展会</view>
+    <view class="vip-medal">⭐</view>
+  </view>
+
+  <!-- 类型切换 -->
+  <view class="type-tabs">
+    <view class="type-tab {{memberType === 'personal' ? 'active' : ''}}" bindtap="switchMemberType" data-type="personal">个人会员</view>
+    <view class="type-tab {{memberType === 'enterprise' ? 'active' : ''}}" bindtap="switchMemberType" data-type="enterprise">企业会员</view>
+  </view>
+
+  <!-- 套餐选择 -->
+  <view class="plan-list">
+    <view class="plan-card {{selectedPlan === index ? 'selected' : ''}}" wx:for="{{plans}}" wx:key="index" bindtap="selectPlan" data-index="{{index}}">
+      <view class="plan-name">{{item.name}}</view>
+      <view class="plan-price">
+        <text class="price-currency">¥</text>
+        <text class="price-value">{{item.price}}</text>
       </view>
-      <text class="item-name">行业展会</text>
-    </view>
-    <view class="grid-item">
-      <view class="item-icon" style="background: #fef3c7;">
-        <image class="icon-img" src="/images/biz-icon4.png" mode="aspectFit"></image>
-      </view>
-      <text class="item-name">AI推荐</text>
+      <view class="plan-original">¥{{item.original}}</view>
+      <view class="plan-save">立省{{item.save}}元</view>
     </view>
   </view>
 
-  <view class="section-title">数据服务</view>
-  <view class="grid-row">
-    <view class="grid-item">
-      <view class="item-icon" style="background: #fee2e2;">
-        <image class="icon-img" src="/images/data-icon1.png" mode="aspectFit"></image>
-      </view>
-      <text class="item-name">投标风险评估</text>
+  <!-- 会员权益 -->
+  <view class="benefit-section">
+    <view class="benefit-title-wrap">
+      <view class="benefit-line"></view>
+      <view class="benefit-title">会员权益</view>
+      <view class="benefit-line"></view>
     </view>
-    <view class="grid-item">
-      <view class="item-icon" style="background: #dbeafe;">
-        <image class="icon-img" src="/images/data-icon2.png" mode="aspectFit"></image>
-        <view class="badge">芝麻信用</view>
+    <view class="benefit-grid">
+      <view class="benefit-item" wx:for="{{benefits}}" wx:key="index">
+        <view class="benefit-icon">
+          <text class="benefit-emoji">{{item.emoji}}</text>
+        </view>
+        <text class="benefit-text">{{item.name}}</text>
       </view>
-      <text class="item-name">投标信用报告</text>
-    </view>
-    <view class="grid-item">
-      <view class="item-icon" style="background: #fecaca;">
-        <image class="icon-img" src="/images/data-icon3.png" mode="aspectFit"></image>
-      </view>
-      <text class="item-name">中标动态</text>
-    </view>
-    <view class="grid-item">
-      <view class="item-icon" style="background: #dbeafe;">
-        <image class="icon-img" src="/images/data-icon4.png" mode="aspectFit"></image>
-      </view>
-      <text class="item-name">政府采购中心</text>
     </view>
   </view>
 
-  <view class="grid-row">
-    <view class="grid-item">
-      <view class="item-icon" style="background: #dcfce7;">
-        <image class="icon-img" src="/images/eng-icon1.png" mode="aspectFit"></image>
+  <!-- 底部说明 -->
+  <view class="note">
+    <text class="note-text">注：会员开通后不支持退款，请试用后再购买，谢谢~（每天有3</text>
+  </view>
+
+  <!-- 底部支付栏 -->
+  <view class="bottom-bar">
+    <view class="total-info">
+      <view class="total-row">
+        <text class="total-label">合计：</text>
+        <text class="total-currency">¥</text>
+        <text class="total-price">{{plans[selectedPlan].price}}</text>
       </view>
-      <text class="item-name">工程交易中心</text>
+      <view class="save-info">
+        <text>已减{{plans[selectedPlan].save}}元</text>
+        <text class="save-detail">优惠明细 ⌄</text>
+      </view>
     </view>
+    <view class="pay-btn" bindtap="onPay">立即支付</view>
   </view>
 </view>

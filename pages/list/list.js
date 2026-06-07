@@ -1,132 +1,42 @@
-const api = require('../../utils/api.js');
-
 Page({
   data: {
-    topTabs: [
-      { name: '招标' },
-      { name: '中标' },
-      { name: '企业' },
-      { name: '前期标识' },
-      { name: '采购意向' },
-      { name: '拟在建' }
+    statusBarHeight: 20,
+    templateItems: [
+      { name: '标书模版', type: 'template', icon: '/images/icon-template.svg', bgClass: 'bg-orange-diamond' },
+      { name: '标书代写', type: 'write', icon: '/images/icon-write.svg', bgClass: 'bg-blue-doc' }
     ],
-    currentTopTab: 0,
-    bidList: [],
-    totalCount: 0,
-    loading: false,
-    page: 1,
-    pageSize: 20,
-    keyword: ''
+    businessItems: [
+      { name: '附近项目', type: 'nearby', icon: '/images/icon-nearby.svg', bgClass: 'bg-orange-pin' },
+      { name: '供求市场', type: 'market', icon: '/images/icon-market.svg', bgClass: 'bg-blue-case' },
+      { name: '行业展会', type: 'exhibition', icon: '/images/icon-exhibition.svg', bgClass: 'bg-blue-exhibition', badge: '展合', badgeClass: 'badge-red' },
+      { name: 'AI推荐', type: 'ai', icon: '/images/icon-ai.svg', bgClass: 'bg-orange-ai' }
+    ],
+    dataItems: [
+      { name: '投标风险评估', type: 'risk', icon: '/images/icon-risk.svg', bgClass: 'bg-red-shield' },
+      { name: '投标信用报告', type: 'credit', icon: '/images/icon-credit.svg', bgClass: 'bg-blue-credit', badge: '芝麻信用', badgeClass: 'badge-orange' },
+      { name: '中标动态', type: 'dynamic', icon: '/images/icon-dynamic.svg', bgClass: 'bg-red-dynamic' },
+      { name: '政府采购中心', type: 'government', icon: '/images/icon-government.svg', bgClass: 'bg-blue-gov' },
+      { name: '工程交易中心', type: 'engineering', icon: '/images/icon-engineering.svg', bgClass: 'bg-green-eng' }
+    ]
   },
 
-  onLoad(options) {
-    if (options.keyword) {
-      this.setData({
-        keyword: decodeURIComponent(options.keyword)
-      });
-    }
-    this.loadData();
-  },
+  onLoad() {},
 
-  onPullDownRefresh() {
-    this.setData({
-      page: 1,
-      bidList: []
-    });
-    this.loadData().then(() => {
-      wx.stopPullDownRefresh();
-    });
-  },
-
-  onReachBottom() {
-    this.loadMore();
-  },
-
-  async loadData() {
-    this.setData({ loading: true });
-    try {
-      let data;
-      if (this.data.keyword) {
-        data = await api.searchBids({
-          keyword: this.data.keyword,
-          page: this.data.page,
-          page_size: this.data.pageSize
-        });
-      } else {
-        data = await api.getBidList({
-          page: this.data.page,
-          page_size: this.data.pageSize
-        });
-      }
-      this.setData({
-        bidList: data.items || [],
-        totalCount: data.pagination?.total || 0,
-        loading: false
-      });
-    } catch (e) {
-      console.error('加载数据失败', e);
-      this.setData({ loading: false });
-    }
-  },
-
-  async loadMore() {
-    if (this.data.loading) return;
-    this.setData({ loading: true });
-    try {
-      const nextPage = this.data.page + 1;
-      let data;
-      if (this.data.keyword) {
-        data = await api.searchBids({
-          keyword: this.data.keyword,
-          page: nextPage,
-          page_size: this.data.pageSize
-        });
-      } else {
-        data = await api.getBidList({
-          page: nextPage,
-          page_size: this.data.pageSize
-        });
-      }
-      this.setData({
-        bidList: [...this.data.bidList, ...(data.items || [])],
-        page: nextPage,
-        loading: false
-      });
-    } catch (e) {
-      console.error('加载更多失败', e);
-      this.setData({ loading: false });
-    }
-  },
-
-  switchTopTab(e) {
-    const index = e.currentTarget.dataset.index;
-    this.setData({
-      currentTopTab: index,
-      page: 1,
-      bidList: []
-    });
-    this.loadData();
-  },
-
-  goToDetail(e) {
-    const id = e.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: `/pages/detail/detail?id=${id}`
-    });
-  },
-
-  showFilter() {
-    wx.showToast({
-      title: '筛选功能开发中',
-      icon: 'none'
-    });
-  },
-
-  formatDate(dateStr) {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    return `${month}-${day}`;
+  onItemTap(e) {
+    const type = e.currentTarget.dataset.type;
+    const nameMap = {
+      template: '标书模版',
+      write: '标书代写',
+      nearby: '附近项目',
+      market: '供求市场',
+      exhibition: '行业展会',
+      ai: 'AI推荐',
+      risk: '投标风险评估',
+      credit: '投标信用报告',
+      dynamic: '中标动态',
+      government: '政府采购中心',
+      engineering: '工程交易中心'
+    };
+    wx.showToast({ title: nameMap[type] || '功能开发中', icon: 'none' });
   }
 })

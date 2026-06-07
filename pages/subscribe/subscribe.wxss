@@ -1,0 +1,135 @@
+.container {
+  padding: 0;
+  background: #f5f7fa;
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+.header {
+  background: #ffffff;
+  padding: 0 32rpx;
+  position: relative;
+  border-bottom: 1rpx solid #f1f5f9;
+  /* 兼容 iOS 11.2 以下 */
+  padding-top: constant(safe-area-inset-top);
+  /* iOS 11.2+ / 安卓全面屏 */
+  padding-top: env(safe-area-inset-top);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 60rpx;
+}
+
+.header-title {
+  font-size: 34rpx;
+  color: #1e293b;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.tabs {
+  background: #ffffff;
+  display: flex;
+  border-bottom: 1rpx solid #f1f5f9;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 28rpx 0 24rpx;
+  font-size: 30rpx;
+  color: #64748b;
+  position: relative;
+}
+
+.tab.active {
+  color: #1e88ff;
+  font-weight: 600;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56rpx;
+  height: 4rpx;
+  background: #1e88ff;
+  border-radius: 2rpx;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 32rpx 0;
+}
+
+.empty-illustration {
+  width: 400rpx;
+  height: 400rpx;
+  margin-bottom: 40rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #94a3b8;
+  margin-bottom: 60rpx;
+  letter-spacing: 1rpx;
+}
+
+.subscribe-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #1e88ff 100%);
+  color: #ffffff;
+  font-size: 30rpx;
+  padding: 24rpx 90rpx;
+  border-radius: 12rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+  box-shadow: 0 6rpx 16rpx rgba(30, 136, 255, 0.3);
+}
+
+.subscribe-btn:active {
+  transform: scale(0.98);
+}
+
+.fab {
+  position: fixed;
+  right: 40rpx;
+  bottom: 200rpx;
+  width: 110rpx;
+  height: 110rpx;
+  background: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+.fab-icon {
+  font-size: 40rpx;
+  color: #1e88ff;
+  font-weight: 200;
+  line-height: 1;
+}
+
+.fab-text {
+  font-size: 20rpx;
+  color: #1e88ff;
+  margin-top: 4rpx;
+  font-weight: 500;
+}

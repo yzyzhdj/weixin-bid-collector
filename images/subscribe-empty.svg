@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#dbeafe" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#bfdbfe" stop-opacity="0.2"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 背景圆形光晕 -->
+  <ellipse cx="150" cy="170" rx="130" ry="110" fill="url(#bgGrad)"/>
+
+  <!-- 装饰小太阳 -->
+  <g transform="translate(95, 70)">
+    <circle r="8" fill="#fbbf24"/>
+    <g stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round">
+      <line x1="0" y1="-14" x2="0" y2="-20"/>
+      <line x1="0" y1="14" x2="0" y2="20"/>
+      <line x1="-14" y1="0" x2="-20" y2="0"/>
+      <line x1="14" y1="0" x2="20" y2="0"/>
+      <line x1="-10" y1="-10" x2="-15" y2="-15"/>
+      <line x1="10" y1="10" x2="15" y2="15"/>
+      <line x1="-10" y1="10" x2="-15" y2="15"/>
+      <line x1="10" y1="-10" x2="15" y2="-15"/>
+    </g>
+  </g>
+
+  <!-- 云朵 -->
+  <g fill="white">
+    <ellipse cx="180" cy="100" rx="30" ry="15"/>
+    <ellipse cx="205" cy="92" rx="22" ry="12"/>
+    <ellipse cx="160" cy="105" rx="18" ry="10"/>
+  </g>
+
+  <!-- 纸飞机 -->
+  <g transform="translate(45, 145)">
+    <path d="M0 12 L48 0 L36 6 L22 10 L0 12 Z" fill="#60a5fa"/>
+    <path d="M0 12 L22 10 L28 22 L0 12 Z" fill="#93c5fd"/>
+    <path d="M0 12 L48 0 L42 4 L0 12 Z" fill="#3b82f6" opacity="0.3"/>
+  </g>
+
+  <!-- 邮件立柱 -->
+  <rect x="140" y="225" width="20" height="55" fill="#3b82f6" rx="2"/>
+  <rect x="135" y="270" width="30" height="8" fill="#1e40af" rx="1"/>
+
+  <!-- 邮箱主体 -->
+  <path d="M108 160 L108 230 L192 230 L192 160 Q192 138 150 138 Q108 138 108 160 Z" fill="#3b82f6"/>
+
+  <!-- 邮箱顶部弧形高光 -->
+  <path d="M108 160 Q108 138 150 138 Q192 138 192 160 L192 165 Q192 143 150 143 Q108 143 108 165 Z" fill="#60a5fa"/>
+
+  <!-- M 字母 -->
+  <text x="150" y="195" font-size="44" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial, sans-serif">M</text>
+
+  <!-- 邮箱旗杆 -->
+  <rect x="192" y="148" width="24" height="5" fill="#1d4ed8" rx="1"/>
+  <rect x="192" y="148" width="5" height="22" fill="#1d4ed8" rx="1"/>
+
+  <!-- 草地 -->
+  <g fill="#86efac">
+    <path d="M110 273 Q125 263 140 273 L140 280 L110 280 Z"/>
+    <path d="M148 273 Q163 263 178 273 L178 280 L148 280 Z"/>
+    <path d="M186 273 Q201 263 216 273 L216 280 L186 280 Z"/>
+  </g>
+</svg>

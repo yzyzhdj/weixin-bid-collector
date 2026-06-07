@@ -1,111 +1,110 @@
 <view class="container">
-  <view class="header-bg"></view>
-  
-  <view class="profile-header">
-    <view class="user-info">
-      <image class="avatar" src="/images/avatar.png" mode="aspectFill"></image>
-      <view class="user-detail">
-        <view class="username">金雷杰</view>
-        <view class="user-status">暂无职位信息</view>
+  <!-- 顶部蓝色区域 -->
+  <view class="header">
+    <view class="header-top">
+      <view class="header-title">个人中心</view>
+    </view>
+
+    <!-- 设置图标 -->
+    <view class="settings-btn" bindtap="onSettingsTap">
+      <image class="settings-icon" src="/images/icon-settings.svg"></image>
+    </view>
+
+    <!-- 用户信息 -->
+    <view class="user-card">
+      <view class="user-left">
+        <view class="avatar">
+          <image class="avatar-img" src="/images/avatar-default.svg"></image>
+        </view>
+        <view class="user-info">
+          <view class="user-row">
+            <text class="user-phone">15117088876</text>
+            <view class="user-badge">普通用户</view>
+          </view>
+          <view class="user-tip">开通会员获取更多服务</view>
+        </view>
       </view>
     </view>
-    <view class="edit-btn">编辑资料 ></view>
   </view>
 
-  <view class="quick-actions">
-    <view class="action-item">
-      <image class="action-icon" src="/images/icon-history.png" mode="aspectFit"></image>
-      <text class="action-text">历史浏览</text>
-    </view>
-    <view class="action-item">
-      <image class="action-icon" src="/images/icon-favorite.png" mode="aspectFit"></image>
-      <text class="action-text">收藏项目</text>
-    </view>
-    <view class="action-item">
-      <image class="action-icon" src="/images/icon-note.png" mode="aspectFit"></image>
-      <text class="action-text">我的笔记</text>
-    </view>
-  </view>
-
-  <view class="vip-card">
-    <view class="vip-info">
+  <!-- VIP 卡片 -->
+  <view class="vip-card" bindtap="onOpenVip">
+    <view class="vip-left">
       <view class="vip-title">
-        <image class="vip-icon" src="/images/vip-icon.png" mode="aspectFit"></image>
-        <text>基础版会员</text>
+        <text class="vip-text">VIP</text>
+        <text class="vip-text-main">开通会员</text>
       </view>
-      <view class="vip-desc">甘肃 2026.06.16到期</view>
+      <view class="vip-subtitle">开通立享多重特权，可享超大折扣</view>
     </view>
-    <view class="vip-btn">去续费</view>
+    <view class="vip-btn">去开通 ></view>
   </view>
 
-  <view class="order-section">
-    <view class="order-item">
-      <image class="order-icon" src="/images/icon-order.png" mode="aspectFit"></image>
-      <view class="order-info">
-        <text class="order-title">我的订单</text>
-        <text class="order-desc">开具发票</text>
+  <!-- 通知 -->
+  <view class="notice-bar">
+    <image class="notice-icon" src="/images/icon-notice.svg"></image>
+    <text class="notice-time">1小时前</text>
+    <text class="notice-text">内蒙古用户开通VIP会员</text>
+  </view>
+
+  <!-- 快捷功能 -->
+  <view class="quick-actions">
+    <view class="action-item" bindtap="onActionTap" data-type="subscription">
+      <view class="action-icon-wrap blue">
+        <image class="action-icon-img" src="/images/icon-qa-subscription.svg"></image>
       </view>
-      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+      <text class="action-text">我的订阅</text>
     </view>
-    <view class="order-item">
-      <image class="order-icon" src="/images/icon-coupon.png" mode="aspectFit"></image>
-      <view class="order-info">
-        <text class="order-title">优惠券</text>
+    <view class="action-item" bindtap="onActionTap" data-type="favorite">
+      <view class="action-icon-wrap orange">
+        <image class="action-icon-img" src="/images/icon-qa-favorite.svg"></image>
       </view>
-      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
+      <text class="action-text">我的收藏</text>
+    </view>
+    <view class="action-item" bindtap="onActionTap" data-type="custom">
+      <view class="action-icon-wrap green">
+        <image class="action-icon-img" src="/images/icon-qa-custom.svg"></image>
+      </view>
+      <text class="action-text">信息定制</text>
     </view>
   </view>
 
-  <view class="section-title">更多功能</view>
+  <!-- 菜单列表 -->
   <view class="menu-list">
-    <view class="menu-item">
-      <image class="menu-icon" src="/images/icon-publish.png" mode="aspectFit"></image>
-      <text class="menu-text">我的发布</text>
-      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
-    </view>
-    <view class="menu-item">
-      <image class="menu-icon" src="/images/icon-download.png" mode="aspectFit"></image>
-      <text class="menu-text">我的下载</text>
-      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
-    </view>
-    <view class="menu-item">
-      <image class="menu-icon" src="/images/icon-notice.png" mode="aspectFit"></image>
-      <text class="menu-text">消息通知</text>
-      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
-    </view>
-    <view class="menu-item">
-      <image class="menu-icon" src="/images/icon-pc.png" mode="aspectFit"></image>
-      <text class="menu-text">电脑端查看</text>
-      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
-    </view>
-  </view>
-
-  <view class="menu-list">
-    <view class="menu-item">
-      <image class="menu-icon" src="/images/icon-service.png" mode="aspectFit"></image>
-      <text class="menu-text">联系客服</text>
-      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
-    </view>
-    <view class="menu-item">
-      <image class="menu-icon" src="/images/icon-settings.png" mode="aspectFit"></image>
-      <text class="menu-text">设置</text>
-      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
-    </view>
-    <view class="menu-item">
-      <image class="menu-icon" src="/images/icon-help.png" mode="aspectFit"></image>
-      <text class="menu-text">帮助与反馈</text>
-      <image class="arrow" src="/images/arrow-right.png" mode="aspectFit"></image>
-    </view>
-  </view>
-
-  <view class="loan-banner">
-    <view class="loan-left">
-      <image class="loan-icon" src="/images/loan-icon.png" mode="aspectFit"></image>
-      <view class="loan-info">
-        <text class="loan-title">预计可借额度</text>
-        <text class="loan-amount">200,000.00</text>
+    <view class="menu-item" bindtap="onMenuTap" data-type="buy">
+      <view class="menu-icon-wrap">
+        <image class="menu-icon-img" src="/images/icon-buy.svg"></image>
       </view>
+      <text class="menu-text">购买会员</text>
+      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
     </view>
-    <view class="loan-btn">去借钱</view>
+    <view class="menu-item" bindtap="onMenuTap" data-type="orders">
+      <view class="menu-icon-wrap">
+        <image class="menu-icon-img" src="/images/icon-history.svg"></image>
+      </view>
+      <text class="menu-text">购买记录</text>
+      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-type="service">
+      <view class="menu-icon-wrap">
+        <image class="menu-icon-img" src="/images/icon-service.svg"></image>
+      </view>
+      <text class="menu-text">客服热线</text>
+      <text class="menu-value">19156012821</text>
+      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-type="cooperation">
+      <view class="menu-icon-wrap">
+        <image class="menu-icon-img" src="/images/icon-cooperation.svg"></image>
+      </view>
+      <text class="menu-text">渠道合作</text>
+      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-type="feedback">
+      <view class="menu-icon-wrap">
+        <image class="menu-icon-img" src="/images/icon-feedback.svg"></image>
+      </view>
+      <text class="menu-text">意见反馈</text>
+      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
+    </view>
   </view>
 </view>

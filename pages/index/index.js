@@ -1,101 +1,255 @@
 const api = require('../../utils/api.js');
+const cityData = require('../../utils/city-data.js');
+
+// 相对时间格式化
+function formatRelativeTime(dateStr) {
+  if (!dateStr) return '';
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return '刚刚';
+  if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+  if (diff < 86400) return Math.floor(diff / 3600) + '小时前';
+  if (diff < 604800) return Math.floor(diff / 86400) + '天前';
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getTypeTag(bidType) {
+  const map = {
+    '交易公告': { bg: '#fff7ed', color: '#c2410c' },
+    '交易结果': { bg: '#ecfdf5', color: '#047857' },
+    '中标公告': { bg: '#eff6ff', color: '#1d4ed8' }
+  };
+  return map[bidType] || { bg: '#f1f5f9', color: '#475569' };
+}
 
 Page({
   data: {
+    region: '全国',
+    city: '',
     searchText: '',
-    hotTags: ['热搜', '环保', '钢结构', '摄像', '安防系统', '公路'],
+    hotTags: ['热搜', '门禁', '装修', '物业', '光伏'],
     functionList: [
-      { name: '招标查询', type: 'bids', color: '#dbeafe', icon: '/images/func-bids.png' },
-      { name: '中标查询', type: 'win', color: '#fef3c7', icon: '/images/func-win.png' },
-      { name: '采购意向', type: 'intention', color: '#e0e7ff', icon: '/images/func-intention.png' },
-      { name: '拟建查询', type: 'plan', color: '#dbeafe', icon: '/images/func-plan.png' },
-      { name: '供应商库', type: 'suppliers', color: '#dcfce7', icon: '/images/func-suppliers.png' }
+      { name: '查招标', type: 'bids', color: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)', icon: '/images/icon-bid.svg' },
+      { name: '查中标', type: 'win', color: 'linear-gradient(135deg, #a855f7 0%, #c084fc 100%)', icon: '/images/icon-win.svg' },
+      { name: '查拟建', type: 'plan', color: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)', icon: '/images/icon-plan.svg' },
+      { name: '查企业', type: 'company', color: 'linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%)', icon: '/images/icon-company.svg' },
+      { name: '审批项目', type: 'approval', color: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)', icon: '/images/icon-approval.svg' },
+      { name: '精选项目', type: 'featured', color: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)', icon: '/images/icon-star.svg' },
+      { name: '政府项目', type: 'gov', color: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)', icon: '/images/icon-gov.svg' },
+      { name: '更多功能', type: 'more', color: 'linear-gradient(135deg, #a855f7 0%, #c084fc 100%)', icon: '/images/icon-more.svg' }
     ],
-    statTabs: [
-      { name: '全国' },
-      { name: '全部订阅' },
-      { name: 'APP' },
-      { name: '网站' },
-      { name: '软件开发' }
-    ],
-    currentStatTab: 0,
-    stats: {},
-    statsDate: ''
+    infoTabs: ['最新招标', '最新中标', '拟建项目'],
+    currentInfoTab: 0,
+    infoList: [],
+    loading: true,
+    regionPickerShow: false,
+    provinces: Object.keys(cityData),
+    cities: [],
+    selectedProvince: '',
+    selectedCity: ''
   },
 
   onLoad() {
-    this.loadStats();
-    this.setStatsDate();
+    // 获取状态栏高度
+    const app = getApp();
+    if (app && app.globalData) {
+      this.setData({ statusBarHeight: app.globalData.statusBarHeight || 20 });
+    }
+    this.loadBidList();
   },
 
-  setStatsDate() {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const day = now.getDate();
-    this.setData({
-      statsDate: `${month}月${day}日`
+  onShow() {
+    this.loadBidList();
+  },
+
+  onPullDownRefresh() {
+    this.loadBidList().then(() => {
+      wx.stopPullDownRefresh();
     });
   },
 
-  async loadStats() {
+  async loadBidList() {
+    this.setData({ loading: true });
     try {
-      const data = await api.getStats();
-      this.setData({
-        stats: data
+      const params = {
+        page: 1,
+        page_size: 20,
+        sort_by: 'createdAt',
+        sort_order: 'desc'
+      };
+
+      // Tab 映射：使用 API 实际有数据的 bidType
+      // 招标公告（全国都有数据）/ 中标公告（全国都有数据）/ 工程类（数据较少）
+      let bidType = '';
+      if (this.data.currentInfoTab === 0) bidType = '招标公告';
+      else if (this.data.currentInfoTab === 1) bidType = '中标公告';
+      else if (this.data.currentInfoTab === 2) bidType = '工程类';
+      if (bidType) params.bid_type = bidType;
+
+      if (this.data.selectedProvince) params.province = this.data.selectedProvince;
+      if (this.data.selectedCity) params.city = this.data.selectedCity;
+
+      console.log('[loadBidList] 请求参数:', params);
+
+      const data = await api.getBidList(params);
+
+      const items = (data.items || []).map(item => {
+        const tag = getTypeTag(item.bidType);
+        return {
+          id: item.id,
+          title: item.title,
+          company: item.buyer || item.agent || '未提供',
+          region: item.province || '全国',
+          region2: item.city || '',
+          tag: item.bidType || item.biddingMethod || '',
+          tagBg: tag.bg,
+          tagColor: tag.color,
+          time: formatRelativeTime(item.publishDate),
+          budget: item.budget || ''
+        };
       });
+
+      this.setData({ infoList: items, loading: false });
     } catch (e) {
-      console.error('加载统计数据失败', e);
+      console.error('加载招标列表失败', e);
+      this.setData({ loading: false, infoList: [] });
     }
   },
 
-  switchTab(e) {
-    const tab = e.currentTarget.dataset.tab;
-    wx.showToast({
-      title: `切换到${tab === 'bids' ? '查标识' : '查企业'}`,
-      icon: 'none'
+  // 打开省市选择器
+  showRegionPicker() {
+    this.setData({ regionPickerShow: true });
+  },
+
+  // 关闭省市选择器
+  hideRegionPicker() {
+    this.setData({ regionPickerShow: false });
+  },
+
+  // 选择省份（不立即关闭弹窗，用户可继续选择城市）
+  selectProvince(e) {
+    const province = e.currentTarget.dataset.province;
+    this.setData({
+      selectedProvince: province,
+      selectedCity: '',
+      cities: province ? (cityData[province] || []) : [],
+      region: province || '全国',
+      city: ''
     });
   },
 
-  onInput(e) {
+  // 选择城市（不立即关闭弹窗，等用户点确认）
+  selectCity(e) {
+    const city = e.currentTarget.dataset.city;
     this.setData({
-      searchText: e.detail.value
+      selectedCity: city,
+      city: city
     });
+  },
+
+  // 确认筛选（关闭弹窗并加载数据）
+  onConfirmRegion() {
+    this.hideRegionPicker();
+    this.loadBidList();
+  },
+
+  // 重置筛选（在弹窗中）
+  onResetFilter() {
+    this.setData({
+      selectedProvince: '',
+      selectedCity: '',
+      cities: [],
+      region: '全国',
+      city: ''
+    });
+  },
+
+  // 清除筛选（在筛选条上）
+  onClearFilter() {
+    this.setData({
+      selectedProvince: '',
+      selectedCity: '',
+      cities: [],
+      region: '全国',
+      city: ''
+    });
+    this.loadBidList();
+  },
+
+  onInput(e) {
+    this.setData({ searchText: e.detail.value });
   },
 
   onSearch() {
     if (!this.data.searchText.trim()) {
+      wx.showToast({ title: '请输入关键词', icon: 'none' });
       return;
     }
     wx.navigateTo({
-      url: `/pages/list/list?keyword=${encodeURIComponent(this.data.searchText)}`
+      url: `/pages/search/search?keyword=${encodeURIComponent(this.data.searchText)}`
     });
   },
 
   onTagClick(e) {
     const keyword = e.currentTarget.dataset.keyword;
     wx.navigateTo({
-      url: `/pages/list/list?keyword=${encodeURIComponent(keyword)}`
+      url: `/pages/search/search?keyword=${encodeURIComponent(keyword)}`
     });
   },
 
   onFunctionClick(e) {
     const type = e.currentTarget.dataset.type;
     if (type === 'bids') {
-      wx.navigateTo({
-        url: '/pages/list/list'
-      });
+      // 查招标 → 跳转到搜索结果页，带上当前选中的省市 + type=bids
+      const province = this.data.selectedProvince || '';
+      const city = this.data.selectedCity || '';
+      let url = '/pages/search/search';
+      const params = ['type=bids'];
+      if (province) params.push(`province=${encodeURIComponent(province)}`);
+      if (city) params.push(`city=${encodeURIComponent(city)}`);
+      url += '?' + params.join('&');
+      wx.navigateTo({ url });
+    } else if (type === 'win') {
+      const province = this.data.selectedProvince || '';
+      const city = this.data.selectedCity || '';
+      let url = '/pages/search/search';
+      const params = ['type=win'];
+      if (province) params.push(`province=${encodeURIComponent(province)}`);
+      if (city) params.push(`city=${encodeURIComponent(city)}`);
+      url += '?' + params.join('&');
+      wx.navigateTo({ url });
+    } else if (type === 'company') {
+      wx.switchTab({ url: '/pages/subscription/subscription' });
+    } else if (type === 'plan') {
+      const province = this.data.selectedProvince || '';
+      const city = this.data.selectedCity || '';
+      let url = '/pages/search/search';
+      const params = ['type=plan'];
+      if (province) params.push(`province=${encodeURIComponent(province)}`);
+      if (city) params.push(`city=${encodeURIComponent(city)}`);
+      url += '?' + params.join('&');
+      wx.navigateTo({ url });
     } else {
-      wx.showToast({
-        title: '功能开发中',
-        icon: 'none'
-      });
+      wx.showToast({ title: '功能开发中', icon: 'none' });
     }
   },
 
-  switchStatTab(e) {
+  onPromoTap() {
+    wx.switchTab({ url: '/pages/subscription/subscription' });
+  },
+
+  switchInfoTab(e) {
     const index = e.currentTarget.dataset.index;
-    this.setData({
-      currentStatTab: index
-    });
+    this.setData({ currentInfoTab: index });
+    this.loadBidList();
+  },
+
+  onItemTap(e) {
+    const id = e.currentTarget.dataset.id;
+    wx.navigateTo({ url: `/pages/detail/detail?id=${id}` });
   }
 })

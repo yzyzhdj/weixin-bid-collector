@@ -1,0 +1,98 @@
+<view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="header">
+    <view class="status-bar" style="height: {{statusBarHeight}}px"></view>
+    <view class="header-content" style="height: {{headerContentHeight}}px;">
+      <view class="back-btn" bindtap="onBack">
+        <text class="back-icon">‹</text>
+      </view>
+      <view class="header-title-wrap">
+        <text class="header-title">{{pageTitle || '查招标'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-icon">🔍</view>
+    <input class="search-input" placeholder="请输入项目名称或关键词" value="{{keyword}}" bindinput="onInput" bindconfirm="onSearch" confirm-type="search"></input>
+    <view class="search-btn" bindtap="onSearch">搜索</view>
+  </view>
+
+  <!-- 当前地区条 -->
+  <view class="region-bar" wx:if="{{selectedProvince || selectedCity}}">
+    <text class="region-bar-label">当前查看：</text>
+    <text class="region-bar-value">{{selectedProvince}}<text wx:if="{{selectedCity}}"> · {{selectedCity}}</text></text>
+    <text class="region-bar-count">（{{resultList.length}} 条结果）</text>
+  </view>
+
+  <!-- 筛选条件 -->
+  <view class="filter-tabs">
+    <view class="filter-tab {{currentFilters.bidType ? 'active' : ''}}" bindtap="showFilter" data-type="bidType">
+      <text>{{currentFilters.bidType || '全部类型'}}</text>
+      <view class="filter-arrow"></view>
+    </view>
+    <view class="filter-tab {{currentFilters.industry ? 'active' : ''}}" bindtap="showFilter" data-type="industry">
+      <text>{{currentFilters.industry || '行业分类'}}</text>
+      <view class="filter-arrow"></view>
+    </view>
+    <view class="filter-tab {{currentFilters.region ? 'active' : ''}}" bindtap="showFilter" data-type="region">
+      <text>{{currentFilters.region || '所在地区'}}</text>
+      <view class="filter-arrow"></view>
+    </view>
+    <view class="filter-tab {{currentFilters.time ? 'active' : ''}}" bindtap="showFilter" data-type="time">
+      <text>{{currentFilters.time || '发布时间'}}</text>
+      <view class="filter-arrow"></view>
+    </view>
+  </view>
+
+  <!-- 搜索结果列表 -->
+  <view class="result-list" wx:if="{{!loading && resultList.length > 0}}">
+    <view class="result-item" wx:for="{{resultList}}" wx:key="id" bindtap="onItemTap" data-id="{{item.id}}">
+      <view class="result-title">{{item.title}}</view>
+      <view class="result-desc">{{item.desc}}</view>
+      <view class="result-row">
+        <text class="result-label">招采单位：</text>
+        <text class="result-value company">{{item.buyer}}</text>
+      </view>
+      <view class="result-row" wx:if="{{item.winner}}">
+        <text class="result-label">中标单位：</text>
+        <text class="result-value company">{{item.winner}}</text>
+      </view>
+      <view class="result-footer">
+        <view class="result-tags">
+          <view class="result-tag region">{{item.province}}<text wx:if="{{item.city}}"> · {{item.city}}</text></view>
+          <view class="result-tag type">{{item.bidType}}</view>
+        </view>
+        <text class="result-time">{{item.time}}</text>
+      </view>
+    </view>
+  </view>
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <text>搜索中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && resultList.length === 0}}">
+    <image class="empty-icon" src="/images/icon-empty-search.svg" mode="aspectFit"></image>
+    <text class="empty-text">{{emptyText}}</text>
+  </view>
+
+  <!-- 筛选弹窗 -->
+  <view class="filter-mask" wx:if="{{filterPanel.show}}" bindtap="hideFilter"></view>
+  <view class="filter-panel" wx:if="{{filterPanel.show}}">
+    <view class="filter-panel-header">
+      <text class="filter-panel-title">{{filterPanel.title}}</text>
+      <view class="filter-panel-close" bindtap="hideFilter">×</view>
+    </view>
+    <scroll-view class="filter-panel-body" scroll-y>
+      <view class="filter-option {{filterPanel.selected === '' ? 'active' : ''}}" bindtap="selectFilterOption" data-value="">
+        <text>全部</text>
+      </view>
+      <view class="filter-option {{filterPanel.selected === item ? 'active' : ''}}" wx:for="{{filterPanel.options}}" wx:key="*this" bindtap="selectFilterOption" data-value="{{item}}">
+        <text>{{item}}</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

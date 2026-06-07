@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "查标讯",
+  "navigationBarTitleText": "搜索",
   "enablePullDownRefresh": true,
-  "onReachBottomDistance": 50
+  "navigationStyle": "custom"
 }

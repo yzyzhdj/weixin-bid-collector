@@ -1,39 +1,41 @@
 {
   "pages": [
-    "pages/subscription/subscription",
     "pages/index/index",
+    "pages/subscription/subscription",
     "pages/list/list",
-    "pages/detail/detail",
     "pages/profile/profile",
-    "pages/more/more"
+    "pages/more/more",
+    "pages/detail/detail",
+    "pages/subscribe/subscribe",
+    "pages/search/search"
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#2563eb",
-    "navigationBarTitleText": "查标讯",
+    "navigationBarBackgroundColor": "#1e88ff",
+    "navigationBarTitleText": "阳光标讯",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f8fafc"
   },
   "tabBar": {
-    "color": "#64748b",
-    "selectedColor": "#2563eb",
+    "color": "#94a3b8",
+    "selectedColor": "#1e88ff",
     "backgroundColor": "#ffffff",
     "borderStyle": "white",
     "list": [
       {
-        "pagePath": "pages/subscription/subscription",
+        "pagePath": "pages/index/index",
         "text": "首页",
         "iconPath": "images/tab-subscription.png",
         "selectedIconPath": "images/tab-subscription-active.png"
       },
       {
-        "pagePath": "pages/index/index",
-        "text": "商机",
-        "iconPath": "images/tab-search.png",
-        "selectedIconPath": "images/tab-search-active.png"
+        "pagePath": "pages/subscribe/subscribe",
+        "text": "订阅",
+        "iconPath": "images/tab-subscribe.png",
+        "selectedIconPath": "images/tab-subscribe-active.png"
       },
       {
-        "pagePath": "pages/more/more",
+        "pagePath": "pages/list/list",
         "text": "更多",
         "iconPath": "images/tab-more.png",
         "selectedIconPath": "images/tab-more-active.png"

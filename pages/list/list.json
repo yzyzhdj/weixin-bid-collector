@@ -1,5 +1,4 @@
 {
-  "navigationBarTitleText": "搜索结果",
-  "enablePullDownRefresh": true,
-  "onReachBottomDistance": 50
+  "navigationBarTitleText": "更多",
+  "navigationStyle": "custom"
 }

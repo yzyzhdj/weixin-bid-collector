@@ -1,4 +1,5 @@
 {
-  "navigationBarTitleText": "商机",
-  "enablePullDownRefresh": true
+  "navigationBarTitleText": "阳光标讯",
+  "enablePullDownRefresh": true,
+  "navigationStyle": "custom"
 }
