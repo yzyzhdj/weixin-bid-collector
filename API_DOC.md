@@ -187,8 +187,29 @@ GET https://biaoxun.pandaorder.cn/api/v1/bids
 | `buyer` | string | 否 | - | 采购单位（模糊匹配） |
 | `publish_date_start` | string | 否 | - | 发布日期起始，格式 `YYYY-MM-DD` |
 | `publish_date_end` | string | 否 | - | 发布日期截止，格式 `YYYY-MM-DD` |
+| `industry` | string | 否 | - | 行业分类，多个用逗号分隔（如：`工程建筑,医疗卫生`），可选值见下方说明 |
+| `bid_method` | string | 否 | - | 招采类型，多个用逗号分隔（如：`货物,工程`），可选值：`货物`、`工程`、`服务`、`其他` |
+| `budget` | string | 否 | - | 预算金额范围，可选值：`0-50`（50万以内）、`50-100`（50-100万）、`100-`（100万以上）、`custom`（自定义，需配合budget_min/budget_max） |
+| `budget_min` | double | 否 | - | 自定义预算最低金额（万元），budget=custom时生效 |
+| `budget_max` | double | 否 | - | 自定义预算最高金额（万元），budget=custom时生效 |
+| `buyer_type` | string | 否 | - | 招采单位类型，多个用逗号分隔，可选值：`党政机关`、`事业单位`、`医院`、`学校`、`国有企业`、`其他一般企业` |
+| `agent` | string | 否 | - | 代理单位筛选，可选值：`有`、`无` |
+| `winner` | string | 否 | - | 中标情况，可选值：`已中标`、`未中标`、`不确定` |
+| `contact` | string | 否 | - | 联系方式筛选，可选值：`无联系方式`、`有联系方式`、`有招标单位联系方式`、`有中标单位联系方式`、`有代理单位联系方式` |
+| `attachment` | string | 否 | - | 附件筛选，可选值：`有`、`无` |
+| `doc_get_time` | string | 否 | - | 标书获取时间，可选值：`未截至`、`已截至`、`无时间` |
+| `deadline` | string | 否 | - | 投标截止时间，可选值：`未截至`、`已截至`、`无时间` |
+| `open_time` | string | 否 | - | 开标时间，可选值：`未开标`、`已开标`、`无时间` |
 | `sort_by` | string | 否 | publish_date | 排序字段，可选：`publish_date`、`created_at`、`id` |
 | `sort_order` | string | 否 | desc | 排序方向，可选：`asc`、`desc` |
+
+**行业分类可选值**
+
+`工程建筑`、`办公文教`、`医疗卫生`、`服务采购`、`机械设备`、`水利水电`、`能源化工`、`弱电安防`、`信息技术`、`交通运输`、`市政基建`、`农林牧渔`、`政府部门`、`日用百货`、`材料配件`、`通讯电子`、`仪器仪表`、`环保绿化`、`服装布料`、`制造生成`、`家居建材`、`食品饮品`、`债券发行`、`其他`
+
+**多选参数说明**
+
+`industry`、`bid_method`、`buyer_type` 支持多选，多个值用英文逗号分隔。例如：`industry=工程建筑,医疗卫生,服务采购`
 
 **请求示例**
 
@@ -565,6 +586,9 @@ Authorization: Bearer {your_api_key}
 | `city` | string\|null | 城市 |
 | `winner` | string\|null | 中标供应商 |
 | `win_amount` | string\|null | 中标金额 |
+| `industry` | string\|null | 行业分类 |
+| `buyer_type` | string\|null | 招采单位类型 |
+| `doc_get_time` | string\|null | 标书获取时间 |
 | `content` | string\|null | 公告正文（仅详情接口返回） |
 | `transaction_result` | string\|null | 成交公示（仅详情接口返回） |
 | `correction_content` | string\|null | 更正事项内容（仅详情接口返回） |
@@ -754,3 +778,687 @@ A: 目前支持以下三个国家级招标平台：
 
 **Q: 接口支持跨域请求吗？**  
 A: 是的，所有 `/api/*` 接口已配置 CORS，支持跨域访问。
+
+---
+
+## 9. 用户中心接口
+
+> **基础路径**: `/api/v1/user`  
+> **认证方式**: 需要登录的接口通过 `Authorization: Bearer {user_token}` 传递用户Token  
+> **无需登录的接口**: 注册、登录、发送验证码、重置密码
+
+### 9.1 用户注册
+
+**请求**
+
+```
+POST /api/v1/user/register
+```
+
+**请求体**
+
+```json
+{
+    "phone": "13800138000",
+    "password": "123456",
+    "smsCode": "123456",
+    "nickname": "张三"
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `phone` | string | 是 | 手机号 |
+| `password` | string | 是 | 密码（6-20位） |
+| `smsCode` | string | 是 | 短信验证码 |
+| `nickname` | string | 否 | 昵称 |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "token": "a1b2c3d4e5f6...",
+        "userId": 1,
+        "nickname": "张三",
+        "avatar": null,
+        "phone": "138****8000"
+    }
+}
+```
+
+---
+
+### 9.2 用户登录
+
+支持三种登录方式：密码登录、短信验证码登录、微信扫码登录。
+
+**请求**
+
+```
+POST /api/v1/user/login
+```
+
+**密码登录请求体**
+
+```json
+{
+    "loginType": "password",
+    "phone": "13800138000",
+    "password": "123456"
+}
+```
+
+**短信验证码登录请求体**
+
+```json
+{
+    "loginType": "sms",
+    "phone": "13800138000",
+    "smsCode": "123456"
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `loginType` | string | 是 | 登录方式：`password`/`sms`/`wechat` |
+| `phone` | string | 条件必填 | 手机号（密码/短信登录必填） |
+| `password` | string | 条件必填 | 密码（密码登录必填） |
+| `smsCode` | string | 条件必填 | 短信验证码（短信登录必填） |
+| `wechatCode` | string | 条件必填 | 微信授权码（微信登录必填） |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "token": "a1b2c3d4e5f6...",
+        "userId": 1,
+        "nickname": "张三",
+        "avatar": "https://example.com/avatar.jpg",
+        "phone": "138****8000"
+    }
+}
+```
+
+---
+
+### 9.3 微信扫码登录
+
+**请求**
+
+```
+POST /api/v1/user/login/wechat
+```
+
+**请求体**
+
+```json
+{
+    "code": "wechat_auth_code"
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `code` | string | 是 | 微信OAuth2授权码 |
+
+---
+
+### 9.4 发送短信验证码
+
+**请求**
+
+```
+POST /api/v1/user/sms-code
+```
+
+**请求体**
+
+```json
+{
+    "phone": "13800138000",
+    "purpose": "login"
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `phone` | string | 是 | 手机号 |
+| `purpose` | string | 是 | 用途：`login`/`register`/`reset_password` |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": null
+}
+```
+
+> 开发阶段验证码会输出到服务器日志中。
+
+---
+
+### 9.5 重置密码
+
+**请求**
+
+```
+POST /api/v1/user/reset-password
+```
+
+**请求体**
+
+```json
+{
+    "phone": "13800138000",
+    "smsCode": "123456",
+    "newPassword": "654321"
+}
+```
+
+---
+
+### 9.6 获取个人资料
+
+**请求**
+
+```
+GET /api/v1/user/profile
+Authorization: Bearer {user_token}
+```
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "id": 1,
+        "phone": "13800138000",
+        "nickname": "张三",
+        "avatar": "https://example.com/avatar.jpg",
+        "gender": 1,
+        "email": "zhangsan@example.com",
+        "wechatNumber": "zhangsan_wx",
+        "bio": "资深采购经理",
+        "company": "XX科技有限公司",
+        "position": "采购经理",
+        "companyAddress": "北京市朝阳区XX路XX号",
+        "companySize": "51-200",
+        "realName": "张三",
+        "isActive": true,
+        "createdAt": "2026-06-01T10:00:00"
+    }
+}
+```
+
+---
+
+### 9.7 更新个人资料
+
+**请求**
+
+```
+PUT /api/v1/user/profile
+Authorization: Bearer {user_token}
+```
+
+**请求体**
+
+```json
+{
+    "nickname": "李四",
+    "gender": 2,
+    "email": "lisi@example.com",
+    "wechatNumber": "lisi_wx",
+    "bio": "供应商务实派",
+    "company": "YY贸易有限公司",
+    "position": "销售总监",
+    "companyAddress": "上海市浦东新区XX路XX号",
+    "companySize": "11-50",
+    "realName": "李四"
+}
+```
+
+---
+
+### 9.8 修改密码
+
+**请求**
+
+```
+PUT /api/v1/user/password
+Authorization: Bearer {user_token}
+```
+
+**请求体**
+
+```json
+{
+    "oldPassword": "123456",
+    "newPassword": "654321"
+}
+```
+
+---
+
+### 9.9 浏览历史
+
+**获取浏览历史**
+
+```
+GET /api/v1/user/browse-history?page=1&page_size=20
+Authorization: Bearer {user_token}
+```
+
+**添加浏览历史**
+
+```
+POST /api/v1/user/browse-history?bid_id=100
+Authorization: Bearer {user_token}
+```
+
+**删除单条浏览历史**
+
+```
+DELETE /api/v1/user/browse-history/{bid_id}
+Authorization: Bearer {user_token}
+```
+
+**清空浏览历史**
+
+```
+DELETE /api/v1/user/browse-history
+Authorization: Bearer {user_token}
+```
+
+**响应示例（列表）**
+
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "items": [
+            {
+                "id": 1,
+                "userId": 1,
+                "bidId": 100,
+                "bidTitle": "XX项目招标公告",
+                "browseAt": "2026-06-01T10:30:00"
+            }
+        ],
+        "pagination": {
+            "total": 50,
+            "page": 1,
+            "pageSize": 20,
+            "totalPages": 3
+        }
+    }
+}
+```
+
+---
+
+### 9.10 收藏
+
+**获取收藏列表**
+
+```
+GET /api/v1/user/favorites?page=1&page_size=20
+Authorization: Bearer {user_token}
+```
+
+**添加收藏**
+
+```
+POST /api/v1/user/favorites?bid_id=100&remark=重点关注
+Authorization: Bearer {user_token}
+```
+
+**取消收藏**
+
+```
+DELETE /api/v1/user/favorites/{bid_id}
+Authorization: Bearer {user_token}
+```
+
+**检查是否已收藏**
+
+```
+GET /api/v1/user/favorites/check?bid_id=100
+Authorization: Bearer {user_token}
+```
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": true
+}
+```
+
+---
+
+### 9.11 我的发布
+
+**获取我的发布列表**
+
+```
+GET /api/v1/user/publishments?type=bid&page=1&page_size=20
+Authorization: Bearer {user_token}
+```
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `type` | string | 否 | 类型筛选：`bid`-招标, `procurement`-采购, `supply`-供应 |
+| `page` | int | 否 | 页码 |
+| `page_size` | int | 否 | 每页条数 |
+
+**创建发布**
+
+```
+POST /api/v1/user/publishments
+Authorization: Bearer {user_token}
+```
+
+**请求体**
+
+```json
+{
+    "type": "bid",
+    "title": "XX项目招标公告",
+    "content": "项目详情...",
+    "category": "工程",
+    "region": "北京",
+    "budget": "500万元",
+    "deadline": "2026-07-01",
+    "contactName": "张经理",
+    "contactPhone": "010-12345678",
+    "contactEmail": "zhang@example.com"
+}
+```
+
+**更新发布**
+
+```
+PUT /api/v1/user/publishments/{id}
+Authorization: Bearer {user_token}
+```
+
+**删除发布**
+
+```
+DELETE /api/v1/user/publishments/{id}
+Authorization: Bearer {user_token}
+```
+
+**响应示例（列表）**
+
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "items": [
+            {
+                "id": 1,
+                "userId": 1,
+                "type": "bid",
+                "title": "XX项目招标公告",
+                "content": "项目详情...",
+                "category": "工程",
+                "region": "北京",
+                "budget": "500万元",
+                "deadline": "2026-07-01T00:00:00",
+                "contactName": "张经理",
+                "contactPhone": "010-12345678",
+                "contactEmail": "zhang@example.com",
+                "status": "published",
+                "viewCount": 128,
+                "createdAt": "2026-06-01T10:00:00",
+                "updatedAt": "2026-06-01T10:00:00"
+            }
+        ],
+        "pagination": {
+            "total": 5,
+            "page": 1,
+            "pageSize": 20,
+            "totalPages": 1
+        }
+    }
+}
+```
+
+---
+
+### 9.12 我的下载
+
+**请求**
+
+```
+GET /api/v1/user/downloads?page=1&page_size=20
+Authorization: Bearer {user_token}
+```
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "items": [
+            {
+                "id": 1,
+                "userId": 1,
+                "bidId": 100,
+                "bidTitle": "XX项目招标公告",
+                "attachmentId": 5,
+                "fileName": "招标文件.pdf",
+                "fileSize": 2048576,
+                "createdAt": "2026-06-01T11:00:00"
+            }
+        ],
+        "pagination": {
+            "total": 10,
+            "page": 1,
+            "pageSize": 20,
+            "totalPages": 1
+        }
+    }
+}
+```
+
+---
+
+### 9.13 消息通知
+
+**获取通知列表**
+
+```
+GET /api/v1/user/notifications?page=1&page_size=20
+Authorization: Bearer {user_token}
+```
+
+**获取未读数**
+
+```
+GET /api/v1/user/notifications/unread-count
+Authorization: Bearer {user_token}
+```
+
+**标记已读**
+
+```
+PUT /api/v1/user/notifications/{id}/read
+Authorization: Bearer {user_token}
+```
+
+**全部标记已读**
+
+```
+PUT /api/v1/user/notifications/read-all
+Authorization: Bearer {user_token}
+```
+
+**响应示例（列表）**
+
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "items": [
+            {
+                "id": 1,
+                "userId": 1,
+                "type": "system",
+                "title": "欢迎注册",
+                "content": "欢迎使用招标信息平台！",
+                "link": null,
+                "isRead": false,
+                "readAt": null,
+                "createdAt": "2026-06-01T10:00:00"
+            }
+        ],
+        "pagination": {
+            "total": 3,
+            "page": 1,
+            "pageSize": 20,
+            "totalPages": 1
+        },
+        "unreadCount": 2
+    }
+}
+```
+
+**通知类型说明**
+
+| 类型 | 说明 |
+|------|------|
+| `system` | 系统通知 |
+| `bid` | 招标相关通知 |
+| `review` | 审核结果通知 |
+| `message` | 私信通知 |
+
+---
+
+### 9.14 用户设置
+
+**获取设置**
+
+```
+GET /api/v1/user/settings
+Authorization: Bearer {user_token}
+```
+
+**更新设置**
+
+```
+PUT /api/v1/user/settings
+Authorization: Bearer {user_token}
+```
+
+**请求体**
+
+```json
+{
+    "notifyBid": true,
+    "notifySystem": true,
+    "notifyMessage": true,
+    "notifyEmail": false,
+    "privacyPhone": "hidden",
+    "privacyEmail": "hidden",
+    "language": "zh_CN"
+}
+```
+
+**隐私设置说明**
+
+| 值 | 说明 |
+|------|------|
+| `hidden` | 隐藏 |
+| `visible` | 公开 |
+| `registered` | 注册用户可见 |
+
+**公司规模选项**
+
+| 值 | 说明 |
+|------|------|
+| `1-10` | 1-10人 |
+| `11-50` | 11-50人 |
+| `51-200` | 51-200人 |
+| `201-500` | 201-500人 |
+| `501-1000` | 501-1000人 |
+| `1000+` | 1000人以上 |
+
+---
+
+### 9.15 帮助与反馈
+
+**获取反馈列表**
+
+```
+GET /api/v1/user/feedbacks?page=1&page_size=20
+Authorization: Bearer {user_token}
+```
+
+**创建反馈**
+
+```
+POST /api/v1/user/feedbacks
+Authorization: Bearer {user_token}
+```
+
+**请求体**
+
+```json
+{
+    "type": "feedback",
+    "title": "功能建议",
+    "content": "希望能增加数据导出功能",
+    "contact": "13800138000",
+    "images": "https://example.com/img1.jpg,https://example.com/img2.jpg"
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `type` | string | 是 | 类型：`feedback`/`bug`/`suggestion` |
+| `title` | string | 是 | 标题 |
+| `content` | string | 是 | 内容 |
+| `contact` | string | 否 | 联系方式 |
+| `images` | string | 否 | 图片URL，逗号分隔 |
+
+**反馈状态说明**
+
+| 状态 | 说明 |
+|------|------|
+| `pending` | 待处理 |
+| `processing` | 处理中 |
+| `resolved` | 已解决 |
+| `closed` | 已关闭 |
+
+---
+
+### 用户中心错误码
+
+| 错误码 | 说明 |
+|--------|------|
+| 400 | 请求参数错误 |
+| 401 | 未登录或Token过期 |
+| 403 | 权限不足 |
+| 404 | 资源不存在 |
+| 409 | 资源冲突（如手机号已注册） |
+| 429 | 请求频率超限（短信验证码） |

@@ -1,0 +1,28 @@
+<view class="container">
+  <view class="stats-bar">
+    <text class="stats-num">{{history.length}}</text>
+    <text class="stats-label">条浏览</text>
+    <view class="stats-clear" bindtap="onClearAll" wx:if="{{history.length > 0}}">清空</view>
+  </view>
+
+  <view class="list" wx:if="{{history.length > 0}}">
+    <view class="item" wx:for="{{history}}" wx:key="bidId" bindtap="onItemTap" data-id="{{item.bidId}}">
+      <view class="item-main">
+        <view class="item-title">{{item.bidTitle || '招标信息'}}</view>
+        <view class="item-meta">
+          <view class="tag tag-blue" wx:if="{{item.bidType}}">{{item.bidType}}</view>
+          <view class="tag tag-gray" wx:if="{{item.province}}">{{item.province}}{{item.city ? '·' + item.city : ''}}</view>
+        </view>
+        <view class="item-time">{{item.timeText}}</view>
+      </view>
+      <view class="item-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="empty" wx:else>
+    <view class="empty-icon"><text>⌛</text></view>
+    <view class="empty-title">还没有浏览记录</view>
+    <view class="empty-sub">查看过的招标会显示在这里</view>
+    <view class="empty-btn" bindtap="onGoHome">去首页</view>
+  </view>
+</view>

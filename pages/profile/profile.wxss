@@ -59,8 +59,7 @@
 
 .settings-btn {
   position: absolute;
-  top: calc(constant(safe-area-inset-top) + 8rpx);
-  top: calc(env(safe-area-inset-top) + 8rpx);
+  top: 0;
   right: 32rpx;
   width: 56rpx;
   height: 56rpx;
@@ -293,6 +292,62 @@
   font-size: 26rpx;
   color: #334155;
   font-weight: 500;
+}
+
+/* 用户卡片右侧（编辑资料/登录）*/
+.user-right-arrow {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  color: #ffffff;
+  font-size: 24rpx;
+  opacity: 0.85;
+}
+
+.user-action-text { color: #ffffff; }
+.user-arrow { font-size: 32rpx; line-height: 1; }
+
+/* VIP 用户徽章 */
+.user-badge.vip {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #ffffff;
+}
+
+/* 数据统计卡 */
+.stats-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  margin: 24rpx 24rpx 0;
+  border-radius: 20rpx;
+  padding: 32rpx 0;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.03);
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.stat-num {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+.stat-divider {
+  width: 1rpx;
+  height: 48rpx;
+  background: #e2e8f0;
 }
 
 .menu-list {
