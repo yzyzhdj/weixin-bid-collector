@@ -7,12 +7,7 @@
     "pages/more/more",
     "pages/detail/detail",
     "pages/subscribe/subscribe",
-    "pages/search/search",
-    "pages/my-favorites/my-favorites",
-    "pages/my-history/my-history",
-    "pages/my-custom/my-custom",
-    "pages/notifications/notifications",
-    "pages/feedback/feedback"
+    "pages/search/search"
   ],
   "window": {
     "backgroundTextStyle": "light",

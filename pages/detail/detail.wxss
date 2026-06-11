@@ -90,7 +90,366 @@
   font-size: 28rpx;
   color: #475569;
   line-height: 1.8;
-  white-space: pre-wrap;
+  word-break: break-word;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ===== 公告内容 section 标题栏（含全屏按钮）===== */
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding: 24rpx 32rpx;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16rpx 16rpx 0 0;
+  border-bottom: 2rpx solid #e2e8f0;
+}
+.section-title-row .section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1e293b;
+}
+.fullscreen-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 16rpx;
+  background: #1e88ff;
+  border-radius: 24rpx;
+  color: #ffffff;
+  font-size: 22rpx;
+  box-shadow: 0 2rpx 8rpx rgba(30, 136, 255, 0.25);
+}
+.fullscreen-icon {
+  width: 24rpx;
+  height: 24rpx;
+}
+
+/* ===== 全屏查看弹层 ===== */
+.fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fullscreen-panel {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.fullscreen-header {
+  background: #ffffff;
+  border-bottom: 2rpx solid #e2e8f0;
+  flex-shrink: 0;
+}
+.fullscreen-toolbar {
+  height: 88rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32rpx;
+}
+.toolbar-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1e293b;
+}
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.zoom-btn {
+  width: 56rpx;
+  height: 56rpx;
+  background: #f1f5f9;
+  color: #1e293b;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.zoom-btn:active {
+  background: #1e88ff;
+  color: #ffffff;
+}
+.zoom-text {
+  min-width: 80rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #64748b;
+  font-weight: 500;
+}
+.toolbar-close {
+  width: 64rpx;
+  height: 64rpx;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  line-height: 1;
+  margin-left: 8rpx;
+}
+.toolbar-close:active {
+  background: #dc2626;
+  color: #ffffff;
+}
+.fullscreen-body {
+  flex: 1;
+  background: #ffffff;
+  /* 双向滚动支持 */
+}
+.fullscreen-content {
+  display: inline-block;
+  min-width: 100%;
+  padding: 32rpx 32rpx;
+  box-sizing: border-box;
+  word-break: break-word;
+  line-height: 1.8;
+  color: #1e293b;
+}
+/* 全屏模式下表格不强制压缩，让用户可以横向滑动看完整内容 */
+.fullscreen-content table {
+  border-collapse: collapse !important;
+  margin: 24rpx 0 !important;
+  font-size: inherit;
+  border: 2rpx solid #e2e8f0;
+}
+.fullscreen-content td,
+.fullscreen-content th {
+  padding: 16rpx 24rpx !important;
+  border: 2rpx solid #e2e8f0 !important;
+  vertical-align: top;
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+  white-space: normal;
+}
+.fullscreen-content th {
+  background: #f1f5f9 !important;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: left;
+}
+.fullscreen-content tr:nth-child(even) td {
+  background: #f8fafc;
+}
+.fullscreen-content p,
+.fullscreen-content div {
+  margin: 16rpx 0;
+}
+.fullscreen-content h1,
+.fullscreen-content h2,
+.fullscreen-content h3,
+.fullscreen-content h4 {
+  font-weight: 600;
+  color: #1e293b;
+  margin: 24rpx 0 12rpx;
+}
+.fullscreen-content img {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 16rpx auto;
+  border-radius: 8rpx;
+}
+.fullscreen-footer {
+  padding: 16rpx 32rpx;
+  background: #f8fafc;
+  border-top: 2rpx solid #e2e8f0;
+  text-align: center;
+  flex-shrink: 0;
+}
+.fullscreen-footer text {
+  font-size: 22rpx;
+  color: #94a3b8;
+}
+
+/* 横向滚动容器 - 解决宽表格被截断 */
+.content-scroll {
+  width: 100%;
+  /* 关键：横向溢出时滚动，纵向由外层 page scroll 处理 */
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===== rich-text 渲染的 HTML 内容样式 ===== */
+/* 段落 */
+.content-text p,
+.content-text div {
+  margin: 12rpx 0;
+  line-height: 1.8;
+}
+
+/* 标题 */
+.content-text h1,
+.content-text h2,
+.content-text h3,
+.content-text h4,
+.content-text h5,
+.content-text h6 {
+  font-weight: 600;
+  color: #1e293b;
+  margin: 24rpx 0 12rpx;
+  line-height: 1.4;
+}
+.content-text h1 { font-size: 36rpx; }
+.content-text h2 { font-size: 32rpx; }
+.content-text h3 { font-size: 30rpx; }
+.content-text h4 { font-size: 28rpx; }
+.content-text h5 { font-size: 28rpx; }
+.content-text h6 { font-size: 28rpx; color: #475569; }
+
+/* 列表 */
+.content-text ul,
+.content-text ol {
+  margin: 12rpx 0;
+  padding-left: 40rpx;
+}
+.content-text li {
+  margin: 8rpx 0;
+  line-height: 1.7;
+}
+
+/* 强调 */
+.content-text strong,
+.content-text b {
+  font-weight: 600;
+  color: #1e293b;
+}
+.content-text em,
+.content-text i {
+  font-style: italic;
+  color: #64748b;
+}
+
+/* 链接 */
+.content-text a {
+  color: #1e88ff;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+/* 引用 */
+.content-text blockquote,
+.content-text q {
+  display: block;
+  margin: 16rpx 0;
+  padding: 8rpx 20rpx;
+  background: #f1f5f9;
+  border-left: 6rpx solid #94a3b8;
+  color: #475569;
+  border-radius: 0 8rpx 8rpx 0;
+}
+
+/* 水平线 */
+.content-text hr {
+  border: 0;
+  border-top: 2rpx solid #e2e8f0;
+  margin: 24rpx 0;
+}
+
+/* 图片（兜底样式） */
+.content-text img {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 16rpx auto;
+  border-radius: 8rpx;
+}
+
+/* 表格 - rich-text 表格默认无样式，必须显式声明 */
+.content-text table {
+  /* 强制表格宽度 = 容器宽度，自适应屏幕 */
+  width: 100% !important;
+  max-width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 16rpx 0 !important;
+  font-size: 26rpx;
+  /* 关键：固定布局，列宽自动均衡 */
+  table-layout: fixed !important;
+}
+.content-text table table {
+  /* 嵌套表格也支持 */
+  margin: 8rpx 0 !important;
+  width: 100% !important;
+}
+.content-text td,
+.content-text th {
+  padding: 12rpx 16rpx !important;
+  border: 2rpx solid #e2e8f0 !important;
+  vertical-align: top;
+  /* 关键：长文本自动换行，不会撑破单元格 */
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+}
+.content-text th {
+  background: #f1f5f9 !important;
+  font-weight: 600;
+  text-align: left;
+  color: #1e293b;
+}
+.content-text tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+/* 代码/预格式化 */
+.content-text code {
+  background: #f1f5f9;
+  padding: 2rpx 8rpx;
+  border-radius: 4rpx;
+  font-family: monospace;
+  font-size: 26rpx;
+  color: #1e293b;
+}
+.content-text pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 16rpx 20rpx;
+  border-radius: 8rpx;
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: 26rpx;
+  line-height: 1.6;
+  margin: 16rpx 0;
+}
+.content-text pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* 换行 */
+.content-text br {
+  display: block;
+  content: '';
+  margin: 4rpx 0;
 }
 
 .related-item {
