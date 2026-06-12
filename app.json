@@ -9,6 +9,7 @@
     "pages/subscribe/subscribe",
     "pages/search/search",
     "pages/login/login",
+    "pages/login/code-login",
     "pages/agreement/agreement"
   ],
   "window": {
