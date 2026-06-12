@@ -135,13 +135,12 @@ Page({
     wx.setStorageSync('token', userInfo.token || '');
   },
 
-  // 使用其它号码（验证码登录）
+  // 验证码登录
   onCodeLogin() {
     if (!this.data.agreed) {
       wx.showToast({ title: '请先阅读并同意协议', icon: 'none' });
       return;
     }
     wx.navigateTo({ url: '/pages/login/code-login' });
-    // TODO: 验证码登录页（输入手机号 + 验证码 + 密码登录）
   }
 })
