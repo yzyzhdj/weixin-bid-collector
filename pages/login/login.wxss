@@ -160,15 +160,17 @@
   letter-spacing: 1rpx;
 }
 
-/* 验证码登录入口 */
-.code-login {
+/* 手机验证码登录入口（页面最下方居中） */
+.code-login-bottom {
   display: flex;
   justify-content: center;
+  align-items: center;
+  margin-top: auto;
+  margin-bottom: 80rpx;
   padding: 16rpx 32rpx;
   background: #f1f5f9;
   border-radius: 12rpx;
   align-self: center;
-  margin-bottom: 60rpx;
 }
 
 .code-login-text {
