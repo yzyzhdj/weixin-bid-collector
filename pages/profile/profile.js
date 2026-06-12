@@ -27,9 +27,7 @@ Page({
 
   // 点击登录
   onLoginTap() {
-    wx.showToast({ title: '登录功能开发中', icon: 'none' });
-    // TODO: 接入微信登录
-    // wx.login({ success: (res) => { ... } });
+    wx.navigateTo({ url: '/pages/login/login' });
   },
 
   // 设置

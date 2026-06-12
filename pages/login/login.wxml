@@ -1,0 +1,57 @@
+<view class="container">
+  <!-- 自定义顶部 -->
+  <view class="custom-header" style="padding-top: {{statusBarHeight}}px;">
+    <view class="header-row" style="height: {{headerContentHeight}}px;">
+      <view class="back-btn" bindtap="onBackTap">
+        <text class="back-icon">‹</text>
+      </view>
+      <view class="header-center">
+        <view class="header-brand">
+          <image class="header-logo" src="/images/logo-sun.svg"></image>
+          <text class="header-name">阳光标讯</text>
+          <text class="header-tag">小程序提供服务</text>
+        </view>
+      </view>
+      <!-- 占位让 flex space-between 平衡 -->
+      <view class="header-placeholder"></view>
+    </view>
+  </view>
+
+  <!-- 主体内容 -->
+  <view class="content">
+    <!-- Logo 区域 -->
+    <view class="logo-section">
+      <image class="brand-logo" src="/images/logo-sun.svg"></image>
+      <view class="brand-text">
+        <text class="brand-name">阳光标讯</text>
+        <text class="brand-url">www.sunbidinfo.com</text>
+      </view>
+    </view>
+
+    <!-- 协议区域（占位） -->
+    <view style="height: 80rpx;"></view>
+
+    <!-- 登录按钮 -->
+    <view class="login-btn {{agreed ? 'active' : 'disabled'}}" bindtap="onPhoneLogin">
+      <text class="login-btn-text">手机号快捷登录</text>
+    </view>
+
+    <!-- 协议勾选 -->
+    <view class="agreement" bindtap="onToggleAgreement">
+      <view class="checkbox {{agreed ? 'checked' : ''}}">
+        <text wx:if="{{agreed}}" class="checkbox-tick">✓</text>
+      </view>
+      <view class="agreement-text">
+        <text>已阅读并同意</text>
+        <text class="agreement-link" catchtap="onOpenAgreement" data-type="user">《用户协议》</text>
+        <text>与</text>
+        <text class="agreement-link" catchtap="onOpenAgreement" data-type="privacy">《隐私政策》</text>
+      </view>
+    </view>
+
+    <!-- 验证码登录入口 -->
+    <view class="code-login" bindtap="onCodeLogin">
+      <text class="code-login-text">验证码登录</text>
+    </view>
+  </view>
+</view>
