@@ -1,6 +1,7 @@
 <view class="container">
-  <!-- 顶部蓝色区域 -->
+  <!-- 顶部蓝色渐变区域 -->
   <view class="header">
+    <!-- 标题栏 -->
     <view class="header-top">
       <view class="header-title">个人中心</view>
     </view>
@@ -17,17 +18,14 @@
           <image class="avatar-img" src="/images/avatar-default.svg"></image>
         </view>
         <view class="user-info">
-          <view class="user-row">
-            <text class="user-phone">15117088876</text>
-            <view class="user-badge">普通用户</view>
-          </view>
-          <view class="user-tip">开通会员获取更多服务</view>
+          <view class="user-name" bindtap="onLoginTap">点击登录</view>
+          <view class="user-tip">登录获取更多服务</view>
         </view>
       </view>
     </view>
   </view>
 
-  <!-- VIP 卡片 -->
+  <!-- VIP 卡片（与头部蓝色区域衔接） -->
   <view class="vip-card" bindtap="onOpenVip">
     <view class="vip-left">
       <view class="vip-title">
@@ -37,13 +35,6 @@
       <view class="vip-subtitle">开通立享多重特权，可享超大折扣</view>
     </view>
     <view class="vip-btn">去开通 ></view>
-  </view>
-
-  <!-- 通知 -->
-  <view class="notice-bar">
-    <image class="notice-icon" src="/images/icon-notice.svg"></image>
-    <text class="notice-time">1小时前</text>
-    <text class="notice-text">内蒙古用户开通VIP会员</text>
   </view>
 
   <!-- 快捷功能 -->
@@ -71,36 +62,35 @@
   <!-- 菜单列表 -->
   <view class="menu-list">
     <view class="menu-item" bindtap="onMenuTap" data-type="buy">
-      <view class="menu-icon-wrap">
+      <view class="menu-icon-wrap blue-icon">
         <image class="menu-icon-img" src="/images/icon-buy.svg"></image>
       </view>
       <text class="menu-text">购买会员</text>
       <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
     </view>
     <view class="menu-item" bindtap="onMenuTap" data-type="orders">
-      <view class="menu-icon-wrap">
+      <view class="menu-icon-wrap blue-icon">
         <image class="menu-icon-img" src="/images/icon-history.svg"></image>
       </view>
       <text class="menu-text">购买记录</text>
       <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
     </view>
     <view class="menu-item" bindtap="onMenuTap" data-type="service">
-      <view class="menu-icon-wrap">
+      <view class="menu-icon-wrap blue-icon">
         <image class="menu-icon-img" src="/images/icon-service.svg"></image>
       </view>
       <text class="menu-text">客服热线</text>
-      <text class="menu-value">19156012821</text>
       <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
     </view>
     <view class="menu-item" bindtap="onMenuTap" data-type="cooperation">
-      <view class="menu-icon-wrap">
+      <view class="menu-icon-wrap blue-icon">
         <image class="menu-icon-img" src="/images/icon-cooperation.svg"></image>
       </view>
       <text class="menu-text">渠道合作</text>
       <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
     </view>
     <view class="menu-item" bindtap="onMenuTap" data-type="feedback">
-      <view class="menu-icon-wrap">
+      <view class="menu-icon-wrap blue-icon">
         <image class="menu-icon-img" src="/images/icon-feedback.svg"></image>
       </view>
       <text class="menu-text">意见反馈</text>
