@@ -1,0 +1,62 @@
+<view class="container">
+  <!-- 自定义顶部 -->
+  <view class="custom-header" style="padding-top: {{statusBarHeight}}px;">
+    <view class="header-row" style="height: {{headerContentHeight}}px;">
+      <view class="back-btn" bindtap="onBackTap">
+        <text class="back-icon">‹</text>
+      </view>
+      <view class="header-center">
+        <text class="header-title">{{title}}</text>
+      </view>
+      <view class="header-placeholder"></view>
+    </view>
+  </view>
+
+  <!-- 协议内容 -->
+  <scroll-view class="content-scroll" scroll-y="{{true}}">
+    <view class="content">
+      <!-- 标题区 -->
+      <view class="doc-header">
+        <text class="doc-title">{{title}}</text>
+        <text class="doc-meta">应用名称：{{appName}}</text>
+        <text class="doc-meta">应用主体：{{company}}</text>
+        <text class="doc-meta">生效日期：{{effectiveDate}}</text>
+        <text class="doc-meta">更新日期：{{updateDate}}</text>
+      </view>
+
+      <!-- 协议正文（动态内容）-->
+      <view class="doc-body">
+        <view wx:for="{{sections}}" wx:key="title" wx:for-item="section">
+          <!-- 普通段落 -->
+          <view wx:if="{{!section.list && !section.subs}}" class="section">
+            <text class="section-title">{{section.title}}</text>
+            <text class="section-content">{{section.content}}</text>
+          </view>
+
+          <!-- 列表段落 -->
+          <view wx:elif="{{section.list}}" class="section">
+            <text class="section-title">{{section.title}}</text>
+            <view wx:for="{{section.list}}" wx:key="*this" wx:for-item="item" class="list-item">
+              <text class="list-marker">{{item.split('')[0]}}</text>
+              <text class="list-text">{{item.substring(1)}}</text>
+            </view>
+          </view>
+
+          <!-- 子段落 -->
+          <view wx:elif="{{section.subs}}" class="section">
+            <text class="section-title">{{section.title}}</text>
+            <view wx:for="{{section.subs}}" wx:key="title" wx:for-item="sub" class="sub-section">
+              <text class="sub-title">{{sub.title}}</text>
+              <text class="sub-content">{{sub.content}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 页脚 -->
+      <view class="doc-footer">
+        <text>— 本协议最终解释权归{{company}}所有 —</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

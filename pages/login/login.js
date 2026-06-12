@@ -28,13 +28,7 @@ Page({
 
   onOpenAgreement(e) {
     const type = e.currentTarget.dataset.type;
-    const titles = { user: '用户协议', privacy: '隐私政策' };
-    wx.showModal({
-      title: titles[type] || '协议',
-      content: '协议详情请前往 www.sunbidinfo.com 查看',
-      showCancel: false,
-      confirmText: '我知道了'
-    });
+    wx.navigateTo({ url: `/pages/agreement/agreement?type=${type}` });
   },
 
   // 手机号快捷登录
