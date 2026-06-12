@@ -12,8 +12,8 @@
     </view>
   </view>
 
-  <!-- 协议内容 -->
-  <scroll-view class="content-scroll" scroll-y="{{true}}">
+  <!-- 协议内容（scroll-view 用 fixed 高度确保真机可见）-->
+  <scroll-view class="content-scroll" scroll-y="{{true}}" enable-flex="{{true}}">
     <view class="content">
       <!-- 标题区 -->
       <view class="doc-header">
@@ -26,31 +26,30 @@
 
       <!-- 协议正文（动态内容）-->
       <view class="doc-body">
-        <view wx:for="{{sections}}" wx:key="title" wx:for-item="section">
-          <!-- 普通段落 -->
-          <view wx:if="{{!section.list && !section.subs}}" class="section">
+        <block wx:for="{{sections}}" wx:key="title" wx:for-item="section">
+          <view class="section">
             <text class="section-title">{{section.title}}</text>
-            <text class="section-content">{{section.content}}</text>
-          </view>
 
-          <!-- 列表段落 -->
-          <view wx:elif="{{section.list}}" class="section">
-            <text class="section-title">{{section.title}}</text>
-            <view wx:for="{{section.list}}" wx:key="*this" wx:for-item="item" class="list-item">
-              <text class="list-marker">{{item.split('')[0]}}</text>
-              <text class="list-text">{{item.substring(1)}}</text>
+            <!-- 普通段落 -->
+            <text wx:if="{{section.hasContent}}" class="section-content">{{section.content}}</text>
+
+            <!-- 列表段落（已预处理 marker/text） -->
+            <view wx:if="{{section.hasItems}}" class="list-block">
+              <view wx:for="{{section.items}}" wx:key="index" wx:for-item="item" class="list-item">
+                <text wx:if="{{item.marker}}" class="list-marker">{{item.marker}}</text>
+                <text class="list-text">{{item.text}}</text>
+              </view>
+            </view>
+
+            <!-- 子段落 -->
+            <view wx:if="{{section.hasSubs}}" class="subs-block">
+              <view wx:for="{{section.subs}}" wx:key="title" wx:for-item="sub" class="sub-section">
+                <text class="sub-title">{{sub.title}}</text>
+                <text class="sub-content">{{sub.content}}</text>
+              </view>
             </view>
           </view>
-
-          <!-- 子段落 -->
-          <view wx:elif="{{section.subs}}" class="section">
-            <text class="section-title">{{section.title}}</text>
-            <view wx:for="{{section.subs}}" wx:key="title" wx:for-item="sub" class="sub-section">
-              <text class="sub-title">{{sub.title}}</text>
-              <text class="sub-content">{{sub.content}}</text>
-            </view>
-          </view>
-        </view>
+        </block>
       </view>
 
       <!-- 页脚 -->

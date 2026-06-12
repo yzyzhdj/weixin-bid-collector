@@ -159,6 +159,8 @@ Page({
   },
 
   onLoad(options) {
+    // 加载协议内容
+  onLoad(options) {
     // 获取状态栏高度 + 微信胶囊位置
     const app = getApp();
     if (app && app.globalData) {
@@ -171,6 +173,34 @@ Page({
     // 加载协议内容
     const type = options.type || 'user';
     const data = AGREEMENTS[type] || AGREEMENTS.user;
+
+    // 预处理：把 list 数组中的 'a. xxx' 拆为 {marker, text}，
+    // 因为 WXML 不支持 .split('') / .substring() 等 JS 字符串方法
+    const sections = (data.sections || []).map(sec => {
+      const out = {
+        title: sec.title,
+        content: sec.content || '',
+        hasContent: !!sec.content,
+        items: [],
+        hasItems: false,
+        subs: sec.subs || [],
+        hasSubs: !!(sec.subs && sec.subs.length)
+      };
+      if (sec.list && sec.list.length) {
+        out.items = sec.list.map(s => {
+          const str = String(s);
+          // 匹配 "a. " "b. " "1. " "2. " 等前缀
+          const m = str.match(/^([a-zA-Z\d]+[.、．])\s*(.*)$/);
+          if (m) {
+            return { marker: m[1], text: m[2] || str };
+          }
+          return { marker: '', text: str };
+        });
+        out.hasItems = true;
+      }
+      return out;
+    });
+
     this.setData({
       type,
       title: data.title,
@@ -178,7 +208,7 @@ Page({
       company: data.company,
       effectiveDate: data.effectiveDate,
       updateDate: data.updateDate,
-      sections: data.sections
+      sections
     });
   },
 
