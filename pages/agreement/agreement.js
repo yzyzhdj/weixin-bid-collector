@@ -159,8 +159,6 @@ Page({
   },
 
   onLoad(options) {
-    // 加载协议内容
-  onLoad(options) {
     // 获取状态栏高度 + 微信胶囊位置
     const app = getApp();
     if (app && app.globalData) {

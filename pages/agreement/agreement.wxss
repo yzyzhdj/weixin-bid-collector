@@ -62,8 +62,6 @@
   height: 100vh;
   box-sizing: border-box;
 }
-  height: 0;
-}
 
 .content {
   padding: 32rpx 32rpx 80rpx;
