@@ -121,6 +121,19 @@
   justify-content: center;
   transition: all 0.2s ease;
   margin-bottom: 32rpx;
+  border: none;
+  outline: none;
+  padding: 0;
+  font-size: inherit;
+  line-height: 1;
+  /* 覆盖 WeChat button 默认样式 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.login-btn::after {
+  border: none;
 }
 
 .login-btn.active {
@@ -130,6 +143,12 @@
 
 .login-btn.disabled {
   background: #93c5fd;
+  opacity: 0.6;
+}
+
+.login-btn[disabled] {
+  background: #93c5fd !important;
+  color: #ffffff !important;
   opacity: 0.6;
 }
 

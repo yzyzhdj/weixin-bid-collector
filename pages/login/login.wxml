@@ -12,7 +12,6 @@
           <text class="header-tag">小程序提供服务</text>
         </view>
       </view>
-      <!-- 占位让 flex space-between 平衡 -->
       <view class="header-placeholder"></view>
     </view>
   </view>
@@ -31,10 +30,17 @@
     <!-- 协议区域（占位） -->
     <view style="height: 80rpx;"></view>
 
-    <!-- 登录按钮 -->
-    <view class="login-btn {{agreed ? 'active' : 'disabled'}}" bindtap="onPhoneLogin">
+    <!-- 微信手机号授权按钮（核心：触发 WeChat 原生授权弹窗） -->
+    <button
+      class="login-btn {{agreed ? 'active' : 'disabled'}}"
+      open-type="getPhoneNumber"
+      bindgetphonenumber="onGetPhoneNumber"
+      bindtap="onPhoneLoginTap"
+      disabled="{{!agreed}}"
+      hover-class="none"
+    >
       <text class="login-btn-text">手机号快捷登录</text>
-    </view>
+    </button>
 
     <!-- 协议勾选 -->
     <view class="agreement" bindtap="onToggleAgreement">
@@ -51,7 +57,7 @@
 
     <!-- 验证码登录入口 -->
     <view class="code-login" bindtap="onCodeLogin">
-      <text class="code-login-text">验证码登录</text>
+      <text class="code-login-text">使用其它号码</text>
     </view>
   </view>
 </view>
