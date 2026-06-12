@@ -77,32 +77,34 @@
   padding: 80rpx 60rpx 0;
 }
 
-/* Logo 区域 */
+/* Logo 区域（垂直居中布局） */
 .logo-section {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24rpx;
-  padding: 60rpx 0 100rpx;
+  padding: 40rpx 0 100rpx;
+  text-align: center;
 }
 
 .brand-logo {
-  width: 110rpx;
-  height: 110rpx;
-  flex-shrink: 0;
+  width: 140rpx;
+  height: 140rpx;
+  margin-bottom: 24rpx;
 }
 
 .brand-text {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  align-items: center;
+  gap: 12rpx;
 }
 
 .brand-name {
-  font-size: 44rpx;
+  font-size: 48rpx;
   color: #1e293b;
   font-weight: 700;
-  letter-spacing: 2rpx;
+  letter-spacing: 4rpx;
 }
 
 .brand-url {
@@ -126,7 +128,6 @@
   padding: 0;
   font-size: inherit;
   line-height: 1;
-  /* 覆盖 WeChat button 默认样式 */
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -159,12 +160,31 @@
   letter-spacing: 1rpx;
 }
 
-/* 协议 */
-.agreement {
+/* 验证码登录入口 */
+.code-login {
   display: flex;
-  align-items: flex-start;
-  padding: 0 8rpx;
+  justify-content: center;
+  padding: 16rpx 32rpx;
+  background: #f1f5f9;
+  border-radius: 12rpx;
+  align-self: center;
+  margin-bottom: 60rpx;
+}
+
+.code-login-text {
+  font-size: 26rpx;
+  color: #1e88ff;
+  font-weight: 500;
+}
+
+/* 协议（居中显示在页面最下方） */
+.agreement-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
   margin-bottom: 80rpx;
+  padding: 0 8rpx;
 }
 
 .checkbox {
@@ -178,7 +198,6 @@
   background: #ffffff;
   flex-shrink: 0;
   margin-right: 12rpx;
-  margin-top: 4rpx;
   transition: all 0.2s ease;
 }
 
@@ -195,7 +214,6 @@
 }
 
 .agreement-text {
-  flex: 1;
   font-size: 24rpx;
   color: #64748b;
   line-height: 1.6;
@@ -207,22 +225,4 @@
 .agreement-link {
   color: #1e88ff;
   margin: 0 4rpx;
-}
-
-/* 验证码登录 */
-.code-login {
-  margin-top: auto;
-  margin-bottom: 60rpx;
-  display: flex;
-  justify-content: center;
-  padding: 16rpx 32rpx;
-  background: #f1f5f9;
-  border-radius: 12rpx;
-  align-self: center;
-}
-
-.code-login-text {
-  font-size: 26rpx;
-  color: #1e88ff;
-  font-weight: 500;
 }
