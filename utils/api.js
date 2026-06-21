@@ -72,6 +72,14 @@ const ERROR_CODES = {
 // 设为 true 后，所有请求会打印 URL、Key、状态码到控制台
 const DEBUG = true;
 
+// ============= 限流信息 =============
+
+/** 上一次请求的限流信息 */
+const _lastRateInfo = { limit: null, remaining: null, reset: null };
+
+/** 缓存能用的鉴权方式 (X-API-Key | bearer | query) */
+let _workingAuthMethod = null;
+
 // ============= 配置读取 =============
 
 /**
@@ -233,84 +241,90 @@ let _lastRateInfo = { limit: null, remaining: null, reset: null };
  * @param {boolean} [options.skipCamel=false] - true 则不转 camelCase
  * @returns {Promise<object>} 后端 data 字段
  */
-function request(options) {
-  const { API_BASE_URL, API_KEY, source } = getConfig();
-  return new Promise((resolve, reject) => {
-    const header = Object.assign(
-      {
-        'X-API-Key': API_KEY,
-        'Content-Type': 'application/json'
-      },
-      options.header || {}
-    );
-
-    if (DEBUG) {
-      console.log('[API] ' + options.method + ' ' + API_BASE_URL + options.url);
-      console.log('[API] X-API-Key: ' + (API_KEY ? API_KEY.slice(0, 12) + '...' + API_KEY.slice(-4) : '(空)') + ' (来源: ' + source + ')');
+/**
+ * 尝试 3 种鉴权方式中的某一种
+ * @param {string} method - 'X-API-Key' | 'bearer' | 'query'
+ * @returns {Promise<{ok, status, res, errMsg}>}
+ */
+function tryAuthRequest(method, API_BASE_URL, API_KEY, requestPath, options) {
+  return new Promise((resolve) => {
+    const header = { 'Content-Type': 'application/json' };
+    let url = API_BASE_URL + requestPath;
+    if (method === 'X-API-Key') {
+      header['X-API-Key'] = API_KEY;
+    } else if (method === 'bearer') {
+      header['Authorization'] = 'Bearer ' + API_KEY;
+    } else if (method === 'query') {
+      url += (url.indexOf('?') === -1 ? '?' : '&') + 'api_key=' + encodeURIComponent(API_KEY);
     }
-
     wx.request({
-      url: API_BASE_URL + options.url,
+      url: url,
       method: options.method || 'GET',
       data: options.data || {},
       timeout: options.timeout || 30000,
-      header,
+      header: header,
       success: (res) => {
-        if (DEBUG) {
-          console.log('[API] ← ' + res.statusCode + ' (' + (res.data ? JSON.stringify(res.data).length : 0) + ' bytes)');
-        }
-        // 记录限流信息
-        if (res.header) {
-          _lastRateInfo.limit = res.header['X-RateLimit-Limit'] || null;
-          _lastRateInfo.remaining = res.header['X-RateLimit-Remaining'] || null;
-          _lastRateInfo.reset = res.header['X-RateLimit-Reset'] || null;
-        }
-
         const body = res.data || {};
-        if (res.statusCode === 200 && body.code === 0) {
-          const data = options.skipCamel ? body.data : snakeToCamel(body.data);
-          resolve(data);
-          return;
-        }
-
-        // 错误分类
-        const errCode = body.code;
-        let errMsg = body.message || `请求失败 (${res.statusCode})`;
-
-        if (errCode === 401 || res.statusCode === 401) {
-          errMsg = 'API Key 无效或已禁用';
-        } else if (errCode === 403 || res.statusCode === 403) {
-          errMsg = 'API Key 已过期或无权访问';
-        } else if (errCode === 404 || res.statusCode === 404) {
-          errMsg = body.message || '资源不存在';
-        } else if (errCode === 429 || res.statusCode === 429) {
-          errMsg = '请求频率超限，请稍后重试';
-        } else if (errCode === 400 || res.statusCode === 400) {
-          errMsg = body.message || '请求参数错误';
-        }
-
-        if (DEBUG) {
-          console.error('[API] ✗ ' + errMsg, { httpStatus: res.statusCode, body });
-        }
-
-        if (!options.silent) {
-          wx.showToast({ title: errMsg, icon: 'none', duration: 2500 });
-        }
-        reject({ code: errCode, message: errMsg, httpStatus: res.statusCode, raw: body });
+        const ok = res.statusCode === 200 && body.code === 0;
+        resolve({ ok, status: res.statusCode, res, body, errMsg: body.message || '' });
       },
       fail: (err) => {
-        const isTimeout = err.errMsg && err.errMsg.indexOf('timeout') !== -1;
-        const msg = isTimeout ? '请求超时，请重试' : '网络错误，请检查网络';
-        if (DEBUG) {
-          console.error('[API] ✗ ' + msg, err);
-        }
-        if (!options.silent) {
-          wx.showToast({ title: msg, icon: 'none' });
-        }
-        reject({ code: -1, message: msg, raw: err });
+        resolve({ ok: false, status: 0, res: null, body: null, errMsg: err.errMsg || '网络错误' });
       }
     });
   });
+}
+
+function request(options) {
+  const { API_BASE_URL, API_KEY, source } = getConfig();
+  if (DEBUG) {
+    console.log('[API] ' + options.method + ' ' + API_BASE_URL + options.url);
+    console.log('[API] X-API-Key: ' + (API_KEY ? API_KEY.slice(0, 12) + '...' + API_KEY.slice(-4) : '(空)') + ' (来源: ' + source + ')');
+  }
+
+  // 按优先级尝试鉴权方式: 缓存 > X-API-Key > bearer > query
+  const methods = _workingAuthMethod
+    ? [_workingAuthMethod, 'X-API-Key', 'bearer', 'query'].filter((v, i, a) => a.indexOf(v) === i)
+    : ['X-API-Key', 'bearer', 'query'];
+
+  return trySequential(0);
+
+  function trySequential(idx) {
+    if (idx >= methods.length) {
+      return Promise.reject({ code: -1, message: '所有鉴权方式都失败', httpStatus: 0 });
+    }
+    const m = methods[idx];
+    return tryAuthRequest(m, API_BASE_URL, API_KEY, options.url, options).then((r) => {
+      if (r.ok) {
+        if (DEBUG) console.log('[API] ← 200 (' + (r.body ? JSON.stringify(r.body).length : 0) + ' bytes, 鉴权: ' + m + ')');
+        // 记住能用的方式
+        if (_workingAuthMethod !== m) {
+          _workingAuthMethod = m;
+          if (DEBUG) console.log('[API] 已缓存鉴权方式: ' + m);
+        }
+        // 限流信息
+        if (r.res && r.res.header) {
+          _lastRateInfo.limit = r.res.header['X-RateLimit-Limit'] || null;
+          _lastRateInfo.remaining = r.res.header['X-RateLimit-Remaining'] || null;
+          _lastRateInfo.reset = r.res.header['X-RateLimit-Reset'] || null;
+        }
+        const data = options.skipCamel ? r.body.data : snakeToCamel(r.body.data);
+        return data;
+      }
+      // 鉴权相关错误(401/403) 尝试下一种鉴权方式
+      if (r.status === 401 || r.status === 403) {
+        if (DEBUG) console.log('[API] ' + m + ' 鉴权失败: ' + r.status + ' - 尝试下一种');
+        return trySequential(idx + 1);
+      }
+      // 其他错误直接抛出
+      const errMsg = r.errMsg || ('HTTP ' + r.status);
+      if (DEBUG) console.error('[API] ✗ ' + errMsg, r.body);
+      if (!options.silent) {
+        wx.showToast({ title: errMsg, icon: 'none', duration: 2500 });
+      }
+      throw { code: r.body ? r.body.code : -1, message: errMsg, httpStatus: r.status, raw: r.body };
+    });
+  }
 }
 
 /**
@@ -324,11 +338,7 @@ function testConnection() {
   if (DEBUG) console.log('[API] 测试连接: ' + API_BASE_URL + '/filters (key 来源: ' + source + ')');
 
   // 3 种鉴权方式 (按 API 文档)
-  const methods = [
-    { name: 'X-API-Key', useHeader: true, useQuery: false, bearer: false },
-    { name: 'Authorization Bearer', useHeader: true, useQuery: false, bearer: true },
-    { name: '?api_key=', useHeader: false, useQuery: true, bearer: false }
-  ];
+  const methods = ['X-API-Key', 'bearer', 'query'];
 
   // 顺序尝试每种方式,直到找到成功的
   return tryNextMethod(0);
@@ -348,54 +358,39 @@ function testConnection() {
       });
     }
     const m = methods[idx];
-    return new Promise((resolve) => {
-      const header = { 'Content-Type': 'application/json' };
-      let url = API_BASE_URL + '/filters';
-      if (m.useHeader) {
-        header['X-API-Key'] = API_KEY;
-        if (m.bearer) header['Authorization'] = 'Bearer ' + API_KEY;
+    return tryAuthRequest(m, API_BASE_URL, API_KEY, '/filters', { method: 'GET', timeout: 10000 }).then((r) => {
+      if (r.ok) {
+        if (DEBUG) console.log('[API] ✓ 成功使用鉴权: ' + m);
+        // 记住能用的方式,后续 request() 直接用
+        _workingAuthMethod = m;
+        return {
+          success: true,
+          url: API_BASE_URL,
+          keyPreview: keyPreview,
+          keySet: !!API_KEY,
+          keySource: source,
+          status: 200,
+          method: m,
+          message: '✓ 连接成功! (使用 ' + m + ' 鉴权)',
+          response: r.body
+        };
+      } else if (r.status === 0) {
+        // 网络错误直接返回
+        return {
+          success: false,
+          url: API_BASE_URL,
+          keyPreview: keyPreview,
+          keySet: !!API_KEY,
+          keySource: source,
+          status: 0,
+          method: m,
+          message: '网络错误: ' + r.errMsg,
+          response: null
+        };
+      } else {
+        if (DEBUG) console.log('[API] ' + m + ' 失败: ' + r.status + ' - 尝试下一种');
+        return tryNextMethod(idx + 1);
       }
-      if (m.useQuery) {
-        url += (url.indexOf('?') === -1 ? '?' : '&') + 'api_key=' + encodeURIComponent(API_KEY);
-      }
-      if (DEBUG) {
-        console.log('[API] 尝试方式 ' + (idx + 1) + '/3: ' + m.name);
-        if (m.useHeader) console.log('[API] Header: X-API-Key=' + (API_KEY ? '***' : '(空)') + (m.bearer ? ' + Authorization' : ''));
-        if (m.useQuery) console.log('[API] URL: ' + url.replace(API_KEY, '***'));
-      }
-      wx.request({
-        url: url,
-        method: 'GET',
-        header: header,
-        timeout: 10000,
-        success: (res) => {
-          const body = res.data || {};
-          const ok = res.statusCode === 200 && body.code === 0;
-          if (ok) {
-            resolve({
-              success: true,
-              url: API_BASE_URL,
-              keyPreview: keyPreview,
-              keySet: !!API_KEY,
-              keySource: source,
-              status: 200,
-              method: m.name,
-              message: '✓ 连接成功! (使用 ' + m.name + ' 鉴权)',
-              response: body
-            });
-          } else {
-            // 失败,尝试下一种
-            if (DEBUG) {
-              console.log('[API] ' + m.name + ' 失败: ' + res.statusCode + ' - ' + (body.message || ''));
-            }
-            tryNextMethod(idx + 1).then(resolve);
-          }
-        },
-        fail: (err) => {
-          if (DEBUG) console.log('[API] ' + m.name + ' 网络错误: ' + err.errMsg);
-          tryNextMethod(idx + 1).then(resolve);
-        }
-      });
     });
   }
 }
