@@ -467,6 +467,10 @@ module.exports = {
   SORT_ORDERS,
   ERROR_CODES
 };
+
+/**
+ * 按业务阶段 + 业务小类查询（首页 3 个 Tab 专用）
+ * @param {string} bidPhase - 招标/中标
  * @param {object} [extraParams] - 额外参数（如 province/city）
  * @param {object} [options]
  * @returns {Promise<{items, pagination}>}
