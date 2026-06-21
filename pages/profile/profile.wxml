@@ -97,32 +97,5 @@
       <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
     </view>
   </view>
-
-  <!-- API 调试面板 (开发用) -->
-  <view class="debug-panel" bindtap="toggleDebug">
-    <view class="debug-title">🔧 API 调试</view>
-    <view wx:if="{{debugExpanded}}" class="debug-body">
-      <view class="debug-row">
-        <text class="debug-label">URL:</text>
-        <text class="debug-value" selectable="true">{{debugInfo.url || '加载中...'}}</text>
-      </view>
-      <view class="debug-row">
-        <text class="debug-label">Key:</text>
-        <text class="debug-value" selectable="true">{{debugInfo.keyPreview || '(空)'}}</text>
-      </view>
-      <view class="debug-row">
-        <text class="debug-label">状态:</text>
-        <text class="debug-value status-{{debugInfo.status}}">{{debugInfo.statusLabel || '未测试'}}</text>
-      </view>
-      <view class="debug-row">
-        <text class="debug-label">结果:</text>
-        <text class="debug-value" selectable="true">{{debugInfo.message || '点击下方按钮测试'}}</text>
-      </view>
-      <view class="debug-actions">
-        <button class="debug-btn primary" bindtap="onTestApi" loading="{{testing}}">测试 API 连接</button>
-        <button class="debug-btn" bindtap="onClearKey">清空 Key</button>
-        <button class="debug-btn" bindtap="onChangeKey">修改 Key</button>
-      </view>
-    </view>
-  </view>
+</view>
 </view>
