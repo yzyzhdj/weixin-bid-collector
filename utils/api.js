@@ -68,6 +68,10 @@ const ERROR_CODES = {
   RATE_LIMIT: 429    // 限流
 };
 
+// ============= 调试开关 =============
+// 设为 true 后，所有请求会打印 URL、Key、状态码到控制台
+const DEBUG = true;
+
 // ============= 内部工具 =============
 
 /**
@@ -380,6 +384,89 @@ function getFilters(options = {}) {
 /**
  * 按业务阶段 + 业务小类查询（首页 3 个 Tab 专用）
  * @param {string} bidPhase - 招标/中标
+ * @param {object} [extraParams] - 额外参数（如 province/city）
+ * @param {object} [options]
+ * @returns {Promise<{items, pagination}>}
+ */
+function getBidsByPhase(bidPhase, extraParams = {}, options = {}) {
+  return getBidList(Object.assign({ bid_phase: bidPhase }, extraParams), options);
+}
+
+/**
+ * 查询最新招标（list_type=bids，排除中标）
+ */
+function getLatestBids(extraParams = {}, options = {}) {
+  return getBidList(Object.assign({ list_type: LIST_TYPES.BIDS }, extraParams), options);
+}
+
+/**
+ * 查询最新中标（list_type=wins，仅成交公示）
+ */
+function getLatestWins(extraParams = {}, options = {}) {
+  return getBidList(Object.assign({ list_type: LIST_TYPES.WINS }, extraParams), options);
+}
+
+/**
+ * 按省份 + 城市查询
+ * @param {string} province - 如 "北京"/"北京·市"
+ * @param {string} [city] - 如 "海淀区"（可选）
+ * @param {object} [extraParams] - 额外参数
+ */
+function getBidsByRegion(province, city, extraParams = {}, options = {}) {
+  const p = Object.assign({}, extraParams);
+  if (province) p.province = province;
+  if (city) p.city = city;
+  return getBidList(p, options);
+}
+
+/**
+ * 按关键词搜索 + 可选地区
+ */
+function searchByKeyword(keyword, extraParams = {}, options = {}) {
+  return searchBids(Object.assign({ keyword }, extraParams), options);
+}
+
+// ============= 限流信息 =============
+
+/**
+ * 获取上一次请求的限流信息
+ * @returns {{limit, remaining, reset}}
+ */
+function getLastRateInfo() {
+  return Object.assign({}, _lastRateInfo);
+}
+
+// ============= 导出 =============
+
+module.exports = {
+  // 核心方法
+  request,
+  testConnection,
+  // 业务 API
+  getBidList,
+  getBidDetail,
+  searchBids,
+  getStats,
+  getFilters,
+  // 便捷查询
+  getBidsByPhase,
+  getLatestBids,
+  getLatestWins,
+  getBidsByRegion,
+  searchByKeyword,
+  // 工具
+  getLastRateInfo,
+  // 常量
+  BID_PHASES,
+  BID_TYPES,
+  CATEGORIES,
+  NOTICE_NATURES,
+  BUYER_TYPES,
+  LIST_TYPES,
+  SORT_FIELDS,
+  SORT_ORDERS,
+  ERROR_CODES
+};
  * @param {object} [extraParams] - 额外参数（如 province/city）
  * @param {object} [options]
  * @returns {Promise<{items, pagination}>}
