@@ -234,7 +234,7 @@ let _lastRateInfo = { limit: null, remaining: null, reset: null };
  * @returns {Promise<object>} 后端 data 字段
  */
 function request(options) {
-  const { API_BASE_URL, API_KEY } = require('./config.js');
+  const { API_BASE_URL, API_KEY, source } = getConfig();
   return new Promise((resolve, reject) => {
     const header = Object.assign(
       {
@@ -244,6 +244,11 @@ function request(options) {
       options.header || {}
     );
 
+    if (DEBUG) {
+      console.log('[API] ' + options.method + ' ' + API_BASE_URL + options.url);
+      console.log('[API] X-API-Key: ' + (API_KEY ? API_KEY.slice(0, 12) + '...' + API_KEY.slice(-4) : '(空)') + ' (来源: ' + source + ')');
+    }
+
     wx.request({
       url: API_BASE_URL + options.url,
       method: options.method || 'GET',
@@ -251,6 +256,9 @@ function request(options) {
       timeout: options.timeout || 30000,
       header,
       success: (res) => {
+        if (DEBUG) {
+          console.log('[API] ← ' + res.statusCode + ' (' + (res.data ? JSON.stringify(res.data).length : 0) + ' bytes)');
+        }
         // 记录限流信息
         if (res.header) {
           _lastRateInfo.limit = res.header['X-RateLimit-Limit'] || null;
@@ -279,6 +287,10 @@ function request(options) {
           errMsg = '请求频率超限，请稍后重试';
         } else if (errCode === 400 || res.statusCode === 400) {
           errMsg = body.message || '请求参数错误';
+        }
+
+        if (DEBUG) {
+          console.error('[API] ✗ ' + errMsg, { httpStatus: res.statusCode, body });
         }
 
         if (!options.silent) {
