@@ -28,3 +28,7 @@ desktop.ini
 .env
 .env.local
 .env.*.local
+
+# Test output
+test-output.log
+
