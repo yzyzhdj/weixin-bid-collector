@@ -228,8 +228,6 @@ function snakeToCamel(obj) {
 
 // ============= 核心请求 =============
 
-let _lastRateInfo = { limit: null, remaining: null, reset: null };
-
 /**
  * 统一请求方法
  * @param {object} options
