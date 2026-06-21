@@ -315,71 +315,89 @@ function request(options) {
 
 /**
  * 测试 API 连接
- * @returns {Promise<{success, url, keyPreview, status, message}>}
+ * 自动尝试 3 种鉴权方式: X-API-Key / Authorization Bearer / ?api_key=
+ * @returns {Promise<{success, url, keyPreview, method, status, message}>}
  */
 function testConnection() {
   const { API_BASE_URL, API_KEY, source } = getConfig();
   const keyPreview = API_KEY ? API_KEY.slice(0, 12) + '...' + API_KEY.slice(-4) : '(空)';
   if (DEBUG) console.log('[API] 测试连接: ' + API_BASE_URL + '/filters (key 来源: ' + source + ')');
-  return new Promise((resolve) => {
-    wx.request({
-      url: API_BASE_URL + '/filters',
-      method: 'GET',
-      header: {
-        'X-API-Key': API_KEY,
-        'Content-Type': 'application/json'
-      },
-      timeout: 10000,
-      success: (res) => {
-        const body = res.data || {};
-        const ok = res.statusCode === 200 && body.code === 0;
-        let msg;
-        if (ok) {
-          msg = '连接成功! 后端已返回数据';
-        } else if (res.statusCode === 401) {
-          msg = 'API Key 无效或已禁用 (401)';
-        } else if (res.statusCode === 403) {
-          msg = 'API Key 无权限 (403)';
-        } else if (res.statusCode === 404) {
-          msg = '接口路径不存在 (404)';
-        } else {
-          msg = (body.message || ('HTTP ' + res.statusCode)) + ' (code=' + body.code + ')';
-        }
-        resolve({
-          success: ok,
-          url: API_BASE_URL,
-          keyPreview: keyPreview,
-          keySet: !!API_KEY,
-          keySource: source,
-          status: res.statusCode,
-          message: msg,
-          response: body
-        });
-      },
-      fail: (err) => {
-        let msg = '无法连接到服务器';
-        if (err.errMsg) {
-          if (err.errMsg.indexOf('url not in domain list') !== -1) {
-            msg = '微信域名白名单未配置 (需在 mp.weixin.qq.com 添加服务器域名)';
-          } else if (err.errMsg.indexOf('timeout') !== -1) {
-            msg = '请求超时 (10秒)';
-          } else {
-            msg = '网络错误: ' + err.errMsg;
-          }
-        }
-        resolve({
-          success: false,
-          url: API_BASE_URL,
-          keyPreview: keyPreview,
-          keySet: !!API_KEY,
-          keySource: source,
-          status: 0,
-          message: msg,
-          response: err
-        });
+
+  // 3 种鉴权方式 (按 API 文档)
+  const methods = [
+    { name: 'X-API-Key', useHeader: true, useQuery: false, bearer: false },
+    { name: 'Authorization Bearer', useHeader: true, useQuery: false, bearer: true },
+    { name: '?api_key=', useHeader: false, useQuery: true, bearer: false }
+  ];
+
+  // 顺序尝试每种方式,直到找到成功的
+  return tryNextMethod(0);
+
+  function tryNextMethod(idx) {
+    if (idx >= methods.length) {
+      return Promise.resolve({
+        success: false,
+        url: API_BASE_URL,
+        keyPreview: keyPreview,
+        keySet: !!API_KEY,
+        keySource: source,
+        status: 0,
+        method: 'all-failed',
+        message: '所有鉴权方式都失败，请检查后端 API Key 是否正确',
+        response: null
+      });
+    }
+    const m = methods[idx];
+    return new Promise((resolve) => {
+      const header = { 'Content-Type': 'application/json' };
+      let url = API_BASE_URL + '/filters';
+      if (m.useHeader) {
+        header['X-API-Key'] = API_KEY;
+        if (m.bearer) header['Authorization'] = 'Bearer ' + API_KEY;
       }
+      if (m.useQuery) {
+        url += (url.indexOf('?') === -1 ? '?' : '&') + 'api_key=' + encodeURIComponent(API_KEY);
+      }
+      if (DEBUG) {
+        console.log('[API] 尝试方式 ' + (idx + 1) + '/3: ' + m.name);
+        if (m.useHeader) console.log('[API] Header: X-API-Key=' + (API_KEY ? '***' : '(空)') + (m.bearer ? ' + Authorization' : ''));
+        if (m.useQuery) console.log('[API] URL: ' + url.replace(API_KEY, '***'));
+      }
+      wx.request({
+        url: url,
+        method: 'GET',
+        header: header,
+        timeout: 10000,
+        success: (res) => {
+          const body = res.data || {};
+          const ok = res.statusCode === 200 && body.code === 0;
+          if (ok) {
+            resolve({
+              success: true,
+              url: API_BASE_URL,
+              keyPreview: keyPreview,
+              keySet: !!API_KEY,
+              keySource: source,
+              status: 200,
+              method: m.name,
+              message: '✓ 连接成功! (使用 ' + m.name + ' 鉴权)',
+              response: body
+            });
+          } else {
+            // 失败,尝试下一种
+            if (DEBUG) {
+              console.log('[API] ' + m.name + ' 失败: ' + res.statusCode + ' - ' + (body.message || ''));
+            }
+            tryNextMethod(idx + 1).then(resolve);
+          }
+        },
+        fail: (err) => {
+          if (DEBUG) console.log('[API] ' + m.name + ' 网络错误: ' + err.errMsg);
+          tryNextMethod(idx + 1).then(resolve);
+        }
+      });
     });
-  });
+  }
 }
 
 // ============= 业务 API =============
