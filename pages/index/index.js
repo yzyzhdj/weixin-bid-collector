@@ -75,20 +75,26 @@ Page({
   async loadBidList() {
     this.setData({ loading: true });
     try {
+      // API 实际返回 snake_case 字段，api.js 已自动转 camelCase
       const params = {
         page: 1,
         page_size: 20,
-        sort_by: 'createdAt',
+        sort_by: 'created_at',  // 修正：snake_case (之前是 createdAt)
         sort_order: 'desc'
       };
 
-      // Tab 映射：使用 API 实际有数据的 bidType
-      // 招标公告（全国都有数据）/ 中标公告（全国都有数据）/ 工程类（数据较少）
-      let bidType = '';
-      if (this.data.currentInfoTab === 0) bidType = '招标公告';
-      else if (this.data.currentInfoTab === 1) bidType = '中标公告';
-      else if (this.data.currentInfoTab === 2) bidType = '工程类';
-      if (bidType) params.bid_type = bidType;
+      // Tab 映射（使用 list_type 简化）
+      // Tab 0: 最新招标 (list_type=bids 排除中标)
+      // Tab 1: 最新中标 (list_type=wins 仅成交公示)
+      // Tab 2: 拟建项目 (category=工程类)
+      const tab = this.data.currentInfoTab;
+      if (tab === 0) {
+        params.list_type = 'bids';
+      } else if (tab === 1) {
+        params.list_type = 'wins';
+      } else if (tab === 2) {
+        params.category = '工程类';
+      }
 
       if (this.data.selectedProvince) params.province = this.data.selectedProvince;
       if (this.data.selectedCity) params.city = this.data.selectedCity;
@@ -97,6 +103,7 @@ Page({
 
       const data = await api.getBidList(params);
 
+      // api.js 已将 snake_case 转 camelCase（publishDate, bidType 等）
       const items = (data.items || []).map(item => {
         const tag = getTypeTag(item.bidType);
         return {
