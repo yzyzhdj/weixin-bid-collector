@@ -289,10 +289,82 @@ function request(options) {
       fail: (err) => {
         const isTimeout = err.errMsg && err.errMsg.indexOf('timeout') !== -1;
         const msg = isTimeout ? '请求超时，请重试' : '网络错误，请检查网络';
+        if (DEBUG) {
+          console.error('[API] ✗ ' + msg, err);
+        }
         if (!options.silent) {
           wx.showToast({ title: msg, icon: 'none' });
         }
         reject({ code: -1, message: msg, raw: err });
+      }
+    });
+  });
+}
+
+/**
+ * 测试 API 连接
+ * @returns {Promise<{success, url, keyPreview, status, message}>}
+ */
+function testConnection() {
+  const { API_BASE_URL, API_KEY, source } = getConfig();
+  const keyPreview = API_KEY ? API_KEY.slice(0, 12) + '...' + API_KEY.slice(-4) : '(空)';
+  if (DEBUG) console.log('[API] 测试连接: ' + API_BASE_URL + '/filters (key 来源: ' + source + ')');
+  return new Promise((resolve) => {
+    wx.request({
+      url: API_BASE_URL + '/filters',
+      method: 'GET',
+      header: {
+        'X-API-Key': API_KEY,
+        'Content-Type': 'application/json'
+      },
+      timeout: 10000,
+      success: (res) => {
+        const body = res.data || {};
+        const ok = res.statusCode === 200 && body.code === 0;
+        let msg;
+        if (ok) {
+          msg = '连接成功! 后端已返回数据';
+        } else if (res.statusCode === 401) {
+          msg = 'API Key 无效或已禁用 (401)';
+        } else if (res.statusCode === 403) {
+          msg = 'API Key 无权限 (403)';
+        } else if (res.statusCode === 404) {
+          msg = '接口路径不存在 (404)';
+        } else {
+          msg = (body.message || ('HTTP ' + res.statusCode)) + ' (code=' + body.code + ')';
+        }
+        resolve({
+          success: ok,
+          url: API_BASE_URL,
+          keyPreview: keyPreview,
+          keySet: !!API_KEY,
+          keySource: source,
+          status: res.statusCode,
+          message: msg,
+          response: body
+        });
+      },
+      fail: (err) => {
+        let msg = '无法连接到服务器';
+        if (err.errMsg) {
+          if (err.errMsg.indexOf('url not in domain list') !== -1) {
+            msg = '微信域名白名单未配置 (需在 mp.weixin.qq.com 添加服务器域名)';
+          } else if (err.errMsg.indexOf('timeout') !== -1) {
+            msg = '请求超时 (10秒)';
+          } else {
+            msg = '网络错误: ' + err.errMsg;
+          }
+        }
+        resolve({
+          success: false,
+          url: API_BASE_URL,
+          keyPreview: keyPreview,
+          keySet: !!API_KEY,
+          keySource: source,
+          status: 0,
+          message: msg,
+          response: err
+        });
       }
     });
   });
