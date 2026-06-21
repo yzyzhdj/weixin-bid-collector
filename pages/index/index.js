@@ -86,14 +86,14 @@ Page({
       // Tab 映射（使用 list_type 简化）
       // Tab 0: 最新招标 (list_type=bids 排除中标)
       // Tab 1: 最新中标 (list_type=wins 仅成交公示)
-      // Tab 2: 拟建项目 (category=工程类)
+      // Tab 2: 拟建项目 (bid_type=招标预告 - 项目预告/预公示)
       const tab = this.data.currentInfoTab;
       if (tab === 0) {
         params.list_type = 'bids';
       } else if (tab === 1) {
         params.list_type = 'wins';
       } else if (tab === 2) {
-        params.category = '工程类';
+        params.bid_type = '招标预告';
       }
 
       if (this.data.selectedProvince) params.province = this.data.selectedProvince;
