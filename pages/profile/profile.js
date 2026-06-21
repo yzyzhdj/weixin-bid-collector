@@ -69,38 +69,18 @@ Page({
     this.setData({ testing: true, 'debugInfo.statusLabel': '测试中...' });
     try {
       const api = require('../../utils/api.js');
-      // 如果有本地覆盖的 key,临时使用
-      const overrideKey = wx.getStorageSync('API_KEY_OVERRIDE');
-      if (overrideKey) {
-        const config = require('../../utils/config.js');
-        const origKey = config.API_KEY;
-        config.API_KEY = overrideKey;
-        const result = await api.testConnection();
-        config.API_KEY = origKey;  // 恢复
-        this.setData({
-          testing: false,
-          'debugInfo.status': result.success ? 'success' : (result.status === 0 ? 'error' : 'failed'),
-          'debugInfo.statusLabel': result.success ? '✓ 连接成功' : '✗ ' + result.message,
-          'debugInfo.message': JSON.stringify(result.response, null, 2).slice(0, 500)
-        });
-        if (result.success) {
-          wx.showToast({ title: '连接成功!', icon: 'success' });
-        } else {
-          wx.showToast({ title: result.message, icon: 'none', duration: 3000 });
-        }
+      // getConfig() 内部已处理 Storage 覆盖, 无需手动切换
+      const result = await api.testConnection();
+      this.setData({
+        testing: false,
+        'debugInfo.status': result.success ? 'success' : (result.status === 0 ? 'error' : 'failed'),
+        'debugInfo.statusLabel': result.success ? '✓ 连接成功' : '✗ ' + result.message,
+        'debugInfo.message': JSON.stringify(result.response, null, 2).slice(0, 500)
+      });
+      if (result.success) {
+        wx.showToast({ title: '连接成功!', icon: 'success' });
       } else {
-        const result = await api.testConnection();
-        this.setData({
-          testing: false,
-          'debugInfo.status': result.success ? 'success' : (result.status === 0 ? 'error' : 'failed'),
-          'debugInfo.statusLabel': result.success ? '✓ 连接成功' : '✗ ' + result.message,
-          'debugInfo.message': JSON.stringify(result.response, null, 2).slice(0, 500)
-        });
-        if (result.success) {
-          wx.showToast({ title: '连接成功!', icon: 'success' });
-        } else {
-          wx.showToast({ title: result.message, icon: 'none', duration: 3000 });
-        }
+        wx.showToast({ title: result.message, icon: 'none', duration: 3000 });
       }
     } catch (e) {
       this.setData({

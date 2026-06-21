@@ -72,6 +72,38 @@ const ERROR_CODES = {
 // 设为 true 后，所有请求会打印 URL、Key、状态码到控制台
 const DEBUG = true;
 
+// ============= 配置读取 =============
+
+/**
+ * 统一读取 API 配置
+ * 优先级: 本地 Storage 覆盖 > config.js
+ * @returns {{API_BASE_URL: string, API_KEY: string, source: 'storage'|'config'|'empty'}}
+ */
+function getConfig() {
+  const baseConfig = require('./config.js');
+  let API_KEY = baseConfig.API_KEY;
+  let API_BASE_URL = baseConfig.API_BASE_URL;
+  let source = 'config';
+
+  // 尝试读取本地 Storage 覆盖（用于"修改 Key"功能）
+  try {
+    const overrideKey = wx.getStorageSync('API_KEY_OVERRIDE');
+    if (overrideKey && typeof overrideKey === 'string' && overrideKey.length > 0) {
+      API_KEY = overrideKey;
+      source = 'storage';
+    }
+  } catch (e) {
+    // Storage 不可用时静默忽略
+  }
+
+  if (!API_KEY) {
+    source = 'empty';
+    if (DEBUG) console.warn('[API] ⚠️ API_KEY 为空，请检查 config.js 或在调试面板设置');
+  }
+
+  return { API_BASE_URL, API_KEY, source };
+}
+
 // ============= 内部工具 =============
 
 /**
