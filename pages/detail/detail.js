@@ -149,9 +149,7 @@ function sanitizeHtml(rawHtml) {
 Page({
   data: {
     detail: null,
-    loading: true,
-    showFullscreen: false,
-    fontScale: 1.0
+    loading: true
   },
 
   onLoad(options) {
@@ -229,74 +227,52 @@ Page({
           .join('');
       }
 
-      // 3) 附件列表 - 尝试多种字段名
+      // 3) 附件列表 - 多种字段名, 转成 WXML 可直接遍历的数组
       const attachmentsArr = data.attachments
         || data.files
         || data.documents
-        || data.附件
+        || data['附件']
         || [];
-      let attachmentsHtml = '';
-      if (Array.isArray(attachmentsArr) && attachmentsArr.length > 0) {
-        const items = attachmentsArr
-          .map((att, idx) => {
-            const fileName = att.fileName
-              || att.file_name
-              || att.name
-              || att.filename
-              || att.title
-              || `附件${idx + 1}`;
-            const fileSize = att.fileSize || att.file_size || att.size || 0;
-            const sizeStr = fileSize > 0 ? formatFileSize(fileSize) : '';
-            const icon = getFileIcon(att.fileType || att.file_type || att.type || '');
-            const url = att.downloadUrl
-              || att.download_url
-              || att.url
-              || att.originalUrl
-              || att.original_url
-              || '#';
-            return `<view class="attachment-item" data-url="${escapeHtml(url)}" bindtap="onAttachmentTap">
-              <view class="att-icon">${icon}</view>
-              <view class="att-info">
-                <view class="att-name">${escapeHtml(fileName)}</view>
-                <view class="att-meta">${sizeStr}${sizeStr ? ' · ' : ''}点击复制链接</view>
-              </view>
-            </view>`;
-          })
-          .join('');
-        attachmentsHtml = `<view class="attachments-block">
-          <view class="block-title">📎 附件 (${attachmentsArr.length})</view>
-          ${items}
-        </view>`;
-      }
+      data.attachments = Array.isArray(attachmentsArr) ? attachmentsArr.map((att, idx) => {
+        const fileName = att.fileName
+          || att.file_name
+          || att.name
+          || att.filename
+          || att.title
+          || `附件${idx + 1}`;
+        const fileSize = att.fileSize || att.file_size || att.size || 0;
+        const fileType = att.fileType || att.file_type || att.type || '';
+        const icon = getFileIcon(fileType);
+        const url = att.downloadUrl
+          || att.download_url
+          || att.url
+          || att.originalUrl
+          || att.original_url
+          || '#';
+        return {
+          id: att.id || idx,
+          fileName,
+          fileType,
+          fileSize,
+          fileSizeText: fileSize > 0 ? formatFileSize(fileSize) : '',
+          downloadUrl: url,
+          icon
+        };
+      }) : [];
 
-      // 4) 中标结果 - 多种字段名
-      const result = data.transactionResult
+      // 4) 组装正文 HTML (主正文 + sections + 关联交易结果)
+      const transactionResult = data.transactionResult
         || data.transaction_result
-        || data.winningResult
-        || data.bidResult
+        || data.winResult
+        || data['交易结果']
         || '';
-      let resultHtml = '';
-      if (typeof result === 'string' && result.trim()) {
-        resultHtml = `<view class="transaction-result">
-          <view class="block-title">🏆 中标结果</view>
-          <view class="result-body">${sanitizeHtml(result)}</view>
-        </view>`;
-      }
+      const resultHtml = transactionResult
+        ? `<view class="transaction-result"><view class="block-title">交易结果</view><view class="result-body">${sanitizeHtml(transactionResult)}</view></view>`
+        : '';
+      const contentHtml = (mainHtml || '') + sectionsHtml + resultHtml;
 
-      // 合并所有内容
-      const fullHtml = (mainHtml || '') + sectionsHtml + resultHtml + attachmentsHtml;
-      data.contentHtml = fullHtml;
-      data.hasContent = !!(mainHtml || sectionsHtml || resultHtml);
-
-      console.log('[Detail] 加载完成:', {
-        id: data.id,
-        title: (data.title || '').slice(0, 50),
-        hasContent: data.hasContent,
-        mainContentLength: (mainContent || '').length,
-        sectionsCount: sectionsArr.length,
-        attachmentsCount: attachmentsArr.length,
-        availableFields: Object.keys(data).filter(k => /content|body|html|section|attach/i.test(k))
-      });
+      data.contentHtml = contentHtml;
+      data.hasContent = !!(mainHtml || sectionsHtml);
 
       this.setData({
         detail: data,
@@ -309,23 +285,27 @@ Page({
     }
   },
 
-  // 点击附件
+  // 点击附件 - 弹窗提示下载
   onAttachmentTap(e) {
-    const url = e.currentTarget.dataset.url;
+    const { url, name } = e.currentTarget.dataset || {};
     if (!url || url === '#') {
       wx.showToast({ title: '附件链接不可用', icon: 'none' });
       return;
     }
-    // 复制链接到剪贴板
-    wx.setClipboardData({
-      data: url,
-      success: () => {
-        wx.showModal({
-          title: '附件链接已复制',
-          content: '链接已复制到剪贴板，请在浏览器中打开下载。\n\n' + url,
-          confirmText: '知道了',
-          showCancel: false
-        });
+    wx.showModal({
+      title: '附件下载',
+      content: `是否复制 "${name || '附件'}" 的下载链接到剪贴板？\n\n链接: ${url}`,
+      confirmText: '复制链接',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          wx.setClipboardData({
+            data: url,
+            success: () => {
+              wx.showToast({ title: '已复制到剪贴板', icon: 'success' });
+            }
+          });
+        }
       }
     });
   },
@@ -340,36 +320,5 @@ Page({
 
   onSubscribe() {
     wx.showToast({ title: '订阅成功', icon: 'success' });
-  },
-
-  /**
-   * 打开全屏查看
-   * - 显示与详情相同的内容
-   * - 在全屏模式下表格不强制压缩，可以横向滚动查看完整内容
-   * - 支持缩放（A+ / A-）
-   */
-  openFullscreen() {
-    this.setData({ showFullscreen: true, fontScale: 1.0, fontScaleText: '100%' });
-  },
-
-  closeFullscreen() {
-    this.setData({ showFullscreen: false });
-  },
-
-  onOverlayTap() {
-    // 点击遮罩关闭弹层
-    this.setData({ showFullscreen: false });
-  },
-
-  zoomIn() {
-    const next = Math.min(2.0, this.data.fontScale + 0.2);
-    const rounded = Math.round(next * 10) / 10;
-    this.setData({ fontScale: rounded, fontScaleText: Math.round(rounded * 100) + '%' });
-  },
-
-  zoomOut() {
-    const next = Math.max(0.6, this.data.fontScale - 0.2);
-    const rounded = Math.round(next * 10) / 10;
-    this.setData({ fontScale: rounded, fontScaleText: Math.round(rounded * 100) + '%' });
   }
 })

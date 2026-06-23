@@ -82,26 +82,44 @@
   </view>
 
   <view class="detail-section" wx:if="{{detail.contentHtml}}">
-    <view class="section-title-row">
-      <view class="section-title">公告内容</view>
-      <view class="fullscreen-btn" bindtap="openFullscreen">
-        <image class="fullscreen-icon" src="/images/icon-fullscreen.svg" mode="aspectFit"></image>
-        <text>全屏查看</text>
-      </view>
-    </view>
+    <view class="section-title">公告内容</view>
     <view class="content-scroll">
       <rich-text class="content-text" nodes="{{detail.contentHtml}}"></rich-text>
     </view>
   </view>
 
   <view class="detail-section" wx:elif="{{!loading && detail}}">
-    <view class="section-title-row">
-      <view class="section-title">公告内容</view>
-    </view>
+    <view class="section-title">公告内容</view>
     <view class="empty-content">
       <view class="empty-icon">📄</view>
       <view class="empty-text">暂无正文内容</view>
       <view class="empty-hint">此标讯可能仅在原网站提供详情</view>
+    </view>
+  </view>
+
+  <view class="detail-section" wx:if="{{detail.attachments && detail.attachments.length > 0}}">
+    <view class="section-title">附件下载 ({{detail.attachments.length}})</view>
+    <view class="attachment-list">
+      <view class="attachment-item"
+            wx:for="{{detail.attachments}}"
+            wx:key="id"
+            wx:for-item="att"
+            data-url="{{att.downloadUrl}}"
+            data-name="{{att.fileName}}"
+            bindtap="onAttachmentTap">
+        <view class="att-icon">{{att.icon}}</view>
+        <view class="att-info">
+          <view class="att-name">{{att.fileName}}</view>
+          <view class="att-meta">
+            <text wx:if="{{att.fileType}}">{{att.fileType}}</text>
+            <text wx:if="{{att.fileSize}}"> · {{att.fileSizeText}}</text>
+            <text wx:if="{{!att.fileType && !att.fileSize}}">点击复制下载链接</text>
+          </view>
+        </view>
+        <view class="att-action">
+          <text>下载</text>
+        </view>
+      </view>
     </view>
   </view>
 
@@ -138,32 +156,6 @@
     </view>
     <view class="bar-btn" bindtap="onSubscribe">
       <text>立即订阅</text>
-    </view>
-  </view>
-</view>
-
-<!-- 全屏查看弹层 -->
-<view class="fullscreen-overlay" wx:if="{{showFullscreen}}" bindtap="onOverlayTap">
-  <view class="fullscreen-panel" catchtap="">
-    <!-- 顶部工具栏 -->
-    <view class="fullscreen-header" style="padding-top: {{statusBarHeight}}px;">
-      <view class="fullscreen-toolbar">
-        <view class="toolbar-title">公告全文</view>
-        <view class="toolbar-actions">
-          <view class="zoom-btn" bindtap="zoomOut">A−</view>
-          <view class="zoom-text">{{fontScaleText}}</view>
-          <view class="zoom-btn" bindtap="zoomIn">A+</view>
-          <view class="toolbar-close" bindtap="closeFullscreen">×</view>
-        </view>
-      </view>
-    </view>
-    <!-- 内容区：双向滚动 -->
-    <scroll-view class="fullscreen-body" scroll-x="{{true}}" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{true}}">
-      <rich-text class="fullscreen-content" style="font-size: {{28 * fontScale}}rpx;" nodes="{{detail.contentHtml || detail.content}}"></rich-text>
-    </scroll-view>
-    <!-- 底部提示 -->
-    <view class="fullscreen-footer">
-      <text>💡 双指捏合可缩放，可拖动查看完整内容</text>
     </view>
   </view>
 </view>

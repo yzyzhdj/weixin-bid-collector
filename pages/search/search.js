@@ -108,15 +108,18 @@ Page({
   async loadResults() {
     this.setData({ loading: true });
     try {
+      // 注意: API 字段名是 snake_case (publish_date_start, created_at)
       const params = {
         page: 1,
         page_size: 20,
-        sort_by: 'createdAt',
+        sort_by: 'created_at',
         sort_order: 'desc'
       };
 
       // 关键词过滤
-      if (this.data.keyword.trim()) params.keyword = this.data.keyword.trim();
+      if (this.data.keyword && this.data.keyword.trim()) {
+        params.keyword = this.data.keyword.trim();
+      }
 
       // 地区过滤：来自首页（selectedProvince/selectedCity） 或 筛选条（currentFilters.region）
       const province = this.data.selectedProvince || this.data.currentFilters.region;
@@ -124,15 +127,35 @@ Page({
       if (province) params.province = province;
       if (city) params.city = city;
 
-      // 类型过滤
-      if (this.data.currentFilters.bidType) params.bid_type = this.data.currentFilters.bidType;
+      // 类型过滤：使用 list_type / bid_phase / category 三个不同字段做映射
+      // 避免使用不被后端接受的 bid_type 值（如"中标公告"、"工程类"）
+      const bidType = this.data.currentFilters.bidType;
+      if (bidType) {
+        if (bidType === '招标公告') {
+          // 用 list_type 简化：排除已中标
+          params.list_type = 'bids';
+        } else if (bidType === '中标公告') {
+          // 用 list_type 简化：仅成交公示
+          params.list_type = 'wins';
+        } else if (bidType === '招标') {
+          params.bid_phase = '招标';
+        } else if (bidType === '中标') {
+          params.bid_phase = '中标';
+        } else if (['工程类', '服务类', '货物类', '其他'].indexOf(bidType) !== -1) {
+          // category 是 4 个枚举值之一
+          params.category = bidType;
+        } else if (this.data.BID_TYPES && this.data.BID_TYPES.indexOf(bidType) !== -1) {
+          // bid_type 是 12 个枚举值之一
+          params.bid_type = bidType;
+        }
+      }
 
-      // 时间过滤（转换为 publishDate 过滤）
+      // 时间过滤：API 字段是 publish_date_start (YYYY-MM-DD)
       if (this.data.currentFilters.time) {
         const days = { '今日': 1, '近3天': 3, '近7天': 7, '近30天': 30, '近90天': 90 }[this.data.currentFilters.time];
         if (days) {
           const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-          params.startDate = startDate.toISOString().split('T')[0];
+          params.publish_date_start = startDate.toISOString().split('T')[0];
         }
       }
 
@@ -160,8 +183,13 @@ Page({
         emptyText: items.length === 0 ? (params.keyword ? `未找到与"${params.keyword}"相关的结果` : '该地区暂无数据') : ''
       });
     } catch (e) {
-      console.error('搜索失败', e);
-      this.setData({ loading: false, resultList: [], emptyText: '搜索出错，请重试' });
+      console.error('[search] 搜索失败:', e);
+      const errMsg = (e && e.message) || (typeof e === 'string' ? e : '搜索出错，请重试');
+      this.setData({
+        loading: false,
+        resultList: [],
+        emptyText: '搜索错误: ' + errMsg + '，请重试'
+      });
     }
   },
 
