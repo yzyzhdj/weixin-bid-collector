@@ -1,0 +1,33 @@
+<view class="container">
+  <view class="header" style="padding-top: {{statusBarHeight}}px;">
+    <view class="back-btn" bindtap="onBackTap">‹</view>
+    <view class="header-title">消息通知</view>
+    <view class="mark-btn" bindtap="onMarkAllRead" wx:if="{{list.length > 0}}">全部已读</view>
+  </view>
+
+  <view class="list">
+    <view wx:if="{{list.length === 0 && !loading}}" class="empty">
+      <view class="empty-icon">🔔</view>
+      <view class="empty-text">{{emptyText || '暂无消息'}}</view>
+    </view>
+
+    <view class="list-item"
+          wx:for="{{list}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          data-index="{{index}}"
+          bindtap="onItemTap">
+      <view class="item-dot" wx:if="{{!item.isRead}}"></view>
+      <view class="item-body">
+        <view class="item-head">
+          <text class="item-title {{!item.isRead ? 'unread' : ''}}">{{item.title}}</text>
+          <text class="item-time">{{item.time}}</text>
+        </view>
+        <view class="item-content">{{item.content}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="loading" wx:elif="{{!hasMore && list.length > 0}}">— 已加载全部 —</view>
+</view>

@@ -1,0 +1,100 @@
+<view class="container">
+  <view class="header" style="padding-top: {{statusBarHeight}}px;">
+    <view class="back-btn" bindtap="onBackTap">‹</view>
+    <view class="header-title">{{isEdit ? '编辑订阅' : '新建订阅'}}</view>
+  </view>
+
+  <view class="form">
+    <view class="form-item">
+      <view class="form-label required">订阅名称</view>
+      <input class="form-input" placeholder="如：医院建设工程订阅"
+             data-field="name" value="{{form.name}}" bindinput="onInput" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">关键词</view>
+      <input class="form-input" placeholder="多个用空格分隔，如：医院 建设"
+             data-field="keywords" value="{{form.keywords}}" bindinput="onInput" />
+    </view>
+
+    <view class="form-item" bindtap="showBidTypePicker">
+      <view class="form-label">标讯类型</view>
+      <view class="form-picker">
+        <text wx:if="{{bidTypePickerText}}">{{bidTypePickerText}}</text>
+        <text wx:else class="placeholder">点击选择</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+
+    <view class="form-item" bindtap="showProvincePicker">
+      <view class="form-label">省份</view>
+      <view class="form-picker">
+        <text wx:if="{{provincePickerText}}">{{provincePickerText}}</text>
+        <text wx:else class="placeholder">点击选择</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+
+    <view class="form-item" bindtap="showIndustryPicker">
+      <view class="form-label">行业</view>
+      <view class="form-picker">
+        <text wx:if="{{industryPickerText}}">{{industryPickerText}}</text>
+        <text wx:else class="placeholder">点击选择</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">预算范围（万元）</view>
+      <view class="form-budget">
+        <input class="budget-input" type="digit" placeholder="下限" data-field="budgetMin" value="{{form.budgetMin}}" bindinput="onInput" />
+        <text class="dash">~</text>
+        <input class="budget-input" type="digit" placeholder="上限" data-field="budgetMax" value="{{form.budgetMax}}" bindinput="onInput" />
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">推送通知</view>
+      <switch class="form-switch" checked="{{form.notifyEnabled}}"
+              bindchange="onToggleSwitch" color="#1e88ff"></switch>
+    </view>
+
+    <button class="save-btn" bindtap="onSave" disabled="{{saving}}">
+      {{saving ? '保存中…' : '保存订阅'}}
+    </button>
+  </view>
+
+  <!-- 类型选择器 -->
+  <view class="modal-mask" wx:if="{{bidTypePickerShow}}" bindtap="hideBidTypePicker">
+    <view class="modal-panel" catchtap="">
+      <view class="modal-title">选择标讯类型</view>
+      <view class="modal-list">
+        <view class="modal-item" wx:for="{{bidTypeOptions}}" wx:key="*this"
+              data-value="{{item}}" bindtap="onPickBidType">{{item}}</view>
+      </view>
+      <view class="modal-cancel" bindtap="hideBidTypePicker">取消</view>
+    </view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{provincePickerShow}}" bindtap="hideProvincePicker">
+    <view class="modal-panel" catchtap="">
+      <view class="modal-title">选择省份</view>
+      <view class="modal-list">
+        <view class="modal-item" wx:for="{{provinceOptions}}" wx:key="*this"
+              data-value="{{item}}" bindtap="onPickProvince">{{item}}</view>
+      </view>
+      <view class="modal-cancel" bindtap="hideProvincePicker">取消</view>
+    </view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{industryPickerShow}}" bindtap="hideIndustryPicker">
+    <view class="modal-panel" catchtap="">
+      <view class="modal-title">选择行业</view>
+      <view class="modal-list">
+        <view class="modal-item" wx:for="{{industryOptions}}" wx:key="*this"
+              data-value="{{item}}" bindtap="onPickIndustry">{{item}}</view>
+      </view>
+      <view class="modal-cancel" bindtap="hideIndustryPicker">取消</view>
+    </view>
+  </view>
+</view>

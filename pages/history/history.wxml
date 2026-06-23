@@ -1,0 +1,34 @@
+<view class="container">
+  <view class="header" style="padding-top: {{statusBarHeight}}px;">
+    <view class="back-btn" bindtap="onBackTap">‹</view>
+    <view class="header-title">浏览历史</view>
+    <view class="clear-btn" bindtap="onClearAll" wx:if="{{list.length > 0}}">清空</view>
+  </view>
+
+  <view class="list">
+    <view wx:if="{{list.length === 0 && !loading}}" class="empty">
+      <view class="empty-icon">🕘</view>
+      <view class="empty-text">{{emptyText || '暂无浏览记录'}}</view>
+    </view>
+
+    <view class="list-item"
+          wx:for="{{list}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onItemTap"
+          bindlongpress="onItemLongPress">
+      <view class="item-title">{{item.title}}</view>
+      <view class="item-meta">
+        <text class="meta-tag" wx:if="{{item.tag}}">{{item.tag}}</text>
+        <text class="meta-company">{{item.company}}</text>
+      </view>
+      <view class="item-foot">
+        <text class="meta-region" wx:if="{{item.region}}">{{item.region}}</text>
+        <text class="meta-time">{{item.time}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="loading" wx:elif="{{!hasMore && list.length > 0}}">— 已加载全部 —</view>
+</view>

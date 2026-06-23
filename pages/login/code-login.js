@@ -1,5 +1,5 @@
-// 引入 API 工具
-const { API_BASE_URL } = require('../../utils/config.js');
+// 用户中心 API
+const userApi = require('../../utils/user-api.js');
 
 Page({
   data: {
@@ -27,6 +27,13 @@ Page({
     }
   },
 
+  onShow() {
+    // 如果已经登录，直接返回
+    if (userApi.getToken()) {
+      this.navigateBack();
+    }
+  },
+
   onUnload() {
     if (this.countdownTimer) {
       clearInterval(this.countdownTimer);
@@ -34,10 +41,14 @@ Page({
     }
   },
 
-  onBackTap() {
+  navigateBack() {
     wx.navigateBack({ delta: 1, fail: () => {
       wx.switchTab({ url: '/pages/profile/profile' });
     }});
+  },
+
+  onBackTap() {
+    this.navigateBack();
   },
 
   onPhoneInput(e) {
@@ -67,34 +78,24 @@ Page({
       return;
     }
 
+    if (!this.data.agreed) {
+      wx.showToast({ title: '请先阅读并同意协议', icon: 'none' });
+      return;
+    }
+
     this.setData({ sending: true });
     wx.showLoading({ title: '发送中...', mask: true });
 
-    wx.request({
-      url: `${API_BASE_URL}/auth/send-code`,
-      method: 'POST',
-      timeout: 15000,
-      data: { phone },
-      header: { 'Content-Type': 'application/json' },
-      success: (res) => {
-        this.setData({ sending: false });
-        wx.hideLoading();
-        if (res.statusCode === 200 && res.data && res.data.code === 0) {
-          wx.showToast({ title: '验证码已发送', icon: 'success' });
-          this.startCountdown(60);
-        } else {
-          wx.showToast({
-            title: (res.data && res.data.message) || '发送失败',
-            icon: 'none'
-          });
-        }
-      },
-      fail: (err) => {
-        this.setData({ sending: false });
-        wx.hideLoading();
-        console.error('[发送验证码] 失败:', err);
-        wx.showToast({ title: '网络错误，请重试', icon: 'none' });
-      }
+    userApi.sendSmsCode(phone, 'login').then(() => {
+      this.setData({ sending: false });
+      wx.hideLoading();
+      wx.showToast({ title: '验证码已发送', icon: 'success' });
+      this.startCountdown(60);
+    }).catch((err) => {
+      this.setData({ sending: false });
+      wx.hideLoading();
+      console.error('[发送验证码] 失败:', err);
+      // 错误已由 userApi 弹窗提示
     });
   },
 
@@ -134,50 +135,21 @@ Page({
     this.setData({ logging: true });
     wx.showLoading({ title: '登录中...', mask: true });
 
-    wx.request({
-      url: `${API_BASE_URL}/auth/code-login`,
-      method: 'POST',
-      timeout: 15000,
-      data: { phone, code },
-      header: { 'Content-Type': 'application/json' },
-      success: (res) => {
-        this.setData({ logging: false });
-        wx.hideLoading();
-        if (res.statusCode === 200 && res.data && res.data.code === 0) {
-          const userInfo = res.data.data;
-          this.saveUserInfo(userInfo);
-          wx.showToast({ title: '登录成功', icon: 'success' });
-          setTimeout(() => {
-            wx.navigateBack({ delta: 1, fail: () => {
-              wx.switchTab({ url: '/pages/profile/profile' });
-            }});
-          }, 1000);
-        } else {
-          wx.showToast({
-            title: (res.data && res.data.message) || '登录失败',
-            icon: 'none'
-          });
-        }
-      },
-      fail: (err) => {
-        this.setData({ logging: false });
-        wx.hideLoading();
-        console.error('[登录] 失败:', err);
-        wx.showToast({ title: '网络错误，请重试', icon: 'none' });
-      }
+    // 短信验证码登录：loginType=sms
+    userApi.login({
+      loginType: 'sms',
+      phone,
+      smsCode: code
+    }).then((data) => {
+      this.setData({ logging: false });
+      wx.hideLoading();
+      wx.showToast({ title: '登录成功', icon: 'success' });
+      setTimeout(() => this.navigateBack(), 800);
+    }).catch((err) => {
+      this.setData({ logging: false });
+      wx.hideLoading();
+      console.error('[登录] 失败:', err);
     });
-  },
-
-  // 保存登录态
-  saveUserInfo(userInfo) {
-    const app = getApp();
-    if (app && app.globalData) {
-      app.globalData.userInfo = userInfo;
-      app.globalData.token = userInfo.token || '';
-      app.globalData.isLoggedIn = true;
-    }
-    wx.setStorageSync('userInfo', userInfo);
-    wx.setStorageSync('token', userInfo.token || '');
   },
 
   // 切换到手机号快捷登录

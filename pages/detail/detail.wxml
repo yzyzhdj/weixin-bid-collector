@@ -146,9 +146,9 @@
   </view>
 
   <view class="bottom-bar">
-    <view class="bar-item" bindtap="onCollect">
-      <image class="bar-icon" src="/images/icon-collect.png" mode="aspectFit"></image>
-      <text>收藏</text>
+    <view class="bar-item {{isFavorited ? 'active' : ''}}" bindtap="onCollect">
+      <image class="bar-icon" src="{{isFavorited ? '/images/icon-collect-active.png' : '/images/icon-collect.png'}}" mode="aspectFit"></image>
+      <text>{{isFavorited ? '已收藏' : '收藏'}}</text>
     </view>
     <view class="bar-item" bindtap="onShare">
       <image class="bar-icon" src="/images/icon-share.png" mode="aspectFit"></image>

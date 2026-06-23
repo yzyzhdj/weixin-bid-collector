@@ -1,0 +1,37 @@
+<view class="container">
+  <!-- 顶部导航 -->
+  <view class="header" style="padding-top: {{statusBarHeight}}px;">
+    <view class="back-btn" bindtap="onBackTap">‹</view>
+    <view class="header-title">我的收藏</view>
+  </view>
+
+  <!-- 列表 -->
+  <view class="list">
+    <view wx:if="{{list.length === 0 && !loading}}" class="empty">
+      <view class="empty-icon">⭐</view>
+      <view class="empty-text">{{emptyText || '暂无收藏'}}</view>
+      <view class="empty-hint">在详情页点击收藏按钮收藏感兴趣的标讯</view>
+    </view>
+
+    <view class="list-item"
+          wx:for="{{list}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onItemTap"
+          bindlongpress="onItemLongPress">
+      <view class="item-title">{{item.title}}</view>
+      <view class="item-meta">
+        <text class="meta-tag" wx:if="{{item.tag}}">{{item.tag}}</text>
+        <text class="meta-company">{{item.company}}</text>
+      </view>
+      <view class="item-foot">
+        <text class="meta-region" wx:if="{{item.region}}">{{item.region}} {{item.city}}</text>
+        <text class="meta-time">{{item.time}}</text>
+      </view>
+      <view class="item-remark" wx:if="{{item.remark}}">备注：{{item.remark}}</view>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="loading" wx:elif="{{!hasMore && list.length > 0}}">— 已加载全部 —</view>
+</view>

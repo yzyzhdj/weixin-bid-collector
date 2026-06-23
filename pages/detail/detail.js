@@ -1,4 +1,5 @@
 const api = require('../../utils/api.js');
+const userApi = require('../../utils/user-api.js');
 
 // 格式化 ISO 日期为 YYYY-MM-DD
 function formatDate(dateStr) {
@@ -149,17 +150,36 @@ function sanitizeHtml(rawHtml) {
 Page({
   data: {
     detail: null,
-    loading: true
+    loading: true,
+    isFavorited: false,    // 是否已收藏
+    favoriting: false      // 收藏请求中
   },
 
   onLoad(options) {
-    // 获取状态栏高度（用于全屏弹层）
+    // 获取状态栏高度
     const app = getApp();
     const statusBarHeight = (app && app.globalData && app.globalData.statusBarHeight) || 20;
     this.setData({ statusBarHeight });
     if (options.id) {
+      this._bidId = options.id;
       this.loadDetail(options.id);
     }
+  },
+
+  onShow() {
+    // 加载详情后如果已登录，查询收藏状态
+    if (this._bidId && userApi.getToken()) {
+      this.checkFavorite();
+    }
+  },
+
+  checkFavorite() {
+    userApi.checkFavorite(this._bidId).then((res) => {
+      const fav = res === true || res === 'true' || (res && res.favorited) || false;
+      this.setData({ isFavorited: fav });
+    }).catch((err) => {
+      console.log('[Detail] 查询收藏状态失败', err);
+    });
   },
 
   async loadDetail(id) {
@@ -285,6 +305,14 @@ Page({
         detail: data,
         loading: false
       });
+
+      // 记录浏览历史（如已登录）
+      if (userApi.getToken()) {
+        userApi.addBrowseHistory(id).catch((err) => {
+          console.log('[Detail] 记录浏览历史失败', err);
+        });
+        this.checkFavorite();
+      }
     } catch (e) {
       console.error('[Detail] 加载失败', e);
       wx.showToast({ title: '加载失败', icon: 'none' });
@@ -318,7 +346,33 @@ Page({
   },
 
   onCollect() {
-    wx.showToast({ title: '收藏功能开发中', icon: 'none' });
+    if (!userApi.getToken()) {
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      setTimeout(() => wx.navigateTo({ url: '/pages/login/login' }), 800);
+      return;
+    }
+    if (!this._bidId || this.data.favoriting) return;
+    const wasFav = this.data.isFavorited;
+    this.setData({ favoriting: true });
+    if (wasFav) {
+      // 取消收藏
+      userApi.removeFavorite(this._bidId).then(() => {
+        this.setData({ isFavorited: false, favoriting: false });
+        wx.showToast({ title: '已取消收藏', icon: 'success' });
+      }).catch((err) => {
+        this.setData({ favoriting: false });
+        console.error('[Detail] 取消收藏失败', err);
+      });
+    } else {
+      // 添加收藏
+      userApi.addFavorite(this._bidId).then(() => {
+        this.setData({ isFavorited: true, favoriting: false });
+        wx.showToast({ title: '已收藏', icon: 'success' });
+      }).catch((err) => {
+        this.setData({ favoriting: false });
+        console.error('[Detail] 收藏失败', err);
+      });
+    }
   },
 
   onShare() {

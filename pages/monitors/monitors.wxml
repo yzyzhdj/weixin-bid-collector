@@ -1,0 +1,98 @@
+<view class="container">
+  <view class="header" style="padding-top: {{statusBarHeight}}px;">
+    <view class="back-btn" bindtap="onBackTap">‹</view>
+    <view class="header-title">企业监控</view>
+    <view class="add-btn" bindtap="onAddTap">+ 添加</view>
+  </view>
+
+  <view class="list">
+    <view wx:if="{{list.length === 0 && !loading}}" class="empty">
+      <view class="empty-icon">🏢</view>
+      <view class="empty-text">{{emptyText || '暂未监控任何企业'}}</view>
+      <view class="empty-hint">点击右上角"添加"开始监控企业</view>
+    </view>
+
+    <view class="list-item"
+          wx:for="{{list}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindlongpress="onItemLongPress">
+      <view class="item-head">
+        <view class="item-name">{{item.companyName}}</view>
+        <switch class="item-switch" checked="{{item.notifyEnabled}}"
+                data-id="{{item.id}}" bindchange="onToggleNotify" color="#1e88ff"></switch>
+      </view>
+
+      <view class="item-tags">
+        <text class="tag" wx:if="{{item.unifiedCode}}">信用代码：{{item.unifiedCode}}</text>
+        <text class="tag" wx:if="{{item.alias}}">别名：{{item.alias}}</text>
+        <text class="tag" wx:if="{{item.province}}">地区：{{item.province}} {{item.city}}</text>
+      </view>
+
+      <view class="item-foot">
+        <text class="meta-link" data-id="{{item.id}}" catchtap="onItemLongPress">查看动态 / 删除</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="loading" wx:elif="{{!hasMore && list.length > 0}}">— 已加载全部 —</view>
+
+  <!-- 添加监控弹窗 -->
+  <view class="modal-mask" wx:if="{{showAdd}}" bindtap="onCancelAdd">
+    <view class="modal-panel" catchtap="">
+      <view class="modal-title">添加监控企业</view>
+      <view class="form">
+        <view class="form-item">
+          <view class="form-label required">企业名称</view>
+          <input class="form-input" placeholder="请输入" data-field="companyName"
+                 value="{{addForm.companyName}}" bindinput="onAddInput" />
+        </view>
+        <view class="form-item">
+          <view class="form-label">统一社会信用代码</view>
+          <input class="form-input" placeholder="可选" data-field="unifiedCode"
+                 value="{{addForm.unifiedCode}}" bindinput="onAddInput" />
+        </view>
+        <view class="form-item">
+          <view class="form-label">别名</view>
+          <input class="form-input" placeholder="多个用逗号分隔" data-field="alias"
+                 value="{{addForm.alias}}" bindinput="onAddInput" />
+        </view>
+        <view class="form-item" bindtap="showProvincePicker">
+          <view class="form-label">省份</view>
+          <view class="form-picker">
+            <text wx:if="{{provincePickerText}}">{{provincePickerText}}</text>
+            <text wx:else class="placeholder">点击选择</text>
+            <text class="arrow">›</text>
+          </view>
+        </view>
+        <view class="form-item">
+          <view class="form-label">城市</view>
+          <input class="form-input" placeholder="可选" data-field="city"
+                 value="{{addForm.city}}" bindinput="onAddInput" />
+        </view>
+        <view class="form-item">
+          <view class="form-label">推送通知</view>
+          <switch class="form-switch" checked="{{addForm.notifyEnabled}}"
+                  bindchange="onAddSwitch" color="#1e88ff"></switch>
+        </view>
+      </view>
+      <view class="modal-actions">
+        <view class="action-cancel" bindtap="onCancelAdd">取消</view>
+        <view class="action-save" bindtap="onSaveAdd">{{saving ? '保存中…' : '保存'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 省份选择 -->
+  <view class="modal-mask" wx:if="{{provincePickerShow}}" bindtap="hideProvincePicker">
+    <view class="modal-panel" catchtap="">
+      <view class="modal-title">选择省份</view>
+      <view class="modal-list">
+        <view class="modal-item" wx:for="{{provinceOptions}}" wx:key="*this"
+              data-value="{{item}}" bindtap="onPickProvince">{{item}}</view>
+      </view>
+      <view class="modal-cancel" bindtap="hideProvincePicker">取消</view>
+    </view>
+  </view>
+</view>

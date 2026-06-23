@@ -1,0 +1,48 @@
+<view class="container">
+  <!-- 顶部导航 -->
+  <view class="header" style="padding-top: {{statusBarHeight}}px;">
+    <view class="back-btn" bindtap="onBackTap">‹</view>
+    <view class="header-title">我的订阅</view>
+    <view class="add-btn" bindtap="onCreateTap">+ 新建</view>
+  </view>
+
+  <!-- 列表 -->
+  <view class="list">
+    <view wx:if="{{list.length === 0 && !loading}}" class="empty">
+      <view class="empty-icon">📋</view>
+      <view class="empty-text">{{emptyText || '暂无订阅'}}</view>
+      <view class="empty-hint">点击右上角"新建"创建你的第一个订阅</view>
+    </view>
+
+    <view class="list-item"
+          wx:for="{{list}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onItemTap"
+          bindlongpress="onItemLongPress">
+      <view class="item-head">
+        <view class="item-name">{{item.name}}</view>
+        <switch class="item-switch" checked="{{item.notifyEnabled}}"
+                data-id="{{item.id}}" bindchange="onToggleNotify" color="#1e88ff"></switch>
+      </view>
+
+      <view class="item-tags">
+        <text class="tag" wx:if="{{item.keywords}}">关键词：{{item.keywords}}</text>
+        <text class="tag" wx:if="{{item.provinces}}">地区：{{item.provinces}}</text>
+        <text class="tag" wx:if="{{item.bidTypes}}">类型：{{item.bidTypes}}</text>
+        <text class="tag" wx:if="{{item.industries}}">行业：{{item.industries}}</text>
+        <text class="tag" wx:if="{{item.budgetMin > 0 || item.budgetMax > 0}}">
+          预算：{{item.budgetMin || 0}}~{{item.budgetMax || 0}}万
+        </text>
+      </view>
+
+      <view class="item-foot">
+        <text class="meta-time">创建于 {{item.createTime}}</text>
+        <view class="delete-btn" catchtap="onDeleteTap" data-id="{{item.id}}">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="loading" wx:elif="{{!hasMore && list.length > 0}}">— 已加载全部 —</view>
+</view>

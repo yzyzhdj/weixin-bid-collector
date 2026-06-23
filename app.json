@@ -10,7 +10,13 @@
     "pages/search/search",
     "pages/login/login",
     "pages/login/code-login",
-    "pages/agreement/agreement"
+    "pages/agreement/agreement",
+    "pages/favorites/favorites",
+    "pages/subscriptions/subscriptions",
+    "pages/subscriptions/edit",
+    "pages/history/history",
+    "pages/monitors/monitors",
+    "pages/notifications/notifications"
   ],
   "window": {
     "backgroundTextStyle": "light",

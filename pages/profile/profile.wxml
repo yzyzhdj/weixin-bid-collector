@@ -14,13 +14,28 @@
     <!-- 用户信息 -->
     <view class="user-card">
       <view class="user-left">
-        <view class="avatar">
-          <image class="avatar-img" src="/images/avatar-default.svg"></image>
+        <view class="avatar" bindtap="{{isLoggedIn ? 'onAvatarTap' : 'onLoginTap'}}">
+          <image class="avatar-img" src="{{userInfo.avatar || '/images/avatar-default.svg'}}"></image>
         </view>
         <view class="user-info">
-          <view class="user-name" bindtap="onLoginTap">点击登录</view>
-          <view class="user-tip">登录获取更多服务</view>
+          <block wx:if="{{isLoggedIn}}">
+            <view class="user-name">{{userInfo.nickname || '用户'}}</view>
+            <view class="user-tip" wx:if="{{userInfo.phone}}">{{userInfo.phone}}</view>
+            <view class="user-tip" wx:else>已登录</view>
+          </block>
+          <block wx:else>
+            <view class="user-name" bindtap="onLoginTap">点击登录</view>
+            <view class="user-tip">登录获取更多服务</view>
+          </block>
         </view>
+      </view>
+      <!-- 已登录：右侧显示消息和退出 -->
+      <view class="user-right" wx:if="{{isLoggedIn}}">
+        <view class="msg-btn" bindtap="onMessageTap">
+          <image class="msg-icon" src="/images/icon-message.svg"></image>
+          <view class="msg-badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
+        </view>
+        <view class="logout-btn" bindtap="onLogoutTap">退出</view>
       </view>
     </view>
   </view>
@@ -30,9 +45,10 @@
     <view class="vip-left">
       <view class="vip-title">
         <text class="vip-text">VIP</text>
-        <text class="vip-text-main">开通会员</text>
+        <text class="vip-text-main">{{userInfo.isVip ? '续费会员' : '开通会员'}}</text>
       </view>
-      <view class="vip-subtitle">开通立享多重特权，可享超大折扣</view>
+      <view class="vip-subtitle" wx:if="{{userInfo.isVip}}">到期时间：{{userInfo.vipExpireAt}}</view>
+      <view class="vip-subtitle" wx:else>开通立享多重特权，可享超大折扣</view>
     </view>
     <view class="vip-btn">去开通 ></view>
   </view>
@@ -51,16 +67,30 @@
       </view>
       <text class="action-text">我的收藏</text>
     </view>
-    <view class="action-item" bindtap="onActionTap" data-type="custom">
+    <view class="action-item" bindtap="onActionTap" data-type="history">
       <view class="action-icon-wrap green">
-        <image class="action-icon-img" src="/images/icon-qa-custom.svg"></image>
+        <image class="action-icon-img" src="/images/icon-qa-history.svg"></image>
       </view>
-      <text class="action-text">信息定制</text>
+      <text class="action-text">浏览历史</text>
+    </view>
+    <view class="action-item" bindtap="onActionTap" data-type="monitor">
+      <view class="action-icon-wrap purple">
+        <image class="action-icon-img" src="/images/icon-qa-monitor.svg"></image>
+      </view>
+      <text class="action-text">企业监控</text>
     </view>
   </view>
 
   <!-- 菜单列表 -->
   <view class="menu-list">
+    <view class="menu-item" bindtap="onActionTap" data-type="notification">
+      <view class="menu-icon-wrap blue-icon">
+        <image class="menu-icon-img" src="/images/icon-message.svg"></image>
+      </view>
+      <text class="menu-text">消息通知</text>
+      <view class="menu-badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
+      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
+    </view>
     <view class="menu-item" bindtap="onMenuTap" data-type="buy">
       <view class="menu-icon-wrap blue-icon">
         <image class="menu-icon-img" src="/images/icon-buy.svg"></image>
