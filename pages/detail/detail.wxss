@@ -95,6 +95,110 @@
   box-sizing: border-box;
 }
 
+/* ===== 附件块样式 ===== */
+.attachments-block {
+  margin: 32rpx 0 16rpx;
+}
+.block-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 24rpx 0 16rpx;
+  padding-left: 16rpx;
+  border-left: 6rpx solid #1e88ff;
+}
+.attachment-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 24rpx;
+  margin: 12rpx 0;
+  background: #f8fafc;
+  border-radius: 12rpx;
+  border: 1rpx solid #e2e8f0;
+}
+.att-icon {
+  font-size: 48rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+.att-info {
+  flex: 1;
+  min-width: 0;
+}
+.att-name {
+  font-size: 28rpx;
+  color: #1e293b;
+  font-weight: 500;
+  word-break: break-all;
+  line-height: 1.4;
+}
+.att-meta {
+  font-size: 22rpx;
+  color: #94a3b8;
+  margin-top: 4rpx;
+}
+
+/* ===== 中标结果块 ===== */
+.transaction-result {
+  margin: 32rpx 0 16rpx;
+  padding: 24rpx;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 16rpx;
+  border: 1rpx solid #fcd34d;
+}
+.transaction-result .block-title {
+  color: #92400e;
+  border-left-color: #f59e0b;
+  margin-top: 0;
+}
+.result-body {
+  font-size: 28rpx;
+  color: #78350f;
+  line-height: 1.8;
+}
+
+/* ===== 章节样式 ===== */
+.section {
+  margin: 24rpx 0;
+  padding: 0;
+}
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 16rpx 0 12rpx;
+  padding: 12rpx 16rpx;
+  background: #f1f5f9;
+  border-left: 6rpx solid #1e88ff;
+  border-radius: 4rpx;
+}
+.section-body {
+  padding: 0 16rpx;
+  font-size: 28rpx;
+  line-height: 1.8;
+  color: #334155;
+}
+
+/* ===== 空状态 ===== */
+.empty-content {
+  text-align: center;
+  padding: 80rpx 32rpx;
+  color: #94a3b8;
+}
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.5;
+}
+.empty-text {
+  font-size: 28rpx;
+  margin-bottom: 8rpx;
+}
+.empty-hint {
+  font-size: 24rpx;
+  color: #cbd5e1;
+}
+
 /* ===== 公告内容 section 标题栏（含全屏按钮）===== */
 .section-title-row {
   display: flex;

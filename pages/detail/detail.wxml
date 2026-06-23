@@ -81,7 +81,7 @@
     </view>
   </view>
 
-  <view class="detail-section" wx:if="{{detail.contentHtml || detail.content}}">
+  <view class="detail-section" wx:if="{{detail.contentHtml}}">
     <view class="section-title-row">
       <view class="section-title">公告内容</view>
       <view class="fullscreen-btn" bindtap="openFullscreen">
@@ -90,29 +90,18 @@
       </view>
     </view>
     <view class="content-scroll">
-      <rich-text class="content-text" nodes="{{detail.contentHtml || detail.content}}"></rich-text>
+      <rich-text class="content-text" nodes="{{detail.contentHtml}}"></rich-text>
     </view>
   </view>
 
-  <view class="detail-section" wx:if="{{detail.sections && detail.sections.length > 0}}">
-    <view class="section-title">标段信息</view>
-    <view class="related-item" wx:for="{{detail.sections}}" wx:key="id">
-      <view class="related-title">{{item.sectionName || '标段' + item.id}}</view>
-      <view class="related-meta">
-        <text wx:if="{{item.estimatedPrice}}">{{item.estimatedPrice}}</text>
-        <text wx:if="{{item.sectionCategory}}">{{item.sectionCategory}}</text>
-      </view>
+  <view class="detail-section" wx:elif="{{!loading && detail}}">
+    <view class="section-title-row">
+      <view class="section-title">公告内容</view>
     </view>
-  </view>
-
-  <view class="detail-section" wx:if="{{detail.attachments && detail.attachments.length > 0}}">
-    <view class="section-title">附件下载</view>
-    <view class="related-item" wx:for="{{detail.attachments}}" wx:key="id">
-      <view class="related-title">{{item.fileName}}</view>
-      <view class="related-meta">
-        <text wx:if="{{item.fileType}}">{{item.fileType}}</text>
-        <text wx:if="{{item.fileSize}}">{{item.fileSize}} 字节</text>
-      </view>
+    <view class="empty-content">
+      <view class="empty-icon">📄</view>
+      <view class="empty-text">暂无正文内容</view>
+      <view class="empty-hint">此标讯可能仅在原网站提供详情</view>
     </view>
   </view>
 

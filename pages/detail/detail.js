@@ -16,6 +16,37 @@ function formatDate(dateStr) {
   return `${y}-${m}-${d}`;
 }
 
+// HTML 转义
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// 格式化文件大小
+function formatFileSize(bytes) {
+  if (!bytes || bytes < 0) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  return (bytes / 1024 / 1024 / 1024).toFixed(2) + ' GB';
+}
+
+// 文件类型图标
+function getFileIcon(type) {
+  const t = String(type || '').toLowerCase();
+  if (t.indexOf('pdf') !== -1) return '📄';
+  if (t.indexOf('word') !== -1 || t.indexOf('doc') !== -1) return '📝';
+  if (t.indexOf('excel') !== -1 || t.indexOf('xls') !== -1 || t.indexOf('sheet') !== -1) return '📊';
+  if (t.indexOf('image') !== -1 || t.indexOf('png') !== -1 || t.indexOf('jpg') !== -1) return '🖼️';
+  if (t.indexOf('zip') !== -1 || t.indexOf('rar') !== -1 || t.indexOf('7z') !== -1) return '🗜️';
+  return '📎';
+}
+
 /**
  * HTML 清理与规范化 - 让 rich-text 组件能正确渲染
  * 支持：div/p/span/h1-h6/ul/ol/li/table/tr/td/th/img/a/br/strong/em 等
@@ -119,10 +150,80 @@ Page({
       if (data.parentBid && data.parentBid.publishDate) {
         data.parentBid.publishDateFmt = formatDate(data.parentBid.publishDate);
       }
-      // 清理 HTML，让 rich-text 可以正确渲染 div/table/p 等标签
-      if (data.content) {
-        data.contentHtml = sanitizeHtml(data.content);
+
+      // ===== 整合正文 + 章节 + 附件 =====
+      // 1. 主正文 content
+      let mainHtml = '';
+      if (data.content && typeof data.content === 'string') {
+        mainHtml = sanitizeHtml(data.content);
       }
+
+      // 2. 结构化 sections（采购单位概况/项目概况/一、项目基本情况 等）
+      let sectionsHtml = '';
+      if (Array.isArray(data.sections) && data.sections.length > 0) {
+        // 按 order_num 排序
+        const sortedSections = data.sections.slice().sort((a, b) => {
+          return (a.orderNum || a.order_num || 0) - (b.orderNum || b.order_num || 0);
+        });
+        sectionsHtml = sortedSections
+          .map((sec, idx) => {
+            const title = sec.title ? `<view class="section-title">${escapeHtml(sec.title)}</view>` : '';
+            const content = sec.content ? sanitizeHtml(sec.content) : '';
+            return `<view class="section" data-idx="${idx}">${title}<view class="section-body">${content}</view></view>`;
+          })
+          .join('');
+      }
+
+      // 3. 附件列表
+      let attachmentsHtml = '';
+      if (Array.isArray(data.attachments) && data.attachments.length > 0) {
+        const items = data.attachments
+          .map((att, idx) => {
+            const fileName = att.fileName || att.file_name || `附件${idx + 1}`;
+            const fileSize = att.fileSize || att.file_size || 0;
+            const sizeStr = fileSize > 0 ? formatFileSize(fileSize) : '';
+            const icon = getFileIcon(att.fileType || att.file_type || '');
+            const url = att.downloadUrl || att.download_url || att.originalUrl || att.original_url || '#';
+            return `<view class="attachment-item" data-url="${escapeHtml(url)}" bindtap="onAttachmentTap">
+              <view class="att-icon">${icon}</view>
+              <view class="att-info">
+                <view class="att-name">${escapeHtml(fileName)}</view>
+                <view class="att-meta">${sizeStr}${sizeStr ? ' · ' : ''}点击下载</view>
+              </view>
+            </view>`;
+          })
+          .join('');
+        attachmentsHtml = `<view class="attachments-block">
+          <view class="block-title">📎 附件 (${data.attachments.length})</view>
+          ${items}
+        </view>`;
+      }
+
+      // 4. 中标结果（中标阶段才显示）
+      let resultHtml = '';
+      if (data.transactionResult || data.transaction_result) {
+        const result = data.transactionResult || data.transaction_result;
+        resultHtml = `<view class="transaction-result">
+          <view class="block-title">🏆 中标结果</view>
+          <view class="result-body">${sanitizeHtml(result)}</view>
+        </view>`;
+      }
+
+      // 合并所有内容（content + sections + result + attachments）
+      const fullHtml = (mainHtml || '') + sectionsHtml + resultHtml + attachmentsHtml;
+      data.contentHtml = fullHtml;
+
+      // 是否有正文内容
+      data.hasContent = !!(mainHtml || sectionsHtml || resultHtml);
+
+      console.log('[Detail] 加载完成:', {
+        id: data.id,
+        hasContent: data.hasContent,
+        contentLength: mainHtml.length,
+        sectionsCount: (data.sections || []).length,
+        attachmentsCount: (data.attachments || []).length
+      });
+
       this.setData({
         detail: data,
         loading: false
@@ -132,6 +233,27 @@ Page({
       wx.showToast({ title: '加载失败', icon: 'none' });
       this.setData({ loading: false });
     }
+  },
+
+  // 点击附件
+  onAttachmentTap(e) {
+    const url = e.currentTarget.dataset.url;
+    if (!url || url === '#') {
+      wx.showToast({ title: '附件链接不可用', icon: 'none' });
+      return;
+    }
+    // 复制链接到剪贴板
+    wx.setClipboardData({
+      data: url,
+      success: () => {
+        wx.showModal({
+          title: '附件链接已复制',
+          content: '链接已复制到剪贴板，请在浏览器中打开下载。\n\n' + url,
+          confirmText: '知道了',
+          showCancel: false
+        });
+      }
+    });
   },
 
   onCollect() {
