@@ -56,7 +56,28 @@ function sanitizeHtml(rawHtml) {
 
   let html = String(rawHtml);
 
-  // 1. 移除危险标签（script/style/iframe/object/embed）
+  // 0. 提取核心内容区（rich-text 不支持 <body>/<html> 包裹）
+  //    优先取 detail_content / mycontent / mainContent
+  const contentMatch = html.match(/<div[^>]*class=["'][^"']*(detail_content|mycontent|mainContent|content-body|article-body)[^"']*["'][^>]*>([\s\S]*?)<\/div>\s*<\/(div|body|html)>/i);
+  if (contentMatch) {
+    html = contentMatch[2];
+  }
+
+  // 0.1 剥掉 <body>/<html>/<head> 等结构标签
+  html = html.replace(/<\/?(html|head|body|meta|link|title|script|style|iframe|object|embed|frameset|frame)[\s\S]*?>/gi, '');
+
+  // 0.2 移除百度/采集器的隐藏锚点
+  html = html.replace(/<span[^>]*id=["']_baidu_bookmark_(start|end)_\d+["'][\s\S]*?<\/span>/gi, '');
+  html = html.replace(/<a[^>]*name=["'][^"']*["'][\s\S]*?<\/a>/gi, '');
+
+  // 0.3 移除空白零宽字符
+  html = html.replace(/[\u200B-\u200D\uFEFF]/g, '');
+
+  // 0.4 移除采购云采集器生成的无意义表单元素
+  html = html.replace(/<(form|input|button|select|textarea)[\s\S]*?<\/\1>/gi, '');
+  html = html.replace(/<input[^>]*\/?>/gi, '');
+
+  // 1. 移除危险标签
   html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
   html = html.replace(/<style[\s\S]*?<\/style>/gi, '');
   html = html.replace(/<iframe[\s\S]*?<\/iframe>/gi, '');
@@ -69,22 +90,19 @@ function sanitizeHtml(rawHtml) {
   // 3. javascript: 协议清理
   html = html.replace(/javascript\s*:/gi, '');
 
-  // 4. 规范化图片：添加 max-width 样式（避免大图超出屏幕）
+  // 4. 规范化图片：添加 max-width 样式
   html = html.replace(/<img([^>]*)>/gi, (match, attrs) => {
-    // 提取 style 属性
     const styleMatch = attrs.match(/style\s*=\s*(['"])(.*?)\1/i);
     let style = styleMatch ? styleMatch[2] : '';
     if (!/max-width/i.test(style)) {
       style = 'max-width:100%;height:auto;display:block;margin:8rpx 0;' + style;
     }
-    // 移除旧的 style，重新附加
     let newAttrs = attrs.replace(/style\s*=\s*(['"])(.*?)\1/i, '');
     newAttrs += ` style="${style}"`;
     return `<img${newAttrs}>`;
   });
 
-  // 5. 规范化表格：rich-text 不支持 colspan/rowspan 的复杂表格，但基础表格可以
-  //    给 table 加 border-collapse，给 td 加 padding 和 border
+  // 5. 规范化表格
   html = html.replace(/<table([^>]*)>/gi, (match, attrs) => {
     if (!/style/i.test(attrs)) {
       return `<table${attrs} style="width:100%;border-collapse:collapse;margin:16rpx 0;">`;
@@ -106,7 +124,7 @@ function sanitizeHtml(rawHtml) {
     return match;
   });
 
-  // 6. 链接：让 a 标签新窗口打开（如果支持），至少加 target
+  // 6. 链接加 target
   html = html.replace(/<a\s+([^>]*?)>/gi, (match, attrs) => {
     if (!/target/i.test(attrs)) {
       return `<a ${attrs} target="_blank" rel="noopener noreferrer">`;
@@ -114,13 +132,18 @@ function sanitizeHtml(rawHtml) {
     return match;
   });
 
-  // 7. 段落化：把连续的换行/空格规范化（避免 <p><br></p> 嵌套混乱）
+  // 7. 段落化：规范化换行
   html = html.replace(/\r?\n/g, '');
 
   // 8. 移除空段落
   html = html.replace(/<p[^>]*>\s*<\/p>/gi, '');
+  html = html.replace(/<div[^>]*>\s*<\/div>/gi, '');
 
-  return html;
+  // 9. 清理多余空白
+  html = html.replace(/[ \t]+/g, ' ');
+  html = html.replace(/>\s+</g, '><');
+
+  return html.trim();
 }
 
 Page({
