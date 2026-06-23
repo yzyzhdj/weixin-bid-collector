@@ -168,6 +168,13 @@ Page({
       const raw = await api.getBidDetail(id);
       const data = raw || {};
 
+      // 清理 title 中的 Office/HTML 残留（MSO 样式、HTML 实体等）
+      if (data.title) data.title = api.cleanTitle(data.title);
+      if (data.parentBid && data.parentBid.title) data.parentBid.title = api.cleanTitle(data.parentBid.title);
+      if (Array.isArray(data.childBids)) {
+        data.childBids.forEach(cb => { if (cb.title) cb.title = api.cleanTitle(cb.title); });
+      }
+
       // 调试：打印原始响应到控制台
       console.log('[Detail] 原始响应字段:', Object.keys(data));
       console.log('[Detail] 完整响应:', JSON.stringify(data).slice(0, 2000));

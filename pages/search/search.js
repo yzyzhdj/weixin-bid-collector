@@ -166,7 +166,7 @@ Page({
       const items = (data.items || []).map(item => {
         return {
           id: item.id,
-          title: item.title,
+          title: api.cleanTitle(item.title),
           desc: item.biddingMethod || '采购结果公告',
           buyer: item.buyer || item.agent || '未提供',
           winner: item.winner || '',

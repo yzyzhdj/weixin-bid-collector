@@ -226,6 +226,42 @@ function snakeToCamel(obj) {
   return obj;
 }
 
+/**
+ * 清理标讯标题中的 Office/HTML 残留
+ * 后端采集器抓 Word/Excel 公告时常常把内联样式（如 line-height:30.0000pt;mso-line-height-rule:exactly;）
+ * 拼到了 title 字段前面，导致前端展示为"line-height:30.0000pt;mso-line-height-rule:exactly;">竞争谈判..."
+ * @param {string} s 原始标题
+ * @returns {string} 清理后的标题
+ */
+function cleanTitle(s) {
+  if (s === null || s === undefined) return '';
+  let t = String(s);
+  // 1. 移除 mso-* 内联样式属性（如 mso-line-height-rule:exactly; mso-spacerun:yes; 等）
+  t = t.replace(/\s*mso-[\w-]+(\s*:\s*[^;"']*)?;?/gi, '');
+  // 2. 移除 line-height:XXpt / font: ... 这类 CSS 残段
+  t = t.replace(/\s*line-height\s*:\s*[\d.]+pt\s*;?/gi, '');
+  t = t.replace(/\s*font\s*:\s*[^;"']*;?/gi, '');
+  t = t.replace(/\s*color\s*:\s*[^;"']*;?/gi, '');
+  // 3. 反转义常见 HTML 实体
+  t = t.replace(/&quot;/g, '"')
+       .replace(/&#34;/g, '"')
+       .replace(/&amp;/g, '&')
+       .replace(/&#38;/g, '&')
+       .replace(/&lt;/g, '<')
+       .replace(/&#60;/g, '<')
+       .replace(/&gt;/g, '>')
+       .replace(/&#62;/g, '>')
+       .replace(/&#39;/g, "'")
+       .replace(/&apos;/g, "'")
+       .replace(/&nbsp;/g, ' ')
+       .replace(/&#160;/g, ' ');
+  // 4. 移除残留的尖括号（如 "...exactly;">竞争谈判..." 中末尾的 ">")
+  t = t.replace(/[<>]/g, '');
+  // 5. 合并多余空白
+  t = t.replace(/\s+/g, ' ').trim();
+  return t;
+}
+
 // ============= 核心请求 =============
 
 /**
@@ -583,6 +619,7 @@ module.exports = {
   searchByKeyword,
   // 工具
   getLastRateInfo,
+  cleanTitle,
   // 常量
   BID_PHASES,
   BID_TYPES,

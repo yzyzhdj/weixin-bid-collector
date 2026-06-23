@@ -108,7 +108,7 @@ Page({
         const tag = getTypeTag(item.bidType);
         return {
           id: item.id,
-          title: item.title,
+          title: api.cleanTitle(item.title),
           company: item.buyer || item.agent || '未提供',
           region: item.province || '全国',
           region2: item.city || '',
