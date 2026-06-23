@@ -144,84 +144,135 @@ Page({
   async loadDetail(id) {
     this.setData({ loading: true });
     try {
-      const data = await api.getBidDetail(id);
+      const raw = await api.getBidDetail(id);
+      const data = raw || {};
+
+      // 调试：打印原始响应到控制台
+      console.log('[Detail] 原始响应字段:', Object.keys(data));
+      console.log('[Detail] 完整响应:', JSON.stringify(data).slice(0, 2000));
+
       // 格式化日期字段
       if (data.publishDate) data.publishDateFmt = formatDate(data.publishDate);
+      if (data.publishDateFmt === undefined && data.publish_date) {
+        data.publishDateFmt = formatDate(data.publish_date);
+      }
       if (data.parentBid && data.parentBid.publishDate) {
         data.parentBid.publishDateFmt = formatDate(data.parentBid.publishDate);
       }
 
-      // ===== 整合正文 + 章节 + 附件 =====
-      // 1. 主正文 content
+      // 智能字段提取（兼容多种字段命名）
+      // 1) 主正文 - 尝试多种字段名
+      const mainContent = data.content
+        || data.body
+        || data.description
+        || data.contentHtml
+        || data.content_html
+        || data.html
+        || data.article
+        || data.text
+        || '';
       let mainHtml = '';
-      if (data.content && typeof data.content === 'string') {
-        mainHtml = sanitizeHtml(data.content);
+      if (typeof mainContent === 'string' && mainContent.trim()) {
+        mainHtml = sanitizeHtml(mainContent);
       }
 
-      // 2. 结构化 sections（采购单位概况/项目概况/一、项目基本情况 等）
+      // 2) 结构化 sections - 尝试多种字段名
+      const sectionsArr = data.sections
+        || data.blocks
+        || data.items
+        || data.parts
+        || [];
       let sectionsHtml = '';
-      if (Array.isArray(data.sections) && data.sections.length > 0) {
-        // 按 order_num 排序
-        const sortedSections = data.sections.slice().sort((a, b) => {
-          return (a.orderNum || a.order_num || 0) - (b.orderNum || b.order_num || 0);
+      if (Array.isArray(sectionsArr) && sectionsArr.length > 0) {
+        const sortedSections = sectionsArr.slice().sort((a, b) => {
+          return (a.orderNum || a.order_num || a.order || a.sort || 0)
+               - (b.orderNum || b.order_num || b.order || b.sort || 0);
         });
         sectionsHtml = sortedSections
           .map((sec, idx) => {
-            const title = sec.title ? `<view class="section-title">${escapeHtml(sec.title)}</view>` : '';
-            const content = sec.content ? sanitizeHtml(sec.content) : '';
-            return `<view class="section" data-idx="${idx}">${title}<view class="section-body">${content}</view></view>`;
+            const title = sec.title || sec.name || sec.heading || sec.sectionName || sec.section_name || '';
+            const body = sec.content
+              || sec.body
+              || sec.description
+              || sec.html
+              || sec.text
+              || '';
+            const titleHtml = title
+              ? `<view class="section-title">${escapeHtml(title)}</view>`
+              : '';
+            const bodyHtml = body ? sanitizeHtml(body) : '';
+            return `<view class="section" data-idx="${idx}">${titleHtml}<view class="section-body">${bodyHtml}</view></view>`;
           })
           .join('');
       }
 
-      // 3. 附件列表
+      // 3) 附件列表 - 尝试多种字段名
+      const attachmentsArr = data.attachments
+        || data.files
+        || data.documents
+        || data.附件
+        || [];
       let attachmentsHtml = '';
-      if (Array.isArray(data.attachments) && data.attachments.length > 0) {
-        const items = data.attachments
+      if (Array.isArray(attachmentsArr) && attachmentsArr.length > 0) {
+        const items = attachmentsArr
           .map((att, idx) => {
-            const fileName = att.fileName || att.file_name || `附件${idx + 1}`;
-            const fileSize = att.fileSize || att.file_size || 0;
+            const fileName = att.fileName
+              || att.file_name
+              || att.name
+              || att.filename
+              || att.title
+              || `附件${idx + 1}`;
+            const fileSize = att.fileSize || att.file_size || att.size || 0;
             const sizeStr = fileSize > 0 ? formatFileSize(fileSize) : '';
-            const icon = getFileIcon(att.fileType || att.file_type || '');
-            const url = att.downloadUrl || att.download_url || att.originalUrl || att.original_url || '#';
+            const icon = getFileIcon(att.fileType || att.file_type || att.type || '');
+            const url = att.downloadUrl
+              || att.download_url
+              || att.url
+              || att.originalUrl
+              || att.original_url
+              || '#';
             return `<view class="attachment-item" data-url="${escapeHtml(url)}" bindtap="onAttachmentTap">
               <view class="att-icon">${icon}</view>
               <view class="att-info">
                 <view class="att-name">${escapeHtml(fileName)}</view>
-                <view class="att-meta">${sizeStr}${sizeStr ? ' · ' : ''}点击下载</view>
+                <view class="att-meta">${sizeStr}${sizeStr ? ' · ' : ''}点击复制链接</view>
               </view>
             </view>`;
           })
           .join('');
         attachmentsHtml = `<view class="attachments-block">
-          <view class="block-title">📎 附件 (${data.attachments.length})</view>
+          <view class="block-title">📎 附件 (${attachmentsArr.length})</view>
           ${items}
         </view>`;
       }
 
-      // 4. 中标结果（中标阶段才显示）
+      // 4) 中标结果 - 多种字段名
+      const result = data.transactionResult
+        || data.transaction_result
+        || data.winningResult
+        || data.bidResult
+        || '';
       let resultHtml = '';
-      if (data.transactionResult || data.transaction_result) {
-        const result = data.transactionResult || data.transaction_result;
+      if (typeof result === 'string' && result.trim()) {
         resultHtml = `<view class="transaction-result">
           <view class="block-title">🏆 中标结果</view>
           <view class="result-body">${sanitizeHtml(result)}</view>
         </view>`;
       }
 
-      // 合并所有内容（content + sections + result + attachments）
+      // 合并所有内容
       const fullHtml = (mainHtml || '') + sectionsHtml + resultHtml + attachmentsHtml;
       data.contentHtml = fullHtml;
-
-      // 是否有正文内容
       data.hasContent = !!(mainHtml || sectionsHtml || resultHtml);
 
       console.log('[Detail] 加载完成:', {
         id: data.id,
+        title: (data.title || '').slice(0, 50),
         hasContent: data.hasContent,
-        contentLength: mainHtml.length,
-        sectionsCount: (data.sections || []).length,
-        attachmentsCount: (data.attachments || []).length
+        mainContentLength: (mainContent || '').length,
+        sectionsCount: sectionsArr.length,
+        attachmentsCount: attachmentsArr.length,
+        availableFields: Object.keys(data).filter(k => /content|body|html|section|attach/i.test(k))
       });
 
       this.setData({
@@ -229,7 +280,7 @@ Page({
         loading: false
       });
     } catch (e) {
-      console.error('加载详情失败', e);
+      console.error('[Detail] 加载失败', e);
       wx.showToast({ title: '加载失败', icon: 'none' });
       this.setData({ loading: false });
     }
