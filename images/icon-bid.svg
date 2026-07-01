@@ -1,3 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="white" fill-rule="evenodd">
-  <path d="M14 12c0-2.2 1.8-4 4-4h6c0-2.2 1.8-4 4-4s4 1.8 4 4h6c2.2 0 4 1.8 4 4v44c0 2.2-1.8 4-4 4H18c-2.2 0-4-1.8-4-4V12zm8 12h20v4H22v-4zm0 8h20v4H22v-4zm0 8h14v4H22v-4z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="14" y="8" width="36" height="48" rx="4"/>
+  <line x1="22" y1="22" x2="42" y2="22"/>
+  <line x1="22" y1="32" x2="42" y2="32"/>
+  <line x1="22" y1="42" x2="34" y2="42"/>
+  <circle cx="44" cy="44" r="10"/>
+  <line x1="52" y1="52" x2="58" y2="58"/>
 </svg>

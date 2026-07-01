@@ -1,0 +1,71 @@
+<view class="page">
+  <view class="hero">
+    <view class="hero-decor-1"></view>
+    <view class="hero-decor-2"></view>
+    <view class="hero-title">邀请好友 赢200积分</view>
+    <view class="hero-subtitle">每邀请一位好友注册，双方各得 200 积分</view>
+    <view class="hero-stats">
+      <view class="stat-item">
+        <text class="stat-num">{{invitedCount}}</text>
+        <text class="stat-label">已邀请</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-num">{{totalReward}}</text>
+        <text class="stat-label">累计奖励</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card code-card">
+    <view class="card-title">我的专属邀请码</view>
+    <view class="code-row">
+      <text class="code-text">{{inviteCode}}</text>
+      <view class="code-copy" bindtap="onCopyCode">复制</view>
+    </view>
+    <view class="code-link" bindtap="onCopyLink">
+      <text class="link-text">{{inviteUrl}}</text>
+      <text class="link-action">复制链接</text>
+    </view>
+    <view class="share-btn" bindtap="onShare">立即分享</view>
+  </view>
+
+  <view class="card rules-card">
+    <view class="card-title">奖励规则</view>
+    <view class="rule-item">
+      <view class="rule-num">1</view>
+      <view class="rule-text">分享您的专属邀请链接给好友</view>
+    </view>
+    <view class="rule-item">
+      <view class="rule-num">2</view>
+      <view class="rule-text">好友通过链接完成注册</view>
+    </view>
+    <view class="rule-item">
+      <view class="rule-num">3</view>
+      <view class="rule-text">您与好友各获得 200 积分奖励</view>
+    </view>
+  </view>
+
+  <view class="card records-card">
+    <view class="card-title">邀请记录</view>
+    <view class="record" wx:for="{{records}}" wx:key="id">
+      <view class="record-avatar">
+        <image wx:if="{{item.avatar}}" class="record-avatar-img" src="{{item.avatar}}" mode="aspectFill"></image>
+        <text wx:else>👤</text>
+      </view>
+      <view class="record-info">
+        <view class="record-name">{{item.nickname}}</view>
+        <view class="record-meta">
+          <text wx:if="{{item.createdAt}}">{{item.createdAt}}</text>
+        </view>
+      </view>
+      <view class="record-right">
+        <view class="record-status" style="color: {{item.statusColor}};">{{item.statusText}}</view>
+        <view class="record-reward" wx:if="{{item.reward > 0}}">+{{item.reward}} 积分</view>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{!loading && records.length === 0}}">
+      <text>暂无邀请记录</text>
+    </view>
+  </view>
+</view>

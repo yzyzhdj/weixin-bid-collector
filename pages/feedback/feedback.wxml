@@ -1,0 +1,51 @@
+<view class="container">
+  <!-- 蓝色 header 区域 -->
+  <view class="header">
+    <view class="header-bg"></view>
+    <view class="header-content">
+      <view class="header-title">您的建议，是我们前进的动力</view>
+      <view class="header-subtitle">我们重视每一条反馈</view>
+    </view>
+  </view>
+
+  <!-- 表单卡片 -->
+  <view class="form-card">
+    <!-- 标题 -->
+    <view class="form-row form-row-header">
+      <text class="form-label">标题:</text>
+      <text class="form-counter">{{title.length}}/50</text>
+    </view>
+    <input
+      class="form-input"
+      placeholder="请输入标题"
+      placeholder-class="form-placeholder"
+      maxlength="50"
+      value="{{title}}"
+      bindinput="onTitleChange"
+      confirm-type="next"
+    />
+
+    <!-- 分割线 -->
+    <view class="form-divider"></view>
+
+    <!-- 问题描述 -->
+    <view class="form-row form-row-header">
+      <text class="form-label">问题描述:</text>
+      <text class="form-counter">{{content.length}}/200</text>
+    </view>
+    <textarea
+      class="form-textarea"
+      placeholder="请输入问题描述"
+      placeholder-class="form-placeholder"
+      maxlength="200"
+      value="{{content}}"
+      bindinput="onContentChange"
+      auto-height
+    ></textarea>
+  </view>
+
+  <!-- 底部固定提交按钮 -->
+  <view class="footer">
+    <view class="footer-btn {{canSubmit ? 'active' : 'disabled'}}" bindtap="onSubmitTap">提交</view>
+  </view>
+</view>

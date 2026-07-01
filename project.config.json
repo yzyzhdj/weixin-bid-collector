@@ -1,9 +1,18 @@
 {
-  "appid": "wxd9fd19b891b62a98",
+  "appid": "wx2810750d0c15abb4",
   "compileType": "miniprogram",
   "libVersion": "3.16.1",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "folder", "value": "node_modules" },
+      { "type": "folder", "value": "backend" },
+      { "type": "folder", "value": ".git" },
+      { "type": "file", "value": "images/1_00.png" },
+      { "type": "file", "value": "WECHAT_MIGRATION_GUIDE.md" },
+      { "type": "file", "value": "bid_data_API.md" },
+      { "type": "file", "value": "bid_user_API.md" },
+      { "type": "file", "value": "README.md" }
+    ],
     "include": []
   },
   "setting": {

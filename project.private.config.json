@@ -3,7 +3,7 @@
   "projectname": "weixin-bid-collector",
   "setting": {
     "compileHotReLoad": true,
-    "urlCheck": false
+    "urlCheck": true
   },
   "miniprogramRoot": ""
 }

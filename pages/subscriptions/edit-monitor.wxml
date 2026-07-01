@@ -1,0 +1,51 @@
+<view class="container">
+  <!-- 顶部导航 -->
+  <view class="header" style="padding-top: {{statusBarHeight}}px;">
+    <view class="back-btn" bindtap="onBackTap">‹</view>
+    <view class="header-title">{{isEdit ? '编辑企业监控' : '添加企业监控'}}</view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <image class="search-icon" src="/images/search-icon.png" mode="aspectFit"></image>
+      <input class="search-input" placeholder="请输入企业名称"
+             value="{{searchKey}}" bindinput="onSearchInput" bindconfirm="onSearch" confirm-type="search" />
+    </view>
+    <view class="search-btn" bindtap="onSearch">搜索</view>
+  </view>
+
+  <!-- 列表 -->
+  <view class="list-section" wx:if="{{companies.length > 0}}">
+    <view class="section-title">推荐企业监控企业</view>
+    <view class="company-list">
+      <view class="company-item {{selectedId === item.id ? 'selected' : ''}}"
+            wx:for="{{companies}}"
+            wx:key="id"
+            data-id="{{item.id}}"
+            data-name="{{item.companyName || item.name}}"
+            data-code="{{item.unifiedCode || ''}}"
+            data-extra="{{item}}"
+            bindtap="onPickCompany">
+        <view class="company-name">
+          <text wx:if="{{searchKey}}">
+            <text wx:for="{{item.companyName || item.name}}" wx:for-item="ch" wx:key="*this">
+              <text wx:if="{{searchKey.indexOf(ch) >= 0}}" class="hl">{{ch}}</text>
+              <text wx:else>{{ch}}</text>
+            </text>
+          </text>
+          <text wx:else>{{item.companyName || item.name}}</text>
+        </view>
+        <view class="check {{selectedId === item.id ? 'checked' : ''}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="empty" wx:elif="{{searched && companies.length === 0}}">未找到相关企业</view>
+
+  <!-- 底部按钮 -->
+  <view class="footer">
+    <view class="confirm-btn {{selectedId ? 'active' : 'disabled'}}" bindtap="onConfirm">确定</view>
+  </view>
+</view>

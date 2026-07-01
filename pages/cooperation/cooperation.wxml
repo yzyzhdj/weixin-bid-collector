@@ -1,0 +1,201 @@
+<view class="container">
+  <!-- 顶部导航（隐藏标题） -->
+  <view class="navbar navbar-transparent" style="padding-top: {{statusBarHeight}}px;">
+    <view class="back-btn" bindtap="onBackTap">
+      <image class="back-icon back-icon-light" src="/images/icon-arrow-left.svg"></image>
+    </view>
+  </view>
+
+  <!-- Banner 横幅 -->
+  <view class="banner">
+    <view class="banner-bg"></view>
+    <view class="banner-content">
+      <view class="banner-title">阳光标讯网</view>
+      <view class="banner-subtitle">合伙人火热招募中</view>
+      <view class="banner-btn" bindtap="onApplyTap">我要代理</view>
+    </view>
+  </view>
+
+  <!-- 加入我们，门槛低、收入高 -->
+  <view class="section">
+    <view class="section-title">加入我们，门槛低、收入高</view>
+    <view class="advantage-grid">
+      <view class="advantage-item">
+        <view class="advantage-icon">
+          <image class="adv-img" src="/images/biz-icon1.png" mode="aspectFit"></image>
+        </view>
+        <view class="advantage-name">零加盟费</view>
+        <view class="advantage-desc">无需缴纳任何加盟费用</view>
+      </view>
+      <view class="advantage-item">
+        <view class="advantage-icon">
+          <image class="adv-img" src="/images/biz-icon2.png" mode="aspectFit"></image>
+        </view>
+        <view class="advantage-name">阶梯奖励</view>
+        <view class="advantage-desc">根据成交额发放阶梯奖励</view>
+      </view>
+      <view class="advantage-item">
+        <view class="advantage-icon">
+          <image class="adv-img" src="/images/biz-icon3.png" mode="aspectFit"></image>
+        </view>
+        <view class="advantage-name">代理收益</view>
+        <view class="advantage-desc">丰厚销售返利、新客合作、老客续费、定制化方案</view>
+      </view>
+      <view class="advantage-item">
+        <view class="advantage-icon">
+          <image class="adv-img" src="/images/biz-icon4.png" mode="aspectFit"></image>
+        </view>
+        <view class="advantage-name">区域保护</view>
+        <view class="advantage-desc">不允许服务商跨区域销售以保证市场的规范性</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 合作支持 -->
+  <view class="section">
+    <view class="section-title">合作支持</view>
+    <view class="support-grid">
+      <view class="support-item">
+        <view class="support-img-wrap">
+          <image class="support-img" src="/images/eng-icon1.png" mode="aspectFill"></image>
+        </view>
+        <view class="support-name">服务支持</view>
+        <view class="support-desc">提供专属客服，帮助解决产品、销售等市场运营问题。</view>
+      </view>
+      <view class="support-item">
+        <view class="support-img-wrap">
+          <image class="support-img" src="/images/eng-icon2.png" mode="aspectFill"></image>
+        </view>
+        <view class="support-name">市场支持</view>
+        <view class="support-desc">总部会根据不同的产品特性不定期的在各大网络平台进行推广扩大品牌知名度与影响力。</view>
+      </view>
+      <view class="support-item">
+        <view class="support-img-wrap">
+          <image class="support-img" src="/images/eng-icon3.png" mode="aspectFill"></image>
+        </view>
+        <view class="support-name">技术支持</view>
+        <view class="support-desc">提供在线技术服务，保障问题及时、快速的解决，让代理商、客户没有后顾之忧。</view>
+      </view>
+      <view class="support-item">
+        <view class="support-img-wrap">
+          <image class="support-img" src="/images/eng-icon4.png" mode="aspectFill"></image>
+        </view>
+        <view class="support-name">物料支持</view>
+        <view class="support-desc">总部定期或者不定期的会根据代理商的情况给予物料支持，利于代理商在当地开展业务。</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 我们的优势 -->
+  <view class="section">
+    <view class="section-title">我们的优势</view>
+    <view class="strength-grid">
+      <view class="strength-item">
+        <view class="strength-name">海量信息更新</view>
+        <view class="strength-desc">覆盖 9000+ 万标讯，24 小时更新，为用户创建更及时的信息源。</view>
+      </view>
+      <view class="strength-item">
+        <view class="strength-name">企业大数据</view>
+        <view class="strength-desc">多角度、全方位的企业分析，提高用户对企业的全面把控。</view>
+      </view>
+      <view class="strength-item">
+        <view class="strength-name">精准搜索</view>
+        <view class="strength-desc">通过 AI、云计算、数据挖掘使搜索结果更精准。</view>
+      </view>
+      <view class="strength-item">
+        <view class="strength-name">数据定制</view>
+        <view class="strength-desc">提供定制化服务，量身定制，一键获取专属信息。</view>
+      </view>
+      <view class="strength-item">
+        <view class="strength-name">极速推送</view>
+        <view class="strength-desc">根据关键词自动匹配，实时获取招标信息。</view>
+      </view>
+      <view class="strength-item">
+        <view class="strength-name">多平台查看</view>
+        <view class="strength-desc">支持 APP、网站、微信多端随时查看跟进项目。</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 合作伙伴要求 -->
+  <view class="section">
+    <view class="section-title">合作伙伴要求</view>
+    <view class="req-list">
+      <view class="req-item">
+        <view class="req-icon">
+          <image class="req-img" src="/images/icon-approval.svg" mode="aspectFit"></image>
+        </view>
+        <view class="req-content">
+          <view class="req-name">具备公司资质</view>
+          <view class="req-desc">有合法营业执照和独立法人代表，有良好的商业信誉和口碑。</view>
+        </view>
+      </view>
+      <view class="req-item">
+        <view class="req-icon">
+          <image class="req-img" src="/images/icon-company.svg" mode="aspectFit"></image>
+        </view>
+        <view class="req-content">
+          <view class="req-name">具有行业背景</view>
+          <view class="req-desc">有工程行业背景，对招投标有一定的了解。</view>
+        </view>
+      </view>
+      <view class="req-item">
+        <view class="req-icon">
+          <image class="req-img" src="/images/chart-icon.svg" mode="aspectFit"></image>
+        </view>
+        <view class="req-content">
+          <view class="req-name">具有销售团队</view>
+          <view class="req-desc">有专属且成熟的销售团队，并且负责人有团队管理经验。</view>
+        </view>
+      </view>
+      <view class="req-item">
+        <view class="req-icon">
+          <image class="req-img" src="/images/icon-qa-custom.svg" mode="aspectFit"></image>
+        </view>
+        <view class="req-content">
+          <view class="req-name">具有客户资源</view>
+          <view class="req-desc">拥有当地丰富的企业级资源或线下行业协会资源。</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加入流程 -->
+  <view class="section">
+    <view class="section-title">加入流程</view>
+    <view class="flow">
+      <view class="flow-item">
+        <view class="flow-icon">
+          <image class="flow-img" src="/images/icon-write.svg" mode="aspectFit"></image>
+        </view>
+        <view class="flow-name">提交申请</view>
+      </view>
+      <view class="flow-arrow">›</view>
+      <view class="flow-item">
+        <view class="flow-icon">
+          <image class="flow-img" src="/images/icon-avatar-customer.svg" mode="aspectFit"></image>
+        </view>
+        <view class="flow-name">沟通审核</view>
+      </view>
+      <view class="flow-arrow">›</view>
+      <view class="flow-item">
+        <view class="flow-icon">
+          <image class="flow-img" src="/images/icon-market.svg" mode="aspectFit"></image>
+        </view>
+        <view class="flow-name">合作洽谈</view>
+      </view>
+      <view class="flow-arrow">›</view>
+      <view class="flow-item">
+        <view class="flow-icon">
+          <image class="flow-img" src="/images/icon-engineering.svg" mode="aspectFit"></image>
+        </view>
+        <view class="flow-name">签约合作</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="footer">
+    <view class="footer-btn" bindtap="onApplyTap">我要代理</view>
+  </view>
+</view>

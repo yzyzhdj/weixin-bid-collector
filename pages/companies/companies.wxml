@@ -1,0 +1,43 @@
+<view class="page">
+  <view class="header">
+    <view class="search-bar">
+      <view class="search-icon">🔍</view>
+      <input class="search-input" placeholder="搜索中标企业名称" value="{{keyword}}" bindinput="onSearchInput" confirm-type="search"></input>
+      <view class="search-clear" wx:if="{{keyword}}" bindtap="onSearchClear">×</view>
+    </view>
+    <view class="header-count" wx:if="{{total > 0}}">共 {{total}} 家中标企业</view>
+  </view>
+
+  <view class="list" wx:if="{{list.length > 0}}">
+    <view class="card" wx:for="{{list}}" wx:key="name" data-name="{{item.name}}" bindtap="onCompanyTap">
+      <view class="card-head">
+        <text class="card-name">{{item.name}}</text>
+        <view class="card-badge">中标 {{item.bidCount}} 次</view>
+      </view>
+      <view class="card-profile" wx:if="{{item.profile}}">{{item.profile}}</view>
+      <view class="card-contact" wx:if="{{item.contact}}" catchtap="onCallTap" data-contact="{{item.contact}}">
+        <text class="contact-icon">📞</text>
+        <text class="contact-text">{{item.contact}}</text>
+        <text class="contact-action">点击拨打</text>
+      </view>
+      <view class="card-footer">查看中标项目 ></view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && list.length === 0}}">
+    <view class="empty-icon">🏢</view>
+    <text>暂无中标企业</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="loading-more" wx:if="{{loadingMore}}">
+    <text>加载更多...</text>
+  </view>
+
+  <view class="finished" wx:if="{{finished && list.length > 0 && !loadingMore}}">
+    <text>已加载全部</text>
+  </view>
+</view>

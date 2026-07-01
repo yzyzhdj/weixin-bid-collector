@@ -1,0 +1,28 @@
+<view class="page">
+  <view class="header">
+    <view class="header-name">{{name}}</view>
+    <view class="header-sub" wx:if="{{total > 0}}">共中标 {{total}} 个项目</view>
+  </view>
+
+  <view class="list" wx:if="{{bids.length > 0}}">
+    <view class="bid-card" wx:for="{{bids}}" wx:key="id" data-id="{{item.id}}" bindtap="onBidTap">
+      <view class="bid-title">{{item.title}}</view>
+      <view class="bid-meta">
+        <text class="bid-buyer">采购单位：{{item.buyer}}</text>
+        <text class="bid-date" wx:if="{{item.publishDate}}">{{item.publishDate}}</text>
+      </view>
+      <view class="bid-budget" wx:if="{{item.budget}}">预算金额：{{item.budget}}</view>
+    </view>
+    <view class="load-tip" wx:if="{{loadingMore}}">加载更多...</view>
+    <view class="load-tip" wx:if="{{finished && !loadingMore}}">已加载全部</view>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && bids.length === 0}}">
+    <view class="empty-icon">📋</view>
+    <text>暂无中标项目</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

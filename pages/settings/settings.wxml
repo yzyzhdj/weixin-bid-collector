@@ -1,0 +1,16 @@
+<view class="container">
+  <view class="menu-list">
+    <view class="menu-item" bindtap="onAboutTap">
+      <text class="menu-text">关于我们</text>
+      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
+    </view>
+    <view class="menu-item" bindtap="onDeleteAccountTap">
+      <text class="menu-text">注销账号</text>
+      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
+    </view>
+    <view class="menu-item" bindtap="onLogoutTap">
+      <text class="menu-text">退出登录</text>
+      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
+    </view>
+  </view>
+</view>

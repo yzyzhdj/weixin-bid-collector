@@ -1,0 +1,78 @@
+<view class="page">
+  <!-- 顶部蓝色背景区 -->
+  <view class="page-header">
+    <view class="page-header-title">签到说明</view>
+    <view class="page-header-sub">坚持每天签到，积分翻倍拿</view>
+  </view>
+
+  <!-- 一、签到规则 -->
+  <view class="card">
+    <view class="card-title">
+      <view class="card-title-bar"></view>
+      <text>一、签到规则</text>
+    </view>
+    <view class="card-body">
+      <view class="rule-item">
+        <text class="rule-num">1.</text>
+        <text class="rule-text">用户每日可进行1次签到，签到即可获得相应积分奖励。</text>
+      </view>
+      <view class="rule-item">
+        <text class="rule-num">2.</text>
+        <text class="rule-text">连续签到可获得更多积分奖励，连续签到天数越多，奖励越丰厚。</text>
+      </view>
+      <view class="rule-item">
+        <text class="rule-num">3.</text>
+        <text class="rule-text">如果中断签到，连续签到天数将重新计算。</text>
+      </view>
+      <view class="rule-item">
+        <text class="rule-num">4.</text>
+        <text class="rule-text">签到积分将实时发放到您的账户中，可用于平台各项服务。</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 二、积分奖励说明 -->
+  <view class="card">
+    <view class="card-title">
+      <view class="card-title-bar"></view>
+      <text>二、积分奖励说明</text>
+    </view>
+    <view class="card-body">
+      <view class="reward-table">
+        <view class="reward-row reward-header">
+          <text class="reward-col-left">连续签到天数</text>
+          <text class="reward-col-right">获得积分</text>
+        </view>
+        <view class="reward-row" wx:for="{{rewardList}}" wx:key="day">
+          <text class="reward-col-left">{{item.day}}</text>
+          <text class="reward-col-right">+{{item.points}}积分</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 三、注意事项 -->
+  <view class="card">
+    <view class="card-title">
+      <view class="card-title-bar"></view>
+      <text>三、注意事项</text>
+    </view>
+    <view class="card-body">
+      <view class="rule-item">
+        <text class="rule-num">1.</text>
+        <text class="rule-text">签到积分不可转让、不可兑换现金。</text>
+      </view>
+      <view class="rule-item">
+        <text class="rule-num">2.</text>
+        <text class="rule-text">如发现作弊行为，平台有权取消相关积分奖励。</text>
+      </view>
+      <view class="rule-item">
+        <text class="rule-num">3.</text>
+        <text class="rule-text">本活动最终解释权归平台所有。</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部安全距离 -->
+  <view class="safe-bottom"></view>
+</view>

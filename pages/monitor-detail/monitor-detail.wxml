@@ -1,0 +1,31 @@
+<view class="page">
+  <!-- 顶部企业名卡片 -->
+  <view class="header-card">
+    <view class="header-name">{{companyName}}</view>
+  </view>
+
+  <!-- 标讯列表（时间线样式） -->
+  <view class="list" wx:if="{{bids.length > 0}}">
+    <view class="bid-item" wx:for="{{bids}}" wx:key="id" data-id="{{item.id}}" bindtap="onBidTap">
+      <view class="bid-timeline">
+        <view class="timeline-dot"></view>
+        <view class="timeline-line" wx:if="{{index < bids.length - 1}}"></view>
+      </view>
+      <view class="bid-body">
+        <view class="bid-time">更新时间：{{item.updateTime}}</view>
+        <view class="bid-title">{{item.title}}</view>
+      </view>
+    </view>
+    <view class="load-tip" wx:if="{{loadingMore}}">加载中…</view>
+    <view class="load-tip" wx:if="{{!hasMore && bids.length > 0}}">已加载全部 {{bids.length}} 条</view>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && bids.length === 0}}">
+    <view class="empty-icon">📭</view>
+    <text>暂无标讯动态</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

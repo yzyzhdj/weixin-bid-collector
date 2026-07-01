@@ -1,0 +1,148 @@
+.page {
+  min-height: 100vh;
+  background: #f1f5f9;
+  padding-bottom: 40rpx;
+}
+
+.header {
+  background: linear-gradient(180deg, #1e88ff 0%, #42a5f5 100%);
+  padding: 20rpx 32rpx 24rpx;
+}
+
+.search-bar {
+  background: #ffffff;
+  border-radius: 32rpx;
+  padding: 16rpx 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.search-icon {
+  font-size: 28rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.search-clear {
+  font-size: 36rpx;
+  color: #94a3b8;
+  padding: 0 8rpx;
+  line-height: 1;
+}
+
+.header-count {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+}
+
+.list {
+  padding: 24rpx;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.card-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #0f172a;
+  flex: 1;
+  margin-right: 16rpx;
+  line-height: 1.4;
+}
+
+.card-badge {
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  background: #fef3c7;
+  color: #92400e;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.card-profile {
+  font-size: 24rpx;
+  color: #475569;
+  line-height: 1.6;
+  padding: 16rpx 0;
+  border-top: 1rpx solid #f1f5f9;
+  word-break: break-all;
+}
+
+.card-contact {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 16rpx;
+  padding: 16rpx 20rpx;
+  background: #f0f9ff;
+  border-radius: 12rpx;
+  border: 1rpx solid #bae6fd;
+}
+
+.contact-icon {
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.contact-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: #0369a1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-action {
+  font-size: 22rpx;
+  color: #1e88ff;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.card-footer {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f1f5f9;
+  font-size: 24rpx;
+  color: #1e88ff;
+  text-align: center;
+}
+
+.empty {
+  text-align: center;
+  padding: 120rpx 0;
+  color: #94a3b8;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
+}
+
+.loading, .loading-more, .finished {
+  text-align: center;
+  padding: 32rpx 0;
+  color: #94a3b8;
+  font-size: 24rpx;
+}

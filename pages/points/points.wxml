@@ -1,0 +1,126 @@
+<view class="container">
+  <!-- 积分概览 -->
+  <view class="points-hero">
+    <view class="points-num">{{points}}</view>
+    <view class="points-label">当前积分</view>
+    <view class="points-stats">
+      <view class="stat-item">
+        <text class="stat-num">+{{totalEarned}}</text>
+        <text class="stat-text">累计获得</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-num">-{{totalSpent}}</text>
+        <text class="stat-text">累计消耗</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-num">{{signedDays}}</text>
+        <text class="stat-text">连续签到</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 签到 + 充值 -->
+  <view class="action-row">
+    <view class="action-btn sign {{todaySigned ? 'disabled' : ''}}" bindtap="onSignTap">
+      <text>{{todaySigned ? '今日已签到' : '每日签到'}}</text>
+      <text class="action-sub">{{todaySigned ? '' : '+' + signInPoints + ' 积分'}}</text>
+    </view>
+    <view class="action-btn recharge" bindtap="onRechargeTap">
+      <text>积分充值</text>
+      <text class="action-sub">充值获取积分</text>
+    </view>
+  </view>
+
+  <!-- 积分流水 -->
+  <view class="section">
+    <view class="section-title">积分明细</view>
+
+    <!-- 类型筛选 -->
+    <view class="tab-bar">
+      <view class="tab {{activeTab === 'all' ? 'active' : ''}}" bindtap="onTabTap" data-tab="all">全部</view>
+      <view class="tab {{activeTab === 'sign' ? 'active' : ''}}" bindtap="onTabTap" data-tab="sign">签到</view>
+      <view class="tab {{activeTab === 'recharge' ? 'active' : ''}}" bindtap="onTabTap" data-tab="recharge">充值</view>
+      <view class="tab {{activeTab === 'view_bid' ? 'active' : ''}}" bindtap="onTabTap" data-tab="view_bid">查看标讯</view>
+      <view class="tab {{activeTab === 'admin' ? 'active' : ''}}" bindtap="onTabTap" data-tab="admin">管理员</view>
+    </view>
+
+    <!-- 流水列表 -->
+    <view class="tx-list" wx:if="{{transactions.length > 0}}">
+      <view class="tx-item" wx:for="{{transactions}}" wx:key="id">
+        <view class="tx-left">
+          <view class="tx-type {{item.isIncome ? 'income' : 'expense'}}">
+            <text class="tx-icon">{{item.isIncome ? '↓' : '↑'}}</text>
+          </view>
+          <view class="tx-info">
+            <view class="tx-label">{{item.typeLabel}}</view>
+            <view class="tx-desc" wx:if="{{item.description}}">{{item.description}}</view>
+            <view class="tx-time">{{item.time}}</view>
+          </view>
+        </view>
+        <view class="tx-amount {{item.isIncome ? 'income' : 'expense'}}">
+          {{item.isIncome ? '+' : ''}}{{item.amount}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty" wx:if="{{!loading && transactions.length === 0}}">
+      <text class="empty-text">暂无积分记录</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading-more" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+  </view>
+
+  <!-- 积分规则 -->
+  <view class="rules-card">
+    <view class="rules-title">积分规则</view>
+    <view class="rules-item">· 每日签到 +{{signInPoints}} 积分</view>
+    <view class="rules-item">· 新注册用户赠送 {{newUserPoints}} 积分</view>
+    <view class="rules-item">· 积分兑换：1 元 = {{yuanPerPoint}} 积分</view>
+    <view class="rules-item">· 查看一条标讯消耗 {{viewBidCost}} 积分</view>
+  </view>
+
+  <!-- ============ 充值套餐弹窗 ============ -->
+  <view class="recharge-mask" wx:if="{{rechargePopupShow}}" bindtap="onCloseRecharge"></view>
+  <view class="recharge-popup" wx:if="{{rechargePopupShow}}">
+    <view class="recharge-card" catchtap="">
+      <view class="recharge-header">
+        <view class="recharge-title">积分充值</view>
+        <view class="recharge-sub">选择充值套餐，积分实时到账</view>
+        <view class="recharge-close" bindtap="onCloseRecharge">×</view>
+      </view>
+
+      <!-- 套餐列表 -->
+      <view class="plan-list">
+        <view class="plan-item {{selectedPlanId === item.id ? 'selected' : ''}} {{item.remark && item.remark.indexOf('推荐') >= 0 ? 'recommended' : ''}}"
+              wx:for="{{rechargePlans}}" wx:key="id"
+              data-id="{{item.id}}" bindtap="onSelectPlan">
+          <!-- 推荐标签 -->
+          <view class="plan-tag" wx:if="{{item.remark && item.remark.indexOf('推荐') >= 0}}">推荐</view>
+          <!-- 价格 + 积分 -->
+          <view class="plan-price">¥{{item.yuan}}</view>
+          <view class="plan-points">{{item.points_total}} 积分</view>
+          <view class="plan-bonus" wx:if="{{item.bonus > 0}}">含赠送 {{item.bonus}} 积分</view>
+          <view class="plan-bonus" wx:else>{{item.remark || '基础套餐'}}</view>
+          <!-- 选中圆点 -->
+          <view class="plan-check" wx:if="{{selectedPlanId === item.id}}">✓</view>
+        </view>
+      </view>
+
+      <!-- 确认充值按钮 -->
+      <view class="recharge-btn {{rechargeLoading ? 'loading' : ''}} {{!selectedPlanId ? 'disabled' : ''}}"
+            bindtap="onConfirmRecharge">
+        <text wx:if="{{rechargeLoading}}">处理中...</text>
+        <text wx:elif="{{!selectedPlanId}}">请选择套餐</text>
+        <text wx:else>立即充值</text>
+      </view>
+
+      <view class="recharge-tip">支付通过微信虚拟支付安全通道完成</view>
+    </view>
+  </view>
+</view>
