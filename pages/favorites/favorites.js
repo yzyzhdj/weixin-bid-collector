@@ -54,9 +54,24 @@ Page({
     this.setData({ loading: true });
 
     userApi.getFavorites(this.data.page, this.data.pageSize).then((res) => {
+      console.log('[favorites] 原始数据:', JSON.stringify(res).slice(0, 2000));
       const items = (res && (res.items || res.list || res.records)) || [];
       const total = (res && (res.total || res.pagination && res.pagination.total)) || 0;
+      console.log('[favorites] 解析 items 数量:', items.length);
       const mapped = items.map(it => this.mapItem(it));
+
+      // 打印每条的 ID 映射关系，验证标讯对应是否正确
+      console.table(items.map((raw, i) => {
+        const it = raw.bid || raw.bidInfo || raw.bidDetail || raw.bidData || raw;
+        return {
+          序号: i,
+          'raw.id(记录ID)': raw.id,
+          'raw.bid_id(标讯ID)': raw.bid_id || raw.bidId,
+          'bid对象.id': it && it.id,
+          '映射后id': mapped[i].id,
+          '标题': (mapped[i].title || '').slice(0, 20)
+        };
+      }));
 
       this.setData({
         list: this.data.page === 1 ? mapped : this.data.list.concat(mapped),
@@ -70,17 +85,33 @@ Page({
     });
   },
 
-  // 兼容多种后端返回结构：直接是 bid 详情 或 { bid: {...}, remark, ... }
+  // 兼容多种后端返回结构
   mapItem(raw) {
-    const it = raw.bid || raw.bidInfo || raw;
+    const it = raw.bid || raw.bidInfo || raw.bidDetail || raw.bidData || raw;
+    const pick = (...keys) => {
+      for (const k of keys) {
+        if (it && it[k] !== undefined && it[k] !== null && it[k] !== '') return it[k];
+        if (raw && raw[k] !== undefined && raw[k] !== null && raw[k] !== '') return raw[k];
+      }
+      return '';
+    };
+    // 注意：bid_id 优先于 id，因为收藏记录自身的 id 是记录ID，不是标讯ID
+    const id = pick('bid_id', 'bidId', 'id');
+    const title = pick('title', 'bidTitle', 'bid_title', 'name');
+    const company = pick('buyer', 'agent', 'purchaser', 'company', 'companyName');
+    // 注意：用户收藏时间优先用 created_at / create_time；标讯本身的 publishDate 作为最后兜底
+    const time = pick('createdAt', 'created_at', 'createTime', 'create_time',
+                     'addTime', 'add_time', 'favoritedAt', 'favorited_at',
+                     'updateTime', 'update_time',
+                     'publishDate', 'publish_date');
     return {
-      id: it.id || raw.bidId,
-      title: api.cleanTitle(it.title || raw.title || '未命名'),
-      company: it.buyer || it.agent || '未提供',
-      region: it.province || '',
-      city: it.city || '',
-      tag: it.bidType || '',
-      time: formatRelativeTime(it.publishDate || it.publish_date || raw.createTime),
+      id,
+      title: api.cleanTitle(title || '未命名'),
+      company: company || '',
+      region: pick('province'),
+      city: pick('city'),
+      tag: pick('bidType', 'bid_type', 'type'),
+      time: formatRelativeTime(time) || '时间未提供',
       remark: raw.remark || ''
     };
   },
@@ -99,6 +130,8 @@ Page({
   onItemTap(e) {
     const id = e.currentTarget.dataset.id;
     if (!id) return;
+    const item = this.data.list.find(it => it.id == id);
+    console.log('[favorites] 点击跳转 → id:', id, '标题:', item ? item.title : '未找到');
     wx.navigateTo({ url: '/pages/detail/detail?id=' + id });
   },
 

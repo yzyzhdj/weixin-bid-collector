@@ -13,14 +13,53 @@
   </view>
 
   <!-- 空状态 -->
-  <view class="empty-state">
+  <view class="empty-state" wx:if="{{list.length === 0 && !loading}}">
     <image class="empty-illustration" src="/images/subscribe-empty.svg" mode="aspectFit"></image>
-    <text class="empty-text">您还没有相关订阅哦,快去订阅吧!</text>
-    <view class="subscribe-btn" bindtap="onSubscribe">立即订阅</view>
+    <text class="empty-text">{{activeTab === 'keyword' ? '您还没有关键词订阅哦,快去订阅吧!' : '您还没有企业订阅哦,快去添加吧!'}}</text>
+    <view class="subscribe-btn" bindtap="onAdd">立即订阅</view>
   </view>
 
+  <!-- 关键词订阅列表 -->
+  <view class="list" wx:if="{{activeTab === 'keyword' && list.length > 0}}">
+    <view class="list-item" wx:for="{{list}}" wx:key="id">
+      <view class="item-head">
+        <image class="item-icon" src="/images/icon-keyword.svg" mode="aspectFit"></image>
+        <view class="item-name">{{item.name}}</view>
+      </view>
+      <view class="item-info">
+        <view class="info-row" wx:if="{{item.keywords}}">关键词：{{item.keywords}}</view>
+        <view class="info-row">订阅时间：{{item.createTime}}</view>
+      </view>
+      <view class="item-actions">
+        <view class="action-btn" data-id="{{item.id}}" data-action="view" catchtap="onActionTap">查看详情</view>
+        <view class="action-btn" data-id="{{item.id}}" data-action="edit" catchtap="onActionTap">修改</view>
+        <view class="action-btn danger" data-id="{{item.id}}" data-action="delete" catchtap="onActionTap">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 企业订阅列表 -->
+  <view class="list" wx:if="{{activeTab === 'company' && list.length > 0}}">
+    <view class="list-item" wx:for="{{list}}" wx:key="id">
+      <view class="item-head">
+        <image class="item-icon" src="/images/icon-company-card.svg" mode="aspectFit"></image>
+        <view class="item-name">{{item.companyName}}</view>
+      </view>
+      <view class="item-info">
+        <view class="info-row">{{item.dynamicsText || '暂无信息更新'}}</view>
+      </view>
+      <view class="item-actions">
+        <view class="action-btn" data-id="{{item.id}}" data-action="view" catchtap="onActionTap">查看详情</view>
+        <view class="action-btn" data-id="{{item.id}}" data-action="edit" catchtap="onActionTap">修改</view>
+        <view class="action-btn danger" data-id="{{item.id}}" data-action="delete" catchtap="onActionTap">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
   <!-- 悬浮添加按钮 -->
-  <view class="fab" bindtap="onAdd">
+  <view class="fab" bindtap="onAdd" wx:if="{{list.length > 0}}">
     <text class="fab-icon">+</text>
     <text class="fab-text">添加</text>
   </view>

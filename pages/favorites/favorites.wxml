@@ -22,7 +22,7 @@
       <view class="item-title">{{item.title}}</view>
       <view class="item-meta">
         <text class="meta-tag" wx:if="{{item.tag}}">{{item.tag}}</text>
-        <text class="meta-company">{{item.company}}</text>
+        <text class="meta-company" wx:if="{{item.company}}">{{item.company}}</text>
       </view>
       <view class="item-foot">
         <text class="meta-region" wx:if="{{item.region}}">{{item.region}} {{item.city}}</text>

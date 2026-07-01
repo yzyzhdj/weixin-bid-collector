@@ -92,6 +92,46 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.item-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex: 1;
+  min-width: 0;
+  margin-right: 16rpx;
+}
+.item-title-wrap .item-title {
+  flex: 1;
+  min-width: 0;
+  margin-right: 0;
+}
+.item-tag {
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+  line-height: 1.6;
+}
+.point-tag {
+  background: #fef3c7;
+  color: #b45309;
+}
+.item-amount {
+  display: inline-block;
+  margin-top: 12rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+}
+.item-amount.income {
+  color: #059669;
+  background: #ecfdf5;
+}
+.item-amount.expense {
+  color: #dc2626;
+  background: #fef2f2;
+}
 .empty {
   text-align: center;
   padding: 200rpx 32rpx;

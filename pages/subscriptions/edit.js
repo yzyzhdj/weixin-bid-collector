@@ -1,31 +1,31 @@
-// 用户中心 API
+// 添加/编辑关键词订阅
 const userApi = require('../../utils/user-api.js');
+const cityData = require('../../utils/city-data.js');
 
 Page({
   data: {
     statusBarHeight: 20,
     isEdit: false,
     id: '',
+    keywordInput: '',
     form: {
       name: '',
-      keywords: '',
-      provinces: '',
-      bidTypes: '',
-      industries: '',
-      budgetMin: '',
-      budgetMax: '',
-      notifyEnabled: true
+      keywordList: [],
+      searchMode: 'full',
+      searchModeLabel: '全文检索',
+      bidType: '',
+      bidTypeLabel: '',
+      region: '',
+      regionLabel: '',
+      notifyEnabled: true,
+      pushType: 'daily'
     },
-    bidTypeOptions: ['招标公告', '中标公告', '招标预告', '开标公示', '候选人公示', '合同公告'],
-    industryOptions: ['工程建筑', '信息技术', '医疗卫生', '教育培训', '金融服务', '能源化工'],
-    provinceOptions: ['北京', '上海', '广东', '江苏', '浙江', '山东', '河南', '四川', '湖北', '湖南'],
-    bidTypePickerShow: false,
-    bidTypePickerText: '',
-    provincePickerShow: false,
-    provincePickerText: '',
-    industryPickerShow: false,
-    industryPickerText: '',
-    saving: false
+    canSave: false,
+    saving: false,
+    modalShow: false,
+    modalTitle: '',
+    modalOptions: [],
+    modalField: ''
   },
 
   onLoad(options) {
@@ -38,7 +38,7 @@ Page({
       wx.setNavigationBarTitle({ title: '编辑订阅' });
       this.loadItem(options.id);
     } else {
-      wx.setNavigationBarTitle({ title: '新建订阅' });
+      wx.setNavigationBarTitle({ title: '添加订阅' });
     }
   },
 
@@ -50,77 +50,142 @@ Page({
     userApi.getSubscriptions(1, 100).then((res) => {
       const item = (res.items || res.list || []).find(it => String(it.id) === String(id));
       if (item) {
+        const keywords = item.keywords || '';
+        const keywordList = keywords ? keywords.split(/\s+/).filter(Boolean) : [];
+        const bidTypeLabel = item.bidTypes || item.bid_type || '';
+        const regionLabel = item.provinces || item.province || '';
         this.setData({
           form: {
             name: item.name || '',
-            keywords: item.keywords || '',
-            provinces: item.provinces || item.province || '',
-            bidTypes: item.bidTypes || item.bid_type || '',
-            industries: item.industries || item.industry || '',
-            budgetMin: item.budgetMin || item.budget_min || '',
-            budgetMax: item.budgetMax || item.budget_max || '',
-            notifyEnabled: item.notifyEnabled !== false
-          },
-          bidTypePickerText: item.bidTypes || item.bid_type || '',
-          provincePickerText: item.provinces || item.province || '',
-          industryPickerText: item.industries || item.industry || ''
+            keywordList: keywordList,
+            searchMode: item.searchMode || 'full',
+            searchModeLabel: this.searchModeText(item.searchMode || 'full'),
+            bidType: bidTypeLabel,
+            bidTypeLabel: bidTypeLabel,
+            region: regionLabel,
+            regionLabel: regionLabel,
+            notifyEnabled: item.notifyEnabled !== false,
+            pushType: item.pushType || 'daily'
+          }
         });
+        this.checkCanSave();
       }
     });
   },
 
   onInput(e) {
     const field = e.currentTarget.dataset.field;
-    this.setData({ ['form.' + field]: e.detail.value });
+    this.setData({ ['form.' + field]: e.detail.value }, () => this.checkCanSave());
+  },
+
+  onKeywordInput(e) {
+    this.setData({ keywordInput: e.detail.value });
+  },
+
+  onAddKeyword() {
+    const v = (this.data.keywordInput || '').trim();
+    if (!v) {
+      wx.showToast({ title: '请输入关键词', icon: 'none' });
+      return;
+    }
+    if (v.length > 10) {
+      wx.showToast({ title: '关键词不超过10字', icon: 'none' });
+      return;
+    }
+    const list = this.data.form.keywordList.slice();
+    if (list.indexOf(v) >= 0) {
+      wx.showToast({ title: '该关键词已存在', icon: 'none' });
+      return;
+    }
+    list.push(v);
+    this.setData({
+      'form.keywordList': list,
+      keywordInput: ''
+    }, () => this.checkCanSave());
+  },
+
+  onRemoveKeyword(e) {
+    const idx = e.currentTarget.dataset.index;
+    const list = this.data.form.keywordList.slice();
+    list.splice(idx, 1);
+    this.setData({ 'form.keywordList': list }, () => this.checkCanSave());
   },
 
   onToggleSwitch(e) {
     this.setData({ 'form.notifyEnabled': e.detail.value });
   },
 
-  showBidTypePicker() {
-    this.setData({ bidTypePickerShow: true });
-  },
-  hideBidTypePicker() {
-    this.setData({ bidTypePickerShow: false });
-  },
-  onPickBidType(e) {
-    const v = e.currentTarget.dataset.value;
+  // 弹窗选择 - 检索模式
+  onPickSearchMode() {
     this.setData({
-      'form.bidTypes': v,
-      bidTypePickerText: v,
-      bidTypePickerShow: false
+      modalShow: true,
+      modalTitle: '选择检索模式',
+      modalField: 'searchMode',
+      modalOptions: ['全文检索', '标题检索', '模糊检索', '精确检索']
     });
   },
 
-  showProvincePicker() {
-    this.setData({ provincePickerShow: true });
-  },
-  hideProvincePicker() {
-    this.setData({ provincePickerShow: false });
-  },
-  onPickProvince(e) {
-    const v = e.currentTarget.dataset.value;
+  // 弹窗选择 - 信息类型
+  onPickBidType() {
     this.setData({
-      'form.provinces': v,
-      provincePickerText: v,
-      provincePickerShow: false
+      modalShow: true,
+      modalTitle: '选择信息类型',
+      modalField: 'bidType',
+      modalOptions: ['招标公告', '中标公告', '招标预告', '开标公示', '候选人公示', '合同公告', '变更公告', '全部']
     });
   },
 
-  showIndustryPicker() {
-    this.setData({ industryPickerShow: true });
-  },
-  hideIndustryPicker() {
-    this.setData({ industryPickerShow: false });
-  },
-  onPickIndustry(e) {
-    const v = e.currentTarget.dataset.value;
+  // 弹窗选择 - 信息地区
+  onPickRegion() {
+    const provinces = Object.keys(cityData || {});
     this.setData({
-      'form.industries': v,
-      industryPickerText: v,
-      industryPickerShow: false
+      modalShow: true,
+      modalTitle: '选择地区',
+      modalField: 'region',
+      modalOptions: provinces
     });
+  },
+
+  hideModal() {
+    this.setData({ modalShow: false });
+  },
+
+  onPickModal(e) {
+    const v = e.currentTarget.dataset.value;
+    const field = this.data.modalField;
+    if (field === 'searchMode') {
+      const map = { '全文检索': 'full', '标题检索': 'title', '模糊检索': 'fuzzy', '精确检索': 'exact' };
+      this.setData({
+        'form.searchMode': map[v] || 'full',
+        'form.searchModeLabel': v,
+        modalShow: false
+      });
+    } else if (field === 'bidType') {
+      this.setData({
+        'form.bidType': v,
+        'form.bidTypeLabel': v,
+        modalShow: false
+      });
+    } else if (field === 'region') {
+      this.setData({
+        'form.region': v,
+        'form.regionLabel': v,
+        modalShow: false
+      });
+    }
+  },
+
+  onPickPushType(e) {
+    this.setData({ 'form.pushType': e.currentTarget.dataset.type });
+  },
+
+  searchModeText(mode) {
+    return ({ full: '全文检索', title: '标题检索', fuzzy: '模糊检索', exact: '精确检索' })[mode] || '全文检索';
+  },
+
+  checkCanSave() {
+    const f = this.data.form;
+    this.setData({ canSave: !!(f.name && f.name.trim()) });
   },
 
   onSave() {
@@ -131,13 +196,13 @@ Page({
     }
     const payload = {
       name: f.name.trim(),
-      keywords: f.keywords.trim(),
-      provinces: f.provinces,
-      bidTypes: f.bidTypes,
-      industries: f.industries,
-      budgetMin: parseFloat(f.budgetMin) || 0,
-      budgetMax: parseFloat(f.budgetMax) || 0,
-      notifyEnabled: f.notifyEnabled
+      keywords: (f.keywordList || []).join(' '),
+      provinces: f.region,
+      bidTypes: f.bidType,
+      notifyEnabled: f.notifyEnabled,
+      // 扩展字段：后端可选存储
+      searchMode: f.searchMode,
+      pushType: f.pushType
     };
 
     this.setData({ saving: true });
@@ -154,4 +219,4 @@ Page({
       console.error('[subscription-edit] 保存失败:', err);
     });
   }
-})
+});

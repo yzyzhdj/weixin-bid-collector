@@ -6,51 +6,46 @@
       <view class="header-title">个人中心</view>
     </view>
 
-    <!-- 设置图标 -->
-    <view class="settings-btn" bindtap="onSettingsTap" style="top: {{settingsBtnTop}}px;">
-      <image class="settings-icon" src="/images/icon-settings.svg"></image>
-    </view>
-
     <!-- 用户信息 -->
     <view class="user-card">
-      <view class="user-left">
-        <view class="avatar" bindtap="{{isLoggedIn ? 'onAvatarTap' : 'onLoginTap'}}">
-          <image class="avatar-img" src="{{userInfo.avatar || '/images/avatar-default.svg'}}"></image>
-        </view>
-        <view class="user-info">
-          <block wx:if="{{isLoggedIn}}">
-            <view class="user-name">{{userInfo.nickname || '用户'}}</view>
-            <view class="user-tip" wx:if="{{userInfo.phone}}">{{userInfo.phone}}</view>
-            <view class="user-tip" wx:else>已登录</view>
-          </block>
-          <block wx:else>
-            <view class="user-name" bindtap="onLoginTap">点击登录</view>
-            <view class="user-tip">登录获取更多服务</view>
-          </block>
-        </view>
+      <view class="avatar" bindtap="{{isLoggedIn ? 'onAvatarTap' : 'onLoginTap'}}">
+        <image class="avatar-img" src="{{userInfo.avatar || '/images/avatar-default.svg'}}"></image>
       </view>
-      <!-- 已登录：右侧显示消息和退出 -->
-      <view class="user-right" wx:if="{{isLoggedIn}}">
-        <view class="msg-btn" bindtap="onMessageTap">
-          <image class="msg-icon" src="/images/icon-message.svg"></image>
-          <view class="msg-badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
+      <view class="user-info">
+        <block wx:if="{{isLoggedIn}}">
+          <view class="user-name">
+            <text>{{userInfo.nickname || '用户'}}</text>
+            <text class="user-level" wx:if="{{userInfo.level}}">{{userInfo.level}}</text>
+          </view>
+          <view class="user-tip" wx:if="{{userInfo.phone}}">{{userInfo.phone}}</view>
+          <view class="user-tip" wx:else>已登录</view>
+        </block>
+        <block wx:else>
+          <view class="user-name" bindtap="onLoginTap">点击登录</view>
+          <view class="user-tip">登录获取更多服务</view>
+        </block>
+      </view>
+      <!-- 右侧：设置 -->
+      <view class="user-right">
+        <view class="settings-btn" bindtap="onSettingsTap">
+          <image class="settings-icon" src="/images/icon-settings.svg"></image>
         </view>
-        <view class="logout-btn" bindtap="onLogoutTap">退出</view>
       </view>
     </view>
   </view>
 
-  <!-- VIP 卡片（与头部蓝色区域衔接） -->
-  <view class="vip-card" bindtap="onOpenVip">
-    <view class="vip-left">
-      <view class="vip-title">
-        <text class="vip-text">VIP</text>
-        <text class="vip-text-main">{{userInfo.isVip ? '续费会员' : '开通会员'}}</text>
+  <!-- 积分卡片（与头部蓝色区域衔接） -->
+  <view class="points-card" bindtap="onPointsTap">
+    <view class="points-left">
+      <view class="points-row">
+        <text class="points-label">我的积分</text>
+        <text class="points-value">{{points}}</text>
       </view>
-      <view class="vip-subtitle" wx:if="{{userInfo.isVip}}">到期时间：{{userInfo.vipExpireAt}}</view>
-      <view class="vip-subtitle" wx:else>开通立享多重特权，可享超大折扣</view>
+      <view class="points-tip">签到可获得积分，积分可兑换服务</view>
     </view>
-    <view class="vip-btn">去开通 ></view>
+    <view class="points-btn" catchtap="onSignTap">
+      <text>{{signedToday ? '已签到' : '每日签到'}}</text>
+    </view>
   </view>
 
   <!-- 快捷功能 -->
@@ -73,12 +68,6 @@
       </view>
       <text class="action-text">浏览历史</text>
     </view>
-    <view class="action-item" bindtap="onActionTap" data-type="monitor">
-      <view class="action-icon-wrap purple">
-        <image class="action-icon-img" src="/images/icon-qa-monitor.svg"></image>
-      </view>
-      <text class="action-text">企业监控</text>
-    </view>
   </view>
 
   <!-- 菜单列表 -->
@@ -91,13 +80,6 @@
       <view class="menu-badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
       <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
     </view>
-    <view class="menu-item" bindtap="onMenuTap" data-type="buy">
-      <view class="menu-icon-wrap blue-icon">
-        <image class="menu-icon-img" src="/images/icon-buy.svg"></image>
-      </view>
-      <text class="menu-text">购买会员</text>
-      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
-    </view>
     <view class="menu-item" bindtap="onMenuTap" data-type="orders">
       <view class="menu-icon-wrap blue-icon">
         <image class="menu-icon-img" src="/images/icon-history.svg"></image>
@@ -105,11 +87,19 @@
       <text class="menu-text">购买记录</text>
       <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
     </view>
+    <view class="menu-item" bindtap="onMenuTap" data-type="points">
+      <view class="menu-icon-wrap blue-icon">
+        <image class="menu-icon-img" src="/images/icon-points.svg"></image>
+      </view>
+      <text class="menu-text">积分管理</text>
+      <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
+    </view>
     <view class="menu-item" bindtap="onMenuTap" data-type="service">
       <view class="menu-icon-wrap blue-icon">
         <image class="menu-icon-img" src="/images/icon-service.svg"></image>
       </view>
       <text class="menu-text">客服热线</text>
+      <text class="menu-extra">400-0931-030</text>
       <image class="menu-arrow-img" src="/images/icon-arrow-right.svg"></image>
     </view>
     <view class="menu-item" bindtap="onMenuTap" data-type="cooperation">

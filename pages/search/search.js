@@ -19,6 +19,7 @@ function formatRelativeTime(dateStr) {
 Page({
   data: {
     keyword: '',
+    keywordList: [],            // 多关键词列表（来自订阅的关键词被分隔为多个）
     loading: false,
     resultList: [],
     emptyText: '请输入关键词进行搜索',
@@ -53,7 +54,14 @@ Page({
 
     // 接收传入的参数
     const updates = {};
-    if (options.keyword) updates.keyword = decodeURIComponent(options.keyword);
+    if (options.keyword) {
+      const kw = decodeURIComponent(options.keyword);
+      updates.keyword = kw;
+      // 多关键词：检测是否含分隔符（空格/中文逗号/顿号/竖线）
+      // 订阅关键词可能存为 "A,B,C" 或 "A B" 或 "A、B" 等
+      const keywords = kw.split(/[\s,，、|]+/).filter(s => s && s.trim());
+      updates.keywordList = keywords.length > 1 ? keywords : [kw];
+    }
     if (options.province) {
       updates.selectedProvince = decodeURIComponent(options.province);
       const newFilters = { ...this.data.currentFilters };
@@ -75,7 +83,7 @@ Page({
         newFilters.bidType = '中标公告';
         updates.pageTitle = '查中标';
       } else if (t === 'plan') {
-        newFilters.bidType = '工程类';
+        newFilters.bidType = '招标预告';
         updates.pageTitle = '查拟建';
       }
       updates.currentFilters = newFilters;
@@ -108,62 +116,75 @@ Page({
   async loadResults() {
     this.setData({ loading: true });
     try {
-      // 注意: API 字段名是 snake_case (publish_date_start, created_at)
-      const params = {
+      // 公共查询参数
+      const baseParams = {
         page: 1,
         page_size: 20,
         sort_by: 'created_at',
         sort_order: 'desc'
       };
 
-      // 关键词过滤
-      if (this.data.keyword && this.data.keyword.trim()) {
-        params.keyword = this.data.keyword.trim();
-      }
-
-      // 地区过滤：来自首页（selectedProvince/selectedCity） 或 筛选条（currentFilters.region）
+      // 地区过滤
       const province = this.data.selectedProvince || this.data.currentFilters.region;
       const city = this.data.selectedCity;
-      if (province) params.province = province;
-      if (city) params.city = city;
+      if (province) baseParams.province = province;
+      if (city) baseParams.city = city;
 
-      // 类型过滤：使用 list_type / bid_phase / category 三个不同字段做映射
-      // 避免使用不被后端接受的 bid_type 值（如"中标公告"、"工程类"）
-      const bidType = this.data.currentFilters.bidType;
-      if (bidType) {
-        if (bidType === '招标公告') {
-          // 用 list_type 简化：排除已中标
-          params.list_type = 'bids';
-        } else if (bidType === '中标公告') {
-          // 用 list_type 简化：仅成交公示
-          params.list_type = 'wins';
-        } else if (bidType === '招标') {
-          params.bid_phase = '招标';
-        } else if (bidType === '中标') {
-          params.bid_phase = '中标';
-        } else if (['工程类', '服务类', '货物类', '其他'].indexOf(bidType) !== -1) {
-          // category 是 4 个枚举值之一
-          params.category = bidType;
-        } else if (this.data.BID_TYPES && this.data.BID_TYPES.indexOf(bidType) !== -1) {
-          // bid_type 是 12 个枚举值之一
-          params.bid_type = bidType;
-        }
+      // 类型过滤
+      this._applyBidTypeFilter(baseParams);
+
+      // 时间过滤
+      this._applyTimeFilter(baseParams);
+
+      console.log('[search] 请求基础参数:', baseParams);
+
+      // 多关键词：每个关键词并发查一次，按 OR 合并去重
+      const keywordList = this.data.keywordList && this.data.keywordList.length > 0
+        ? this.data.keywordList
+        : (this.data.keyword && this.data.keyword.trim() ? [this.data.keyword.trim()] : []);
+
+      let items = [];
+      if (keywordList.length === 0) {
+        // 无关键词：单次查询
+        const data = await api.getBidList(baseParams);
+        items = data.items || [];
+      } else if (keywordList.length === 1) {
+        // 单关键词：单次查询
+        const params = Object.assign({}, baseParams, { keyword: keywordList[0] });
+        const data = await api.getBidList(params);
+        items = data.items || [];
+      } else {
+        // 多关键词：并发查每个关键词，再合并去重
+        const promises = keywordList.map(kw => {
+          const params = Object.assign({}, baseParams, { keyword: kw });
+          return api.getBidList(params).catch(err => {
+            console.warn('[search] 关键词查询失败:', kw, err);
+            return { items: [] };
+          });
+        });
+        const results = await Promise.all(promises);
+        // 按 id 去重（同一标讯可能被多个关键词匹配）
+        const seen = new Set();
+        items = [];
+        results.forEach(r => {
+          (r.items || []).forEach(it => {
+            if (!seen.has(it.id)) {
+              seen.add(it.id);
+              items.push(it);
+            }
+          });
+        });
+        // 合并后按 created_at 倒序
+        items.sort((a, b) => {
+          const ta = new Date(a.createdAt || a.created_at || a.publishDate || a.publish_date || 0).getTime();
+          const tb = new Date(b.createdAt || b.created_at || b.publishDate || b.publish_date || 0).getTime();
+          return tb - ta;
+        });
+        // 只保留前 50 条（多关键词会成倍扩大结果）
+        items = items.slice(0, 50);
       }
 
-      // 时间过滤：API 字段是 publish_date_start (YYYY-MM-DD)
-      if (this.data.currentFilters.time) {
-        const days = { '今日': 1, '近3天': 3, '近7天': 7, '近30天': 30, '近90天': 90 }[this.data.currentFilters.time];
-        if (days) {
-          const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-          params.publish_date_start = startDate.toISOString().split('T')[0];
-        }
-      }
-
-      console.log('[search] 请求参数:', params);
-
-      const data = await api.getBidList(params);
-
-      const items = (data.items || []).map(item => {
+      const mapped = items.map(item => {
         return {
           id: item.id,
           title: api.cleanTitle(item.title),
@@ -177,10 +198,22 @@ Page({
         };
       });
 
+      // 空提示文案
+      let emptyText = '';
+      if (mapped.length === 0) {
+        if (keywordList.length > 1) {
+          emptyText = `未找到与"${keywordList.join('"或"')}"相关的结果`;
+        } else if (keywordList.length === 1) {
+          emptyText = `未找到与"${keywordList[0]}"相关的结果`;
+        } else {
+          emptyText = '该地区暂无数据';
+        }
+      }
+
       this.setData({
-        resultList: items,
+        resultList: mapped,
         loading: false,
-        emptyText: items.length === 0 ? (params.keyword ? `未找到与"${params.keyword}"相关的结果` : '该地区暂无数据') : ''
+        emptyText
       });
     } catch (e) {
       console.error('[search] 搜索失败:', e);
@@ -191,6 +224,40 @@ Page({
         emptyText: '搜索错误: ' + errMsg + '，请重试'
       });
     }
+  },
+
+  // 把 bidType 映射为后端字段
+  _applyBidTypeFilter(params) {
+    const bidType = this.data.currentFilters.bidType;
+    if (!bidType) return;
+    if (bidType === '招标公告') {
+      params.list_type = 'bids';
+    } else if (bidType === '中标公告') {
+      params.list_type = 'wins';
+    } else if (bidType === '招标') {
+      params.bid_phase = '招标';
+    } else if (bidType === '中标') {
+      params.bid_phase = '中标';
+    } else if (['工程类', '服务类', '货物类', '其他'].indexOf(bidType) !== -1) {
+      params.category = bidType;
+    } else {
+      // bid_type 12 个标准值
+      params.bid_type = bidType;
+      if (['招标预告', '意见征集', '重新招标', '信息变更', '答疑公告'].indexOf(bidType) !== -1) {
+        params.bid_phase = '招标';
+      } else {
+        params.bid_phase = '中标';
+      }
+    }
+  },
+
+  // 把 time 映射为 publish_date_start
+  _applyTimeFilter(params) {
+    if (!this.data.currentFilters.time) return;
+    const days = { '今日': 1, '近3天': 3, '近7天': 7, '近30天': 30, '近90天': 90 }[this.data.currentFilters.time];
+    if (!days) return;
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    params.publish_date_start = startDate.toISOString().split('T')[0];
   },
 
   // 筛选弹窗

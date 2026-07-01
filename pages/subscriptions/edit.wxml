@@ -1,100 +1,113 @@
 <view class="container">
   <view class="header" style="padding-top: {{statusBarHeight}}px;">
     <view class="back-btn" bindtap="onBackTap">‹</view>
-    <view class="header-title">{{isEdit ? '编辑订阅' : '新建订阅'}}</view>
+    <view class="header-title">{{isEdit ? '编辑订阅' : '添加订阅'}}</view>
   </view>
 
   <view class="form">
-    <view class="form-item">
-      <view class="form-label required">订阅名称</view>
-      <input class="form-input" placeholder="如：医院建设工程订阅"
+    <!-- 信息标题 -->
+    <view class="form-row">
+      <view class="form-label">信息标题：</view>
+      <input class="form-input" placeholder="请输入"
              data-field="name" value="{{form.name}}" bindinput="onInput" />
     </view>
 
-    <view class="form-item">
-      <view class="form-label">关键词</view>
-      <input class="form-input" placeholder="多个用空格分隔，如：医院 建设"
-             data-field="keywords" value="{{form.keywords}}" bindinput="onInput" />
+    <view class="divider"></view>
+
+    <!-- 定制关键词 -->
+    <view class="form-block">
+      <view class="form-label-block">定制关键词：<text class="form-hint">系统根据关键词查找相关信息</text></view>
+      <view class="keyword-add">
+        <input class="keyword-input" placeholder="请输入关键词（10字以内）"
+               value="{{keywordInput}}" bindinput="onKeywordInput" bindconfirm="onAddKeyword" maxlength="10" />
+        <view class="keyword-add-btn {{keywordInput ? 'active' : ''}}" bindtap="onAddKeyword">添加</view>
+      </view>
+      <view class="keyword-list" wx:if="{{form.keywordList.length > 0}}">
+        <view class="keyword-chip" wx:for="{{form.keywordList}}" wx:key="*this"
+              data-index="{{index}}" bindtap="onRemoveKeyword">
+          {{item}} <text class="chip-x">×</text>
+        </view>
+      </view>
     </view>
 
-    <view class="form-item" bindtap="showBidTypePicker">
-      <view class="form-label">标讯类型</view>
+    <view class="divider"></view>
+
+    <!-- 检索模式 -->
+    <view class="form-row" bindtap="onPickSearchMode">
+      <view class="form-label">检索模式：</view>
       <view class="form-picker">
-        <text wx:if="{{bidTypePickerText}}">{{bidTypePickerText}}</text>
-        <text wx:else class="placeholder">点击选择</text>
+        <text>{{form.searchModeLabel}}</text>
         <text class="arrow">›</text>
       </view>
     </view>
 
-    <view class="form-item" bindtap="showProvincePicker">
-      <view class="form-label">省份</view>
+    <view class="divider"></view>
+
+    <!-- 信息类型 -->
+    <view class="form-row" bindtap="onPickBidType">
+      <view class="form-label">信息类型：</view>
       <view class="form-picker">
-        <text wx:if="{{provincePickerText}}">{{provincePickerText}}</text>
-        <text wx:else class="placeholder">点击选择</text>
+        <text wx:if="{{form.bidTypeLabel}}" class="value">{{form.bidTypeLabel}}</text>
+        <text wx:else class="placeholder">请选择</text>
         <text class="arrow">›</text>
       </view>
     </view>
 
-    <view class="form-item" bindtap="showIndustryPicker">
-      <view class="form-label">行业</view>
+    <view class="divider"></view>
+
+    <!-- 信息地区 -->
+    <view class="form-row" bindtap="onPickRegion">
+      <view class="form-label">信息地区：</view>
       <view class="form-picker">
-        <text wx:if="{{industryPickerText}}">{{industryPickerText}}</text>
-        <text wx:else class="placeholder">点击选择</text>
+        <text wx:if="{{form.regionLabel}}" class="value">{{form.regionLabel}}</text>
+        <text wx:else class="placeholder">请选择</text>
         <text class="arrow">›</text>
       </view>
     </view>
 
-    <view class="form-item">
-      <view class="form-label">预算范围（万元）</view>
-      <view class="form-budget">
-        <input class="budget-input" type="digit" placeholder="下限" data-field="budgetMin" value="{{form.budgetMin}}" bindinput="onInput" />
-        <text class="dash">~</text>
-        <input class="budget-input" type="digit" placeholder="上限" data-field="budgetMax" value="{{form.budgetMax}}" bindinput="onInput" />
-      </view>
-    </view>
+    <view class="divider"></view>
 
-    <view class="form-item">
-      <view class="form-label">推送通知</view>
+    <!-- 开启推送 -->
+    <view class="form-row">
+      <view class="form-label">开启推送：</view>
       <switch class="form-switch" checked="{{form.notifyEnabled}}"
               bindchange="onToggleSwitch" color="#1e88ff"></switch>
     </view>
 
-    <button class="save-btn" bindtap="onSave" disabled="{{saving}}">
-      {{saving ? '保存中…' : '保存订阅'}}
-    </button>
-  </view>
+    <view class="divider"></view>
 
-  <!-- 类型选择器 -->
-  <view class="modal-mask" wx:if="{{bidTypePickerShow}}" bindtap="hideBidTypePicker">
-    <view class="modal-panel" catchtap="">
-      <view class="modal-title">选择标讯类型</view>
-      <view class="modal-list">
-        <view class="modal-item" wx:for="{{bidTypeOptions}}" wx:key="*this"
-              data-value="{{item}}" bindtap="onPickBidType">{{item}}</view>
+    <!-- 推送方式 -->
+    <view class="form-block">
+      <view class="radio-item" bindtap="onPickPushType" data-type="daily">
+        <view class="radio-left">
+          <text class="radio-name">每日推送</text>
+          <text class="radio-desc">（每天10点、15点、20点分别推送一次信息）</text>
+        </view>
+        <view class="radio {{form.pushType === 'daily' ? 'checked' : ''}}"></view>
       </view>
-      <view class="modal-cancel" bindtap="hideBidTypePicker">取消</view>
+      <view class="radio-item" bindtap="onPickPushType" data-type="hourly">
+        <view class="radio-left">
+          <text class="radio-name">整点推送</text>
+          <text class="radio-desc">（每天8点-20点整点实时推送信息）</text>
+        </view>
+        <view class="radio {{form.pushType === 'hourly' ? 'checked' : ''}}"></view>
+      </view>
     </view>
   </view>
 
-  <view class="modal-mask" wx:if="{{provincePickerShow}}" bindtap="hideProvincePicker">
-    <view class="modal-panel" catchtap="">
-      <view class="modal-title">选择省份</view>
-      <view class="modal-list">
-        <view class="modal-item" wx:for="{{provinceOptions}}" wx:key="*this"
-              data-value="{{item}}" bindtap="onPickProvince">{{item}}</view>
-      </view>
-      <view class="modal-cancel" bindtap="hideProvincePicker">取消</view>
-    </view>
+  <view class="footer">
+    <view class="save-btn {{canSave ? 'active' : 'disabled'}}" bindtap="onSave">保存</view>
   </view>
 
-  <view class="modal-mask" wx:if="{{industryPickerShow}}" bindtap="hideIndustryPicker">
+  <!-- 选择器弹窗 -->
+  <view class="modal-mask" wx:if="{{modalShow}}" bindtap="hideModal">
     <view class="modal-panel" catchtap="">
-      <view class="modal-title">选择行业</view>
+      <view class="modal-title">{{modalTitle}}</view>
       <view class="modal-list">
-        <view class="modal-item" wx:for="{{industryOptions}}" wx:key="*this"
-              data-value="{{item}}" bindtap="onPickIndustry">{{item}}</view>
+        <view class="modal-item" wx:for="{{modalOptions}}" wx:key="*this"
+              data-value="{{item}}" bindtap="onPickModal">{{item}}</view>
       </view>
-      <view class="modal-cancel" bindtap="hideIndustryPicker">取消</view>
+      <view class="modal-cancel" bindtap="hideModal">取消</view>
     </view>
   </view>
 </view>

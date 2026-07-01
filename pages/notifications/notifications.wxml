@@ -20,10 +20,16 @@
       <view class="item-dot" wx:if="{{!item.isRead}}"></view>
       <view class="item-body">
         <view class="item-head">
-          <text class="item-title {{!item.isRead ? 'unread' : ''}}">{{item.title}}</text>
+          <view class="item-title-wrap">
+            <text class="item-title {{!item.isRead ? 'unread' : ''}}">{{item.title}}</text>
+            <text class="item-tag point-tag" wx:if="{{item.isPoint}}">积分</text>
+          </view>
           <text class="item-time">{{item.time}}</text>
         </view>
         <view class="item-content">{{item.content}}</view>
+        <view class="item-amount {{item.isIncome ? 'income' : 'expense'}}" wx:if="{{item.isPoint && item.amount !== null}}">
+          {{item.isIncome ? '+' : ''}}{{item.amount}} 积分
+        </view>
       </view>
     </view>
   </view>

@@ -1,118 +1,207 @@
 .container {
   min-height: 100vh;
   background: #f5f7fa;
-  padding-bottom: 40rpx;
+  padding-bottom: 200rpx;
+  width: 100%;
+  overflow-x: hidden;
 }
+
 .header {
-  background: linear-gradient(135deg, #1e88ff 0%, #1565c0 100%);
-  color: #ffffff;
+  background: #ffffff;
+  height: 88rpx;
   display: flex;
   align-items: center;
-  height: 88rpx;
-  padding: 0 24rpx;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  justify-content: center;
+  border-bottom: 1rpx solid #f1f5f9;
 }
-.back-btn {
-  font-size: 60rpx;
-  width: 60rpx;
-  line-height: 60rpx;
-  text-align: center;
-  color: #ffffff;
-}
+
 .header-title {
-  flex: 1;
-  text-align: center;
   font-size: 34rpx;
   font-weight: 600;
+  color: #1f2937;
 }
-.add-btn {
+
+/* Tab 切换 */
+.tabs {
+  display: flex;
+  background: #ffffff;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0 20rpx;
+  font-size: 30rpx;
+  color: #64748b;
+  position: relative;
+}
+
+.tab.active {
+  color: #1e88ff;
+  font-weight: 600;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: #1e88ff;
+  border-radius: 2rpx;
+}
+
+/* 时间筛选 */
+.time-filter {
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+
+.time-text {
   font-size: 26rpx;
-  color: #ffffff;
-  padding: 8rpx 20rpx;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 24rpx;
+  color: #475569;
 }
+
+/* 列表 */
 .list {
   padding: 24rpx;
 }
+
 .list-item {
   background: #ffffff;
-  border-radius: 16rpx;
-  padding: 24rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  border-radius: 12rpx;
+  margin-bottom: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 }
+
 .item-head {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16rpx;
+  padding: 24rpx 24rpx 12rpx;
+  gap: 12rpx;
 }
+
+.item-icon {
+  width: 36rpx;
+  height: 36rpx;
+  flex-shrink: 0;
+}
+
 .item-name {
   font-size: 30rpx;
   font-weight: 600;
-  color: #1e293b;
+  color: #1f2937;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.item-switch {
-  transform: scale(0.8);
-  margin-left: 12rpx;
-}
-.item-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  margin-bottom: 16rpx;
-}
-.tag {
-  font-size: 22rpx;
-  color: #475569;
-  background: #f1f5f9;
-  padding: 4rpx 14rpx;
-  border-radius: 6rpx;
-}
-.item-foot {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1rpx solid #e2e8f0;
-  padding-top: 16rpx;
-}
-.meta-time {
-  font-size: 22rpx;
-  color: #94a3b8;
-}
-.delete-btn {
+
+/* 企业订阅标讯总数徽标 */
+.item-badge {
+  min-width: 40rpx;
+  height: 40rpx;
+  padding: 0 14rpx;
+  background: #ff3b30;
+  color: #ffffff;
   font-size: 24rpx;
-  color: #ef4444;
-  padding: 4rpx 12rpx;
-}
-.empty {
+  font-weight: 600;
+  line-height: 40rpx;
   text-align: center;
-  padding: 200rpx 32rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
 }
-.empty-icon {
-  font-size: 100rpx;
-  margin-bottom: 24rpx;
-  opacity: 0.5;
+
+.item-info {
+  padding: 0 24rpx 20rpx;
 }
-.empty-text {
-  font-size: 30rpx;
+
+.info-row {
+  font-size: 26rpx;
+  color: #64748b;
+  line-height: 1.6;
+  margin-top: 4rpx;
+}
+
+.item-actions {
+  display: flex;
+  border-top: 1rpx solid #f1f5f9;
+}
+
+.action-btn {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 26rpx;
   color: #475569;
-  margin-bottom: 12rpx;
+  position: relative;
 }
-.empty-hint {
-  font-size: 24rpx;
+
+.action-btn + .action-btn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  height: 50%;
+  width: 1rpx;
+  background: #e2e8f0;
+}
+
+.action-btn.danger {
+  color: #ef4444;
+}
+
+.empty {
+  padding: 160rpx 32rpx;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 28rpx;
   color: #94a3b8;
 }
+
 .loading {
   text-align: center;
   padding: 32rpx;
   color: #94a3b8;
   font-size: 24rpx;
+}
+
+/* 浮动添加按钮 */
+.fab {
+  position: fixed;
+  right: 40rpx;
+  bottom: 60rpx;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.fab-plus {
+  font-size: 48rpx;
+  color: #1e88ff;
+  font-weight: 300;
+  line-height: 1;
+  margin-top: -4rpx;
+}
+
+.fab-label {
+  font-size: 22rpx;
+  color: #1e88ff;
+  margin-top: 4rpx;
 }

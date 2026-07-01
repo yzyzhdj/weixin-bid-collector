@@ -1,46 +1,53 @@
 <view class="container">
-  <!-- 头部 -->
   <view class="header">
-    <view class="header-title">更多</view>
+    <view class="header-title">更多服务</view>
   </view>
 
-  <!-- 标书模版 -->
-  <view class="section">
-    <view class="section-title">标书模版</view>
-    <view class="grid grid-3">
-      <view class="grid-item" wx:for="{{templateItems}}" wx:key="type" bindtap="onItemTap" data-type="{{item.type}}">
-        <view class="grid-icon-wrap {{item.bgClass}}">
-          <image class="grid-icon" src="{{item.icon}}"></image>
+  <view class="content-wrap">
+    <!-- 标书服务 -->
+    <view class="section-card">
+      <view class="card-hd">
+        <view class="card-title">标书服务</view>
+      </view>
+      <view class="grid grid-3">
+        <view class="grid-item" wx:for="{{templateItems}}" wx:key="type" bindtap="onItemTap" data-type="{{item.type}}">
+          <view class="icon-box" style="background: {{item.color}}">
+            <image class="icon-img" src="{{item.icon}}"></image>
+          </view>
+          <text class="icon-label">{{item.name}}</text>
         </view>
-        <text class="grid-name">{{item.name}}</text>
       </view>
     </view>
-  </view>
 
-  <!-- 业务拓展 -->
-  <view class="section">
-    <view class="section-title">业务拓展</view>
-    <view class="grid grid-4">
-      <view class="grid-item" wx:for="{{businessItems}}" wx:key="type" bindtap="onItemTap" data-type="{{item.type}}">
-        <view class="grid-icon-wrap {{item.bgClass}}">
-          <image class="grid-icon" src="{{item.icon}}"></image>
-          <view wx:if="{{item.badge}}" class="grid-badge {{item.badgeClass}}">{{item.badge}}</view>
+    <!-- 业务拓展 -->
+    <view class="section-card">
+      <view class="card-hd">
+        <view class="card-title">业务拓展</view>
+      </view>
+      <view class="grid grid-4">
+        <view class="grid-item" wx:for="{{businessItems}}" wx:key="type" bindtap="onItemTap" data-type="{{item.type}}">
+          <view class="icon-box" style="background: {{item.color}}">
+            <image class="icon-img" src="{{item.icon}}"></image>
+            <view wx:if="{{item.badge}}" class="icon-badge">{{item.badge}}</view>
+          </view>
+          <text class="icon-label">{{item.name}}</text>
         </view>
-        <text class="grid-name">{{item.name}}</text>
       </view>
     </view>
-  </view>
 
-  <!-- 数据服务 -->
-  <view class="section">
-    <view class="section-title">数据服务</view>
-    <view class="grid grid-4">
-      <view class="grid-item" wx:for="{{dataItems}}" wx:key="type" bindtap="onItemTap" data-type="{{item.type}}">
-        <view class="grid-icon-wrap {{item.bgClass}}">
-          <image class="grid-icon" src="{{item.icon}}"></image>
-          <view wx:if="{{item.badge}}" class="grid-badge {{item.badgeClass}}">{{item.badge}}</view>
+    <!-- 数据服务 -->
+    <view class="section-card">
+      <view class="card-hd">
+        <view class="card-title">数据服务</view>
+      </view>
+      <view class="grid grid-4">
+        <view class="grid-item" wx:for="{{dataItems}}" wx:key="type" bindtap="onItemTap" data-type="{{item.type}}">
+          <view class="icon-box" style="background: {{item.color}}">
+            <image class="icon-img" src="{{item.icon}}"></image>
+            <view wx:if="{{item.badge}}" class="icon-badge">{{item.badge}}</view>
+          </view>
+          <text class="icon-label">{{item.name}}</text>
         </view>
-        <text class="grid-name">{{item.name}}</text>
       </view>
     </view>
   </view>

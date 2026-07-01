@@ -78,14 +78,77 @@
   margin-top: 4rpx;
 }
 
-.header-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+/* 中间组：标题 + 铃铛，作为整体在 header-top 中水平居中 */
+.header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  flex: 1;
+}
+
+.header-title-text {
   font-size: 34rpx;
   color: #ffffff;
   font-weight: 600;
   letter-spacing: 2rpx;
+  line-height: 1;
+}
+
+/* 右侧占位：与左侧地区选择器等宽，使中间组真正水平居中 */
+.header-right-placeholder {
+  min-width: 100rpx;
+  height: 1rpx;
+}
+
+/* 消息通知铃铛：flex 子元素，与标题垂直居中对齐 */
+.header-notice {
+  position: relative;
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.header-notice-hover {
+  opacity: 0.7;
+}
+
+.notice-bell {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 白色铃铛图标：用 SVG 数据 URI + CSS mask 实现（不受 emoji 默认颜色限制） */
+.notice-bell-icon {
+  width: 36rpx;
+  height: 36rpx;
+  background-color: #ffffff;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5S10.5 3.17 10.5 4v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z'/></svg>") center center / contain no-repeat;
+          mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5S10.5 3.17 10.5 4v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z'/></svg>") center center / contain no-repeat;
+}
+
+.notice-badge {
+  position: absolute;
+  top: -4rpx;
+  right: -4rpx;
+  min-width: 28rpx;
+  height: 28rpx;
+  padding: 0 6rpx;
+  background: #ff3b30;
+  color: #ffffff;
+  font-size: 18rpx;
+  font-weight: 600;
+  line-height: 28rpx;
+  text-align: center;
+  border-radius: 14rpx;
+  border: 2rpx solid rgba(30, 136, 255, 0.5);
+  box-sizing: border-box;
 }
 
 .search-bar {
@@ -113,24 +176,637 @@
   color: #334155;
 }
 
-.hot-tags {
-  display: flex;
-  gap: 20rpx;
-  margin-top: 24rpx;
+/* ====== Banner 轮播（纯 CSS 商用级设计） ====== */
+.banner-swiper {
+  width: 100%;
+  height: 280rpx;
+  margin-top: 28rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
   position: relative;
   z-index: 2;
+  box-shadow: 0 8rpx 28rpx rgba(30, 136, 255, 0.2);
 }
 
-.hot-tag {
-  font-size: 26rpx;
+.banner-item {
+  width: 100%;
+  height: 280rpx;
+  border-radius: 20rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ---- API Banner 图片模式 ---- */
+.banner-api-item {
+  background: #f5f5f5;
+}
+.banner-api-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+.banner-api-mask {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%);
+  z-index: 2;
+}
+.banner-api-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 24rpx 32rpx;
+  box-sizing: border-box;
+  z-index: 3;
+}
+.banner-api-title {
+  font-size: 30rpx;
+  font-weight: 700;
   color: #ffffff;
-  font-weight: 400;
-  line-height: 1;
+  text-shadow: 0 2rpx 6rpx rgba(0,0,0,0.4);
+  line-height: 1.3;
+}
+
+/* ---- AI 主题：深蓝科技渐变 ---- */
+.banner-theme-ai {
+  background: linear-gradient(135deg, #0d3b7a 0%, #1565c0 25%, #1e88ff 55%, #42a5f5 100%);
+}
+
+/* ---- 签到主题：橙金渐变 ---- */
+.banner-theme-signin {
+  background: linear-gradient(135deg, #d84315 0%, #ef6c00 25%, #ff9800 55%, #ffb74d 100%);
+}
+
+/* 背景光晕 */
+.banner-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40rpx);
+  opacity: 0.4;
+}
+.banner-glow-1 {
+  width: 300rpx;
+  height: 300rpx;
+  background: radial-gradient(circle, #64b5f6, transparent 70%);
+  top: -100rpx;
+  right: -60rpx;
+}
+.banner-glow-2 {
+  width: 200rpx;
+  height: 200rpx;
+  background: radial-gradient(circle, #e3f2fd, transparent 70%);
+  bottom: -60rpx;
+  left: 100rpx;
+  opacity: 0.25;
+}
+.glow-gold {
+  background: radial-gradient(circle, #ffd54f, transparent 70%) !important;
+}
+.glow-gold2 {
+  background: radial-gradient(circle, #fff3e0, transparent 70%) !important;
+}
+
+/* 网点纹理装饰 */
+.banner-dots-deco {
+  position: absolute;
+  width: 180rpx;
+  height: 180rpx;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.25) 2rpx, transparent 2rpx);
+  background-size: 16rpx 16rpx;
+  z-index: 1;
+}
+.banner-dots-tr {
+  top: -20rpx;
+  right: -20rpx;
+  border-radius: 0 0 0 180rpx;
+}
+.banner-dots-bl {
+  bottom: -20rpx;
+  left: -20rpx;
+  border-radius: 0 180rpx 0 0;
+  transform: rotate(180deg);
+  opacity: 0.3;
+}
+
+/* 弧线装饰 */
+.banner-arc {
+  position: absolute;
+  border: 3rpx solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  z-index: 1;
+}
+.banner-arc-1 {
+  width: 500rpx;
+  height: 500rpx;
+  top: -280rpx;
+  right: -200rpx;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+}
+.banner-arc-2 {
+  width: 400rpx;
+  height: 400rpx;
+  bottom: -250rpx;
+  left: -100rpx;
+  border-right-color: transparent;
+  border-top-color: transparent;
+}
+
+/* ========== AI 主题装饰 ========== */
+
+/* 浮动文档卡片 */
+.banner-float-card {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 12rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+.banner-card-doc {
+  width: 100rpx;
+  height: 120rpx;
+  left: 40rpx;
+  bottom: 36rpx;
+  transform: rotate(-8deg);
+  padding: 12rpx;
+  box-sizing: border-box;
+}
+.banner-card-chart {
+  width: 80rpx;
+  height: 90rpx;
+  left: 120rpx;
+  top: 48rpx;
+  transform: rotate(6deg);
+  padding: 10rpx;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #ffffff, #f0f7ff);
+}
+
+/* 文档图标内容 */
+.doc-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.doc-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 5rpx;
+}
+.doc-line {
+  height: 4rpx;
+  background: #bbdefb;
+  border-radius: 2rpx;
+}
+.doc-line-1 { width: 80%; }
+.doc-line-2 { width: 60%; background: #90caf9; }
+.doc-line-3 { width: 70%; }
+.doc-line-4 { width: 40%; background: #90caf9; }
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 5rpx;
+  height: 28rpx;
+}
+.bar {
+  width: 10rpx;
+  border-radius: 2rpx 2rpx 0 0;
+}
+.bar-1 { height: 40%; background: #42a5f5; }
+.bar-2 { height: 70%; background: #1e88ff; }
+.bar-3 { height: 100%; background: #1565c0; }
+
+/* 趋势线卡片 */
+.trend-line {
+  width: 100%;
+  height: 50%;
+  border-bottom: 3rpx solid #1e88ff;
+  border-right: 3rpx solid #1e88ff;
+  border-radius: 0 0 8rpx 0;
+  position: relative;
+  margin-top: 10rpx;
+}
+.trend-line::before {
+  content: '';
+  position: absolute;
+  bottom: -3rpx;
+  left: 0;
+  width: 100%;
+  height: 3rpx;
+  background: linear-gradient(90deg, #42a5f5, #1e88ff, #1565c0);
+  transform: skewY(-20deg);
+  transform-origin: left bottom;
+}
+.trend-dot {
+  position: absolute;
+  width: 8rpx;
+  height: 8rpx;
+  background: #ff5722;
+  border-radius: 50%;
+  box-shadow: 0 0 6rpx rgba(255, 87, 34, 0.6);
+}
+.trend-dot-1 { left: 12rpx; bottom: 22rpx; }
+.trend-dot-2 { left: 34rpx; bottom: 32rpx; }
+.trend-dot-3 { left: 55rpx; bottom: 44rpx; }
+
+/* AI 机器人 */
+.banner-robot {
+  position: absolute;
+  right: 44rpx;
+  bottom: 20rpx;
+  width: 130rpx;
+  height: 160rpx;
+  z-index: 3;
+  filter: drop-shadow(0 6rpx 12rpx rgba(0,0,0,0.2));
+}
+.robot-antenna {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4rpx;
+  height: 18rpx;
+  background: linear-gradient(to top, #90caf9, #e3f2fd);
+}
+.antenna-ball {
+  position: absolute;
+  top: -10rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14rpx;
+  height: 14rpx;
+  background: radial-gradient(circle at 30% 30%, #ffeb3b, #ff9800);
+  border-radius: 50%;
+  box-shadow: 0 0 10rpx rgba(255, 235, 59, 0.8);
+  animation: robotGlow 2s ease-in-out infinite;
+}
+.robot-head {
+  position: absolute;
+  top: 18rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 88rpx;
+  height: 70rpx;
+  background: linear-gradient(180deg, #e3f2fd, #bbdefb);
+  border-radius: 24rpx 24rpx 20rpx 20rpx;
+  border: 3rpx solid #ffffff;
+}
+.robot-eye {
+  position: absolute;
+  top: 20rpx;
+  width: 16rpx;
+  height: 20rpx;
+  background: #1565c0;
+  border-radius: 8rpx;
+}
+.robot-eye-l { left: 18rpx; }
+.robot-eye-r { right: 18rpx; }
+.robot-eye::after {
+  content: '';
+  position: absolute;
+  top: 3rpx;
+  left: 3rpx;
+  width: 6rpx;
+  height: 6rpx;
+  background: #ffffff;
+  border-radius: 50%;
+}
+.robot-mouth {
+  position: absolute;
+  bottom: 12rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28rpx;
+  height: 8rpx;
+  background: #1565c0;
+  border-radius: 0 0 10rpx 10rpx;
+}
+.robot-body {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100rpx;
+  height: 65rpx;
+  background: linear-gradient(180deg, #bbdefb, #90caf9);
+  border-radius: 16rpx 16rpx 20rpx 20rpx;
+  border: 3rpx solid #ffffff;
+}
+.robot-light {
+  position: absolute;
+  top: 12rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20rpx;
+  height: 20rpx;
+  background: radial-gradient(circle, #4caf50, #2e7d32);
+  border-radius: 50%;
+  border: 2rpx solid #ffffff;
+  animation: robotBlink 1.5s ease-in-out infinite;
+}
+.robot-arm {
+  position: absolute;
+  top: 70rpx;
+  width: 18rpx;
+  height: 40rpx;
+  background: linear-gradient(180deg, #bbdefb, #90caf9);
+  border-radius: 10rpx;
+  border: 2rpx solid #ffffff;
+}
+.robot-arm-l { left: -8rpx; transform: rotate(15deg); }
+.robot-arm-r { right: -8rpx; transform: rotate(-25deg); animation: robotWave 2s ease-in-out infinite; transform-origin: top center; }
+.robot-wave {
+  position: absolute;
+  top: -8rpx;
+  left: -2rpx;
+  width: 24rpx;
+  height: 24rpx;
+  background: #ffd54f;
+  border-radius: 50%;
+  border: 2rpx solid #ffffff;
+}
+.robot-wave::after {
+  content: '';
+  position: absolute;
+  top: 4rpx;
+  left: 4rpx;
+  width: 4rpx;
+  height: 4rpx;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 10rpx 0 0 #ffffff, 5rpx 8rpx 0 #ffffff;
+}
+
+/* ========== 签到主题装饰 ========== */
+
+/* 撒花纸屑 */
+.banner-confetti {
+  position: absolute;
+  width: 10rpx;
+  height: 14rpx;
+  border-radius: 2rpx;
+  z-index: 2;
+  animation: confettiFloat 3s ease-in-out infinite;
+}
+.confetti-1 { background: #ffeb3b; top: 20rpx; right: 200rpx; transform: rotate(15deg); animation-delay: 0s; }
+.confetti-2 { background: #ffffff; top: 50rpx; right: 280rpx; transform: rotate(-20deg); animation-delay: 0.5s; width: 8rpx; height: 8rpx; border-radius: 50%; }
+.confetti-3 { background: #ff7043; top: 80rpx; right: 160rpx; transform: rotate(30deg); animation-delay: 1s; }
+.confetti-4 { background: #fff9c4; top: 40rpx; right: 320rpx; transform: rotate(-10deg); animation-delay: 1.5s; width: 12rpx; height: 8rpx; border-radius: 50%; }
+.confetti-5 { background: #ffecb3; top: 100rpx; right: 240rpx; transform: rotate(45deg); animation-delay: 2s; }
+
+/* 日历卡片 */
+.banner-calendar {
+  position: absolute;
+  left: 36rpx;
+  bottom: 36rpx;
+  width: 88rpx;
+  height: 96rpx;
+  z-index: 2;
+  filter: drop-shadow(0 6rpx 12rpx rgba(0,0,0,0.15));
+}
+.cal-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 24rpx;
+  background: linear-gradient(180deg, #e65100, #bf360c);
+  border-radius: 10rpx 10rpx 0 0;
+}
+.cal-top::before, .cal-top::after {
+  content: '';
+  position: absolute;
+  top: -8rpx;
+  width: 8rpx;
+  height: 14rpx;
+  background: #ffccbc;
+  border-radius: 4rpx;
+}
+.cal-top::before { left: 20rpx; }
+.cal-top::after { right: 20rpx; }
+.cal-body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 78rpx;
+  background: #ffffff;
+  border-radius: 0 0 10rpx 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cal-check {
+  width: 36rpx;
+  height: 20rpx;
+  border-left: 5rpx solid #4caf50;
+  border-bottom: 5rpx solid #4caf50;
+  transform: rotate(-45deg);
+  margin-top: -10rpx;
+}
+
+/* 飘浮金币 */
+.banner-coin {
+  position: absolute;
+  width: 36rpx;
+  height: 36rpx;
+  background: linear-gradient(135deg, #ffd54f 0%, #ffb300 50%, #ff8f00 100%);
+  border-radius: 50%;
+  border: 2rpx solid #ffe082;
+  box-shadow: 0 4rpx 10rpx rgba(255, 143, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  animation: coinFloat 3s ease-in-out infinite;
+}
+.coin-inner {
+  font-size: 20rpx;
+  font-weight: 800;
+  color: #bf360c;
+}
+.coin-1 { left: 140rpx; top: 32rpx; animation-delay: 0s; width: 28rpx; height: 28rpx; }
+.coin-2 { left: 170rpx; top: 68rpx; animation-delay: 0.8s; }
+.coin-3 { left: 100rpx; top: 90rpx; animation-delay: 1.6s; width: 24rpx; height: 24rpx; }
+
+/* 礼盒 */
+.banner-gift {
+  position: absolute;
+  right: 36rpx;
+  bottom: 24rpx;
+  width: 110rpx;
+  height: 130rpx;
+  z-index: 3;
+  filter: drop-shadow(0 6rpx 12rpx rgba(0,0,0,0.2));
+}
+.gift-body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 78rpx;
+  background: linear-gradient(180deg, #ff7043, #e64a19);
+  border-radius: 8rpx;
+  border: 3rpx solid #ffffff;
+  box-sizing: border-box;
+}
+.gift-lid {
+  position: absolute;
+  top: 24rpx;
+  left: -6rpx;
+  width: calc(100% + 12rpx);
+  height: 28rpx;
+  background: linear-gradient(180deg, #ff8a65, #ff7043);
+  border-radius: 6rpx;
+  border: 3rpx solid #ffffff;
+  box-sizing: border-box;
+}
+.gift-ribbon-h {
+  position: absolute;
+  top: 36rpx;
+  left: 0;
+  width: 100%;
+  height: 16rpx;
+  background: linear-gradient(90deg, #ffd54f, #ffecb3, #ffd54f);
+  z-index: 2;
+}
+.gift-ribbon-v {
+  position: absolute;
+  top: 24rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16rpx;
+  height: 84rpx;
+  background: linear-gradient(180deg, #ffecb3, #ffd54f, #ffecb3);
+  z-index: 3;
+}
+.gift-bow {
+  position: absolute;
+  top: 8rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  width: 40rpx;
+  height: 24rpx;
+}
+.bow-l, .bow-r {
+  position: absolute;
+  top: 0;
+  width: 22rpx;
+  height: 22rpx;
+  background: radial-gradient(ellipse at 30% 40%, #ffecb3, #ffd54f);
+  border-radius: 50% 50% 50% 50%;
+  border: 2rpx solid #ffffff;
+}
+.bow-l { left: -4rpx; transform: rotate(-30deg); }
+.bow-r { right: -4rpx; transform: rotate(30deg); }
+.bow-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14rpx;
+  height: 14rpx;
+  background: radial-gradient(circle, #ffb300, #ff8f00);
+  border-radius: 50%;
+  border: 2rpx solid #ffffff;
+}
+
+/* 星光装饰 */
+.banner-star {
+  position: absolute;
+  background: #ffffff;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  z-index: 2;
+  animation: starTwinkle 2s ease-in-out infinite;
+}
+.star-1 { width: 16rpx; height: 16rpx; top: 30rpx; right: 180rpx; animation-delay: 0s; }
+.star-2 { width: 12rpx; height: 12rpx; top: 60rpx; right: 260rpx; animation-delay: 0.7s; opacity: 0.8; }
+.star-3 { width: 10rpx; height: 10rpx; top: 100rpx; right: 200rpx; animation-delay: 1.4s; opacity: 0.6; }
+
+/* ========== 文案 ========== */
+.banner-text {
+  position: absolute;
+  left: 190rpx;
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 5;
+  max-width: 55%;
+}
+.banner-title {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.25;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.5rpx;
+}
+.banner-sub {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.5;
+  text-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.15);
+  margin-top: 4rpx;
+}
+.banner-tag {
+  display: inline-block;
+  align-self: flex-start;
+  margin-bottom: 8rpx;
+  padding: 3rpx 16rpx;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6rpx);
+  color: #ffffff;
+  font-size: 18rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+}
+.tag-gold {
+  background: rgba(255, 235, 59, 0.25);
+  border-color: rgba(255, 235, 59, 0.5);
+}
+
+/* ========== 动画 ========== */
+@keyframes robotGlow {
+  0%, 100% { box-shadow: 0 0 10rpx rgba(255,235,59,0.8); }
+  50% { box-shadow: 0 0 20rpx rgba(255,235,59,1), 0 0 30rpx rgba(255,152,0,0.5); }
+}
+@keyframes robotBlink {
+  0%, 90%, 100% { opacity: 1; }
+  95% { opacity: 0.3; }
+}
+@keyframes robotWave {
+  0%, 100% { transform: rotate(-25deg); }
+  50% { transform: rotate(-45deg) translateY(-8rpx); }
+}
+@keyframes confettiFloat {
+  0%, 100% { transform: translateY(0) rotate(15deg); opacity: 0.9; }
+  50% { transform: translateY(-12rpx) rotate(-15deg); opacity: 1; }
+}
+@keyframes coinFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10rpx) scale(1.08); }
+}
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 
 .function-card {
   background: #ffffff;
-  margin: -24rpx 24rpx 24rpx;
+  margin: 24rpx 24rpx 24rpx;
   border-radius: 20rpx;
   padding: 32rpx 16rpx;
   position: relative;
@@ -171,8 +847,26 @@
   color: #334155;
 }
 
+/* banner 用 button 重置 */
+button.promo-banner {
+  display: flex;
+  align-items: center;
+  margin: 0 24rpx;
+  padding: 0;
+  border: none;
+  background: linear-gradient(135deg, #1e88ff 0%, #42a5f5 100%);
+  border-radius: 16rpx;
+  overflow: hidden;
+  position: relative;
+  width: calc(100% - 48rpx);
+}
+
+button.promo-banner::after {
+  border: none;
+}
+
 .promo-banner {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  background: linear-gradient(135deg, #1e88ff 0%, #42a5f5 100%);
   margin: 0 24rpx 24rpx;
   border-radius: 20rpx;
   padding: 28rpx 32rpx;
@@ -181,26 +875,67 @@
   justify-content: space-between;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(30, 136, 255, 0.25);
+}
+
+.promo-decor {
+  position: absolute;
+  top: -40rpx;
+  right: -40rpx;
+  width: 160rpx;
+  height: 160rpx;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.promo-decor-2 {
+  position: absolute;
+  bottom: -30rpx;
+  right: 60rpx;
+  width: 100rpx;
+  height: 100rpx;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .promo-text {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: 8rpx;
   flex: 1;
+  z-index: 1;
 }
 
 .promo-subtitle {
-  font-size: 22rpx;
-  color: #64748b;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.4;
 }
 
 .promo-title {
   font-size: 32rpx;
   font-weight: 700;
-  color: #1e3a8a;
+  color: #ffffff;
   line-height: 1.3;
+}
+
+.promo-emoji {
+  font-size: 64rpx;
+  margin: 0 16rpx;
+  z-index: 1;
+}
+
+.promo-btn {
+  background: #ffffff;
+  color: #1e88ff;
+  font-size: 24rpx;
+  font-weight: 600;
+  padding: 12rpx 24rpx;
+  border-radius: 32rpx;
+  z-index: 1;
+  white-space: nowrap;
 }
 
 .promo-image {
@@ -307,6 +1042,42 @@
   text-align: center;
   color: #94a3b8;
   font-size: 28rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading-spinner {
+  width: 64rpx;
+  height: 64rpx;
+  position: relative;
+  margin-bottom: 20rpx;
+}
+
+.spinner-ring {
+  position: absolute;
+  inset: 0;
+  border: 4rpx solid #e2e8f0;
+  border-top-color: #1e88ff;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.loading-text {
+  font-size: 26rpx;
+  color: #64748b;
+}
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.load-more-tip {
+  padding: 32rpx 0;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 24rpx;
 }
 
 .empty-state {
@@ -442,6 +1213,293 @@
   border-top: 1rpx solid #f1f5f9;
   background: #ffffff;
 }
+
+/* ============================================ */
+/* 每日签到弹窗                                  */
+/* ============================================ */
+
+.signin-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 1000;
+}
+
+.signin-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 640rpx;
+  z-index: 1001;
+}
+
+.signin-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.25);
+  padding-bottom: 36rpx;
+}
+
+.signin-close {
+  position: absolute;
+  top: 16rpx;
+  right: 20rpx;
+  width: 56rpx;
+  height: 56rpx;
+  line-height: 50rpx;
+  text-align: center;
+  font-size: 44rpx;
+  color: #94a3b8;
+  z-index: 5;
+}
+
+.signin-header {
+  position: relative;
+  height: 200rpx;
+  background: linear-gradient(135deg, #dbeafe 0%, #ffffff 70%);
+  overflow: hidden;
+}
+
+.signin-cloud {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.signin-cloud-1 {
+  width: 120rpx;
+  height: 60rpx;
+  top: 40rpx;
+  left: 60rpx;
+  box-shadow: 50rpx 10rpx 0 -10rpx #ffffff;
+}
+
+.signin-cloud-2 {
+  width: 80rpx;
+  height: 40rpx;
+  top: 80rpx;
+  right: 80rpx;
+  box-shadow: 40rpx -10rpx 0 -10rpx #ffffff;
+}
+
+.signin-cloud-3 {
+  width: 60rpx;
+  height: 30rpx;
+  top: 30rpx;
+  right: 200rpx;
+  box-shadow: 30rpx 5rpx 0 -5rpx #ffffff;
+}
+
+.signin-calendar {
+  position: absolute;
+  left: 50%;
+  top: 40rpx;
+  transform: translateX(-50%);
+  width: 110rpx;
+  height: 130rpx;
+  background: #ffffff;
+  border-radius: 14rpx;
+  box-shadow: 0 6rpx 20rpx rgba(30, 136, 255, 0.15);
+  overflow: hidden;
+}
+
+.signin-cal-top {
+  height: 24rpx;
+  background: #1e88ff;
+}
+
+.signin-cal-body {
+  position: relative;
+  height: 106rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signin-cal-ring {
+  width: 48rpx;
+  height: 48rpx;
+  border: 6rpx solid #1e88ff;
+  border-radius: 50%;
+  position: relative;
+}
+
+.signin-cal-ring::before {
+  content: '';
+  position: absolute;
+  top: 8rpx;
+  left: 14rpx;
+  width: 6rpx;
+  height: 14rpx;
+  background: #1e88ff;
+  transform: rotate(45deg);
+}
+
+.signin-cal-stick {
+  position: absolute;
+  bottom: 18rpx;
+  width: 4rpx;
+  height: 26rpx;
+  background: #1e88ff;
+  transform: translateX(8rpx) rotate(45deg);
+  transform-origin: bottom;
+}
+
+.signin-title {
+  text-align: center;
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 30rpx;
+}
+
+.signin-subtitle {
+  text-align: center;
+  font-size: 26rpx;
+  color: #64748b;
+  margin-top: 8rpx;
+}
+
+.signin-days {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-top: 6rpx;
+}
+
+.signin-days-num {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #f97316;
+  line-height: 1.1;
+}
+
+.signin-days-unit {
+  font-size: 26rpx;
+  color: #f97316;
+  margin-left: 8rpx;
+  font-weight: 500;
+}
+
+.signin-week {
+  display: flex;
+  justify-content: space-between;
+  margin: 28rpx 30rpx 0;
+  padding: 24rpx 16rpx;
+  background: #f8fafc;
+  border-radius: 16rpx;
+}
+
+.signin-day {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.signin-day-circle {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2rpx solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10rpx;
+  position: relative;
+}
+
+.signin-day.is-today .signin-day-circle {
+  background: #eff6ff;
+  border-color: #1e88ff;
+}
+
+.signin-day.is-signed .signin-day-circle {
+  background: #1e88ff;
+  border-color: #1e88ff;
+}
+
+.signin-day-check {
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.signin-day-empty {
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+.signin-day-tag {
+  position: absolute;
+  top: -14rpx;
+  background: #1e88ff;
+  color: #ffffff;
+  font-size: 18rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 12rpx;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.signin-day-label {
+  font-size: 22rpx;
+  color: #475569;
+  margin-bottom: 2rpx;
+}
+
+.signin-day-points {
+  font-size: 22rpx;
+  color: #f97316;
+  font-weight: 600;
+}
+
+.signin-btn {
+  margin: 30rpx 30rpx 0;
+  height: 88rpx;
+  background: linear-gradient(135deg, #1e88ff 0%, #42a5f5 100%);
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 2rpx;
+  box-shadow: 0 8rpx 20rpx rgba(30, 136, 255, 0.35);
+}
+
+.signin-btn.is-done {
+  background: #e2e8f0;
+  color: #94a3b8;
+  box-shadow: none;
+}
+
+.signin-tip {
+  text-align: center;
+  font-size: 24rpx;
+  color: #94a3b8;
+  margin-top: 20rpx;
+}
+
+.signin-rule-link {
+  text-align: center;
+  font-size: 24rpx;
+  color: #64748b;
+  margin-top: 16rpx;
+  padding: 6rpx 0;
+}
+
 
 .region-btn {
   flex: 1;

@@ -76,13 +76,37 @@ Page({
   },
 
   mapItem(it) {
+    const type = it.type || 'system';
+    // 判断是否为积分变动类消息
+    const isPointType = type === 'points' || type === 'point_change' || type === 'point'
+      || (type === 'view_bid') || (type === 'sign') || (type === 'recharge')
+      || (type === 'admin_adjust') || (type === 'admin_deduct');
+    // 积分变动金额（正数为增加，负数为消耗）
+    const amount = it.amount !== undefined ? it.amount
+      : (it.points !== undefined ? it.points : null);
+    // 跳转目标：bid → 详情页；points → 积分页
+    let linkType = it.linkType || it.link_type || '';
+    let linkId = it.linkId || it.link_id || it.relatedId || it.related_id || '';
+    if (!linkType) {
+      if (isPointType) {
+        linkType = 'points';
+      } else if (linkId || it.bidId || it.bid_id) {
+        linkType = 'bid';
+        linkId = linkId || it.bidId || it.bid_id;
+      }
+    }
     return {
       id: it.id,
       title: it.title || it.subject || '系统消息',
       content: it.content || it.body || '',
-      type: it.type || 'system',
+      type: type,
+      isPoint: isPointType,
+      amount: amount,
+      isIncome: amount !== null && amount > 0,
+      linkType: linkType,
+      linkId: linkId,
       isRead: it.isRead || it.is_read || it.read || false,
-      time: formatRelativeTime(it.createTime || it.create_time || it.time)
+      time: formatRelativeTime(it.createdAt || it.createTime || it.create_time || it.time)
     };
   },
 
@@ -108,10 +132,13 @@ Page({
         this.setData({ [key]: true });
       });
     }
-    // 如果有 bidId 跳转详情
-    const bidId = item.bidId || item.bid_id;
-    if (bidId) {
-      wx.navigateTo({ url: '/pages/detail/detail?id=' + bidId });
+    // 根据链接类型跳转
+    if (item.linkType === 'points') {
+      // 积分变动消息 → 跳转积分明细页
+      wx.navigateTo({ url: '/pages/points/points' });
+    } else if (item.linkType === 'bid' && item.linkId) {
+      // 标讯相关消息 → 跳转详情页
+      wx.navigateTo({ url: '/pages/detail/detail?id=' + item.linkId });
     }
   }
 })

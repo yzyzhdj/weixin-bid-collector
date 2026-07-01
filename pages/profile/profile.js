@@ -1,12 +1,21 @@
 // 用户中心 API
 const userApi = require('../../utils/user-api.js');
 
+const SIGN_KEY = 'profile_signed_date'; // 本地记录今天是否已签到
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
 Page({
   data: {
     statusBarHeight: 20,
     settingsBtnTop: 0,
     isLoggedIn: false,
-    userInfo: null,        // { id, phone, nickname, avatar, isVip, vipExpireAt, ... }
+    userInfo: null,        // { id, phone, nickname, avatar, points, ... }
+    points: 0,             // 我的积分
+    signedToday: false,    // 今天是否已签到
     unreadCount: 0,        // 未读消息数
     loading: false
   },
@@ -29,6 +38,8 @@ Page({
         settingsBtnTop
       });
     }
+    // 本地检查今日是否已签到
+    this.checkSignedToday();
   },
 
   onShow() {
@@ -37,6 +48,19 @@ Page({
     if (userApi.getToken()) {
       this.loadProfile();
       this.loadUnreadCount();
+      this.loadPoints();
+    } else {
+      this.setData({ points: 0 });
+    }
+  },
+
+  // 本地检查今天是否已签到
+  checkSignedToday() {
+    try {
+      const last = wx.getStorageSync(SIGN_KEY);
+      this.setData({ signedToday: last === todayStr() });
+    } catch (e) {
+      this.setData({ signedToday: false });
     }
   },
 
@@ -85,6 +109,18 @@ Page({
     });
   },
 
+  // 加载积分
+  loadPoints() {
+    if (userApi.getPoints) {
+      userApi.getPoints().then((res) => {
+        if (!res) return;
+        const pts = res.balance || res.points || res.score || 0;
+        const signed = res.signedToday || false;
+        this.setData({ points: pts, signedToday: signed });
+      }).catch(() => { /* 静默失败 */ });
+    }
+  },
+
   // 点击登录
   onLoginTap() {
     wx.navigateTo({ url: '/pages/login/login' });
@@ -99,12 +135,14 @@ Page({
       success: (res) => {
         if (res.confirm) {
           userApi.logout().then(() => {
-            this.setData({ isLoggedIn: false, userInfo: null, unreadCount: 0 });
+            this.setData({ isLoggedIn: false, userInfo: null, unreadCount: 0, points: 0, signedToday: false });
+            try { wx.removeStorageSync(SIGN_KEY); } catch (e) {}
             wx.showToast({ title: '已退出登录', icon: 'success' });
           }).catch(() => {
             // 即使后端失败也清本地
             userApi.clearAuth();
-            this.setData({ isLoggedIn: false, userInfo: null, unreadCount: 0 });
+            this.setData({ isLoggedIn: false, userInfo: null, unreadCount: 0, points: 0, signedToday: false });
+            try { wx.removeStorageSync(SIGN_KEY); } catch (e) {}
           });
         }
       }
@@ -126,9 +164,67 @@ Page({
     // wx.showToast({ title: '暂不支持修改头像', icon: 'none' });
   },
 
-  // 开通 VIP
-  onOpenVip() {
-    wx.navigateTo({ url: '/pages/more/more' });
+  // 每日签到
+  onSignTap() {
+    if (!this.data.isLoggedIn) {
+      this.onLoginTap();
+      return;
+    }
+    if (this.data.signedToday) {
+      wx.showToast({ title: '今日已签到', icon: 'none' });
+      return;
+    }
+    wx.showLoading({ title: '签到中...', mask: true });
+
+    // 优先调后端签到接口
+    const doLocalSign = () => {
+      // 本地兜底：+5 积分
+      const newPoints = (this.data.points || 0) + 5;
+      this.setData({
+        points: newPoints,
+        signedToday: true
+      });
+      try { wx.setStorageSync(SIGN_KEY, todayStr()); } catch (e) {}
+      wx.hideLoading();
+      wx.showToast({ title: '签到成功 +5 积分', icon: 'success' });
+    };
+
+    if (userApi.signIn) {
+      userApi.signIn().then((res) => {
+        wx.hideLoading();
+        // 签到返回最新积分账户信息
+        const pts = (res && (res.balance || res.points)) || (this.data.points || 0) + 5;
+        const added = (res && res.signInPoints) || 5;
+        this.setData({ points: pts, signedToday: true });
+        try { wx.setStorageSync(SIGN_KEY, todayStr()); } catch (e) {}
+        wx.showToast({ title: '签到成功 +' + added + ' 积分', icon: 'success' });
+      }).catch((err) => {
+        wx.hideLoading();
+        // 今日已签到返回 400
+        if (err && (err.code === 400 || (err.message && err.message.indexOf('已签到') !== -1))) {
+          this.setData({ signedToday: true });
+          try { wx.setStorageSync(SIGN_KEY, todayStr()); } catch (e) {}
+          wx.showToast({ title: '今日已签到', icon: 'none' });
+        } else {
+          // 本地兜底
+          const newPoints = (this.data.points || 0) + 5;
+          this.setData({ points: newPoints, signedToday: true });
+          try { wx.setStorageSync(SIGN_KEY, todayStr()); } catch (e) {}
+          wx.showToast({ title: '签到成功 +5 积分', icon: 'success' });
+        }
+      });
+    } else {
+      doLocalSign();
+    }
+  },
+
+  // 积分管理
+  onPointsTap() {
+    if (!this.data.isLoggedIn) {
+      this.onLoginTap();
+      return;
+    }
+    wx.navigateTo({ url: '/pages/points/points' });
   },
 
   // 快捷功能
@@ -158,9 +254,11 @@ Page({
     const type = e.currentTarget.dataset.type;
     if (type === 'buy') {
       wx.navigateTo({ url: '/pages/more/more' });
+    } else if (type === 'points') {
+      wx.navigateTo({ url: '/pages/points/points' });
     } else if (type === 'service') {
-      wx.makePhoneCall({ phoneNumber: '19156012821', fail: () => {
-        wx.showToast({ title: '客服热线：19156012821', icon: 'none' });
+      wx.makePhoneCall({ phoneNumber: '4000931030', fail: () => {
+        wx.showToast({ title: '客服热线：400-0931-030', icon: 'none' });
       }});
     } else if (type === 'orders') {
       wx.navigateTo({ url: '/pages/orders/orders' });

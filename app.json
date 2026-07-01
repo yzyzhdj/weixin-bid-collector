@@ -14,9 +14,20 @@
     "pages/favorites/favorites",
     "pages/subscriptions/subscriptions",
     "pages/subscriptions/edit",
+    "pages/subscriptions/edit-monitor",
     "pages/history/history",
     "pages/monitors/monitors",
-    "pages/notifications/notifications"
+    "pages/notifications/notifications",
+    "pages/points/points",
+    "pages/settings/settings",
+    "pages/cooperation/cooperation",
+    "pages/invite/invite",
+    "pages/companies/companies",
+    "pages/company-detail/company-detail",
+    "pages/feedback/feedback",
+    "pages/orders/orders",
+    "pages/signin-rule/signin-rule",
+    "pages/monitor-detail/monitor-detail"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -38,16 +49,10 @@
         "selectedIconPath": "images/tab-subscription-active.png"
       },
       {
-        "pagePath": "pages/subscribe/subscribe",
+        "pagePath": "pages/subscriptions/subscriptions",
         "text": "订阅",
         "iconPath": "images/tab-subscribe.png",
         "selectedIconPath": "images/tab-subscribe-active.png"
-      },
-      {
-        "pagePath": "pages/list/list",
-        "text": "更多",
-        "iconPath": "images/tab-more.png",
-        "selectedIconPath": "images/tab-more-active.png"
       },
       {
         "pagePath": "pages/profile/profile",
@@ -58,5 +63,11 @@
     ]
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "requiredPrivateInfos": ["getFuzzyLocation"],
+  "permission": {
+    "scope.userFuzzyLocation": {
+      "desc": "用于自动切换您所在省份的招标信息"
+    }
+  }
 }

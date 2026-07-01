@@ -36,21 +36,27 @@
         <text class="info-label">投标截止</text>
         <text class="info-value">{{detail.deadline}}</text>
       </view>
-      <view class="info-item" wx:if="{{detail.buyer}}">
+      <view class="info-item" wx:if="{{isLoggedIn && !detail.insufficientPoints && detail.buyer}}">
         <text class="info-label">采购单位</text>
         <text class="info-value">{{detail.buyer}}</text>
       </view>
-      <view class="info-item" wx:if="{{detail.buyerContact}}">
+      <view class="info-item" wx:if="{{isLoggedIn && !detail.insufficientPoints && detail.buyerContact}}">
         <text class="info-label">采购联系</text>
-        <text class="info-value">{{detail.buyerContact}}</text>
+        <view class="info-value contact-value" bindtap="onPhoneTap" data-phone="{{detail.buyerContact}}" hover-class="contact-hover">
+          <text class="contact-text">{{detail.buyerContact}}</text>
+          <text class="contact-icon">📞</text>
+        </view>
       </view>
-      <view class="info-item" wx:if="{{detail.agent}}">
+      <view class="info-item" wx:if="{{isLoggedIn && !detail.insufficientPoints && detail.agent}}">
         <text class="info-label">代理机构</text>
         <text class="info-value">{{detail.agent}}</text>
       </view>
-      <view class="info-item" wx:if="{{detail.agentContact}}">
+      <view class="info-item" wx:if="{{isLoggedIn && !detail.insufficientPoints && detail.agentContact}}">
         <text class="info-label">代理联系</text>
-        <text class="info-value">{{detail.agentContact}}</text>
+        <view class="info-value contact-value" bindtap="onPhoneTap" data-phone="{{detail.agentContact}}" hover-class="contact-hover">
+          <text class="contact-text">{{detail.agentContact}}</text>
+          <text class="contact-icon">📞</text>
+        </view>
       </view>
       <view class="info-item" wx:if="{{detail.supervisor}}">
         <text class="info-label">监管部门</text>
@@ -67,99 +73,143 @@
     </view>
   </view>
 
-  <view class="detail-section" wx:if="{{detail.winner}}">
-    <view class="section-title">中标信息</view>
-    <view class="info-list">
-      <view class="info-item">
-        <text class="info-label">中标供应商</text>
-        <text class="info-value highlight">{{detail.winner}}</text>
+  <!-- 已登录且积分充足：显示完整内容 -->
+  <block wx:if="{{isLoggedIn && !detail.insufficientPoints}}">
+    <view class="detail-section" wx:if="{{detail.winner}}">
+      <view class="section-title">中标信息</view>
+      <view class="info-list">
+        <view class="info-item">
+          <text class="info-label">中标供应商</text>
+          <text class="info-value highlight">{{detail.winner}}</text>
+        </view>
+        <view class="info-item" wx:if="{{detail.winAmount}}">
+          <text class="info-label">中标金额</text>
+          <text class="info-value highlight">{{detail.winAmount}}</text>
+        </view>
       </view>
-      <view class="info-item" wx:if="{{detail.winAmount}}">
-        <text class="info-label">中标金额</text>
-        <text class="info-value highlight">{{detail.winAmount}}</text>
+    </view>
+
+    <view class="detail-section" wx:if="{{detail.contentHtml}}">
+      <view class="section-title">公告内容</view>
+      <view class="content-scroll">
+        <rich-text class="content-text" nodes="{{detail.contentHtml}}"></rich-text>
       </view>
     </view>
-  </view>
 
-  <view class="detail-section" wx:if="{{detail.contentHtml}}">
-    <view class="section-title">公告内容</view>
-    <view class="content-scroll">
-      <rich-text class="content-text" nodes="{{detail.contentHtml}}"></rich-text>
+    <view class="detail-section" wx:elif="{{!loading && detail}}">
+      <view class="section-title">公告内容</view>
+      <view class="empty-content">
+        <view class="empty-icon">📄</view>
+        <view class="empty-text">暂无正文内容</view>
+        <view class="empty-hint">此标讯可能仅在原网站提供详情</view>
+      </view>
     </view>
-  </view>
 
-  <view class="detail-section" wx:elif="{{!loading && detail}}">
-    <view class="section-title">公告内容</view>
-    <view class="empty-content">
-      <view class="empty-icon">📄</view>
-      <view class="empty-text">暂无正文内容</view>
-      <view class="empty-hint">此标讯可能仅在原网站提供详情</view>
-    </view>
-  </view>
-
-  <view class="detail-section" wx:if="{{detail.attachments && detail.attachments.length > 0}}">
-    <view class="section-title">附件下载 ({{detail.attachments.length}})</view>
-    <view class="attachment-list">
-      <view class="attachment-item"
-            wx:for="{{detail.attachments}}"
-            wx:key="id"
-            wx:for-item="att"
-            data-url="{{att.downloadUrl}}"
-            data-name="{{att.fileName}}"
-            bindtap="onAttachmentTap">
-        <view class="att-icon">{{att.icon}}</view>
-        <view class="att-info">
-          <view class="att-name">{{att.fileName}}</view>
-          <view class="att-meta">
-            <text wx:if="{{att.fileType}}">{{att.fileType}}</text>
-            <text wx:if="{{att.fileSize}}"> · {{att.fileSizeText}}</text>
-            <text wx:if="{{!att.fileType && !att.fileSize}}">点击复制下载链接</text>
+    <view class="detail-section" wx:if="{{detail.attachments && detail.attachments.length > 0}}">
+      <view class="section-title">附件下载 ({{detail.attachments.length}})</view>
+      <view class="attachment-list">
+        <view class="attachment-item"
+              wx:for="{{detail.attachments}}"
+              wx:key="id"
+              wx:for-item="att"
+              data-url="{{att.downloadUrl}}"
+              data-name="{{att.fileName}}"
+              bindtap="onAttachmentTap">
+          <view class="att-icon">{{att.icon}}</view>
+          <view class="att-info">
+            <view class="att-name">{{att.fileName}}</view>
+            <view class="att-meta">
+              <text wx:if="{{att.fileType}}">{{att.fileType}}</text>
+              <text wx:if="{{att.fileSize}}"> · {{att.fileSizeText}}</text>
+              <text wx:if="{{!att.fileType && !att.fileSize}}">点击复制下载链接</text>
+            </view>
+          </view>
+          <view class="att-action">
+            <text>下载</text>
           </view>
         </view>
-        <view class="att-action">
-          <text>下载</text>
+      </view>
+    </view>
+
+    <view class="detail-section" wx:if="{{detail.parentBid}}">
+      <view class="section-title">关联招标公告</view>
+      <view class="related-item">
+        <view class="related-title">{{detail.parentBid.title}}</view>
+        <view class="related-meta">
+          <text>{{detail.parentBid.bidType}}</text>
+          <text>{{detail.parentBid.publishDateFmt || detail.parentBid.publishDate}}</text>
         </view>
       </view>
     </view>
-  </view>
 
-  <view class="detail-section" wx:if="{{detail.parentBid}}">
-    <view class="section-title">关联招标公告</view>
-    <view class="related-item">
-      <view class="related-title">{{detail.parentBid.title}}</view>
-      <view class="related-meta">
-        <text>{{detail.parentBid.bidType}}</text>
-        <text>{{detail.parentBid.publishDateFmt || detail.parentBid.publishDate}}</text>
+    <view class="detail-section" wx:if="{{detail.childBids && detail.childBids.length > 0}}">
+      <view class="section-title">关联中标公告</view>
+      <view class="related-item" wx:for="{{detail.childBids}}" wx:key="id">
+        <view class="related-title">{{item.title}}</view>
+        <view class="related-meta">
+          <text>{{item.bidType}}</text>
+          <text wx:if="{{item.winAmount}}">{{item.winAmount}}</text>
+        </view>
       </view>
+    </view>
+  </block>
+
+  <!-- 已登录但积分不足：提示积分不足 + 显示正文预览 -->
+  <view wx:elif="{{isLoggedIn && detail.insufficientPoints}}">
+    <view class="detail-section" wx:if="{{detail.contentPreview}}">
+      <view class="section-title">公告内容</view>
+      <view class="content-preview">
+        <text class="content-preview-text">{{detail.contentPreview}}</text>
+        <view class="content-preview-fade"></view>
+      </view>
+    </view>
+    <view class="login-tip-card">
+      <view class="login-tip-icon">💰</view>
+      <view class="login-tip-title">积分不足</view>
+      <view class="login-tip-desc">查看标讯详情需要消耗积分\n签到或充值可获得更多积分</view>
+      <view class="login-tip-btn" bindtap="onGoPoints">去签到或充值</view>
     </view>
   </view>
 
-  <view class="detail-section" wx:if="{{detail.childBids && detail.childBids.length > 0}}">
-    <view class="section-title">关联中标公告</view>
-    <view class="related-item" wx:for="{{detail.childBids}}" wx:key="id">
-      <view class="related-title">{{item.title}}</view>
-      <view class="related-meta">
-        <text>{{item.bidType}}</text>
-        <text wx:if="{{item.winAmount}}">{{item.winAmount}}</text>
+  <!-- 未登录：显示正文预览 + 提示登录后查看完整内容 -->
+  <view wx:else>
+    <view class="detail-section" wx:if="{{detail.contentPreview}}">
+      <view class="section-title">公告内容</view>
+      <view class="content-preview">
+        <text class="content-preview-text">{{detail.contentPreview}}</text>
+        <view class="content-preview-fade"></view>
       </view>
+    </view>
+    <view class="login-tip-card">
+      <view class="login-tip-icon">🔒</view>
+      <view class="login-tip-title">登录后查看完整内容</view>
+      <view class="login-tip-desc">包含公告正文、附件下载、关联公告等</view>
+      <view class="login-tip-btn" bindtap="onGoLogin">立即登录</view>
     </view>
   </view>
 
   <view class="bottom-bar">
-    <view class="bar-item {{isFavorited ? 'active' : ''}}" bindtap="onCollect">
-      <image class="bar-icon" src="{{isFavorited ? '/images/icon-collect-active.png' : '/images/icon-collect.png'}}" mode="aspectFit"></image>
-      <text>{{isFavorited ? '已收藏' : '收藏'}}</text>
+    <!-- 收藏按钮 -->
+    <view class="action-collect {{isFavorited ? 'collected' : ''}}" bindtap="onCollect" hover-class="collect-hover" hover-stay-time="80">
+      <image class="collect-icon" src="{{isFavorited ? '/images/icon-heart-fill.svg' : '/images/icon-heart.svg'}}" mode="aspectFit"></image>
+      <text class="collect-text">{{isFavorited ? '已收藏' : '收藏'}}</text>
     </view>
-    <view class="bar-item" bindtap="onShare">
-      <image class="bar-icon" src="/images/icon-share.png" mode="aspectFit"></image>
-      <text>分享</text>
-    </view>
-    <view class="bar-btn" bindtap="onSubscribe">
-      <text>立即订阅</text>
-    </view>
+    <!-- 分享按钮（主操作） -->
+    <button class="action-share" open-type="share" hover-class="share-hover" hover-stay-time="80">
+      <image class="share-icon" src="/images/icon-share2.svg" mode="aspectFit"></image>
+      <text class="share-text">分享给好友</text>
+    </button>
   </view>
 </view>
 
 <view class="loading" wx:if="{{loading}}">
   <text>加载中...</text>
+</view>
+
+<!-- 加载失败时的空状态 -->
+<view class="empty-state" wx:if="{{!loading && !detail}}">
+  <view class="empty-icon">📄</view>
+  <view class="empty-text">未找到该标讯</view>
+  <view class="empty-hint">可能已被删除或链接失效</view>
+  <view class="empty-back" bindtap="onGoBack">返回上一页</view>
 </view>

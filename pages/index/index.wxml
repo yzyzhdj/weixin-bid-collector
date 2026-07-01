@@ -6,7 +6,18 @@
         <text class="region-text">{{region}}<text wx:if="{{city}}"> · {{city}}</text></text>
         <view class="region-arrow"></view>
       </view>
-      <view class="header-title">阳光标讯</view>
+      <!-- 中间组：标题 + 铃铛，整体居中 -->
+      <view class="header-center">
+        <text class="header-title-text">阳光标讯</text>
+        <view class="header-notice" bindtap="onNoticeTap" hover-class="header-notice-hover">
+          <view class="notice-bell">
+            <view class="notice-bell-icon"></view>
+          </view>
+          <view class="notice-badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
+        </view>
+      </view>
+      <!-- 右侧占位：与左侧地区选择器等宽，使中间组真正居中 -->
+      <view class="header-right-placeholder"></view>
     </view>
 
     <view class="search-bar">
@@ -14,9 +25,128 @@
       <input class="search-input" placeholder="请输入您想要查看的关键词" value="{{searchText}}" bindinput="onInput" bindconfirm="onSearch" confirm-type="search"></input>
     </view>
 
-    <view class="hot-tags">
-      <view class="hot-tag" wx:for="{{hotTags}}" wx:key="index" bindtap="onTagClick" data-keyword="{{item}}">{{item}}</view>
-    </view>
+    <!-- 搜索栏下方的 banner 轮播广告 -->
+    <swiper class="banner-swiper" indicator-dots="true" indicator-color="rgba(255,255,255,0.35)" indicator-active-color="#ffffff" autoplay="true" interval="4000" duration="600" circular="true">
+
+      <!-- ====== API Banner 模式：后端返回图片 ====== -->
+      <block wx:if="{{bannerFromApi}}">
+        <swiper-item wx:for="{{bannerList}}" wx:key="id" data-idx="{{index}}" bindtap="onBannerTap">
+          <view class="banner-item banner-api-item">
+            <image class="banner-api-img" src="{{item.imageUrl}}" mode="aspectFill" lazy-load="true"></image>
+            <view class="banner-api-mask" wx:if="{{item.title}}"></view>
+            <view class="banner-api-text" wx:if="{{item.title}}">
+              <view class="banner-api-title">{{item.title}}</view>
+            </view>
+          </view>
+        </swiper-item>
+      </block>
+
+      <!-- ====== CSS 兜底 Banner 模式：后端无数据时使用 ====== -->
+      <block wx:else>
+        <!-- AI 智能解析 -->
+        <swiper-item data-idx="0" bindtap="onBannerTap">
+          <view class="banner-item banner-theme-ai">
+            <view class="banner-glow banner-glow-1"></view>
+            <view class="banner-glow banner-glow-2"></view>
+            <view class="banner-dots-deco banner-dots-tr"></view>
+            <view class="banner-dots-deco banner-dots-bl"></view>
+            <view class="banner-arc banner-arc-1"></view>
+            <view class="banner-arc banner-arc-2"></view>
+            <view class="banner-float-card banner-card-doc">
+              <view class="doc-icon">
+                <view class="doc-lines">
+                  <view class="doc-line doc-line-1"></view>
+                  <view class="doc-line doc-line-2"></view>
+                  <view class="doc-line doc-line-3"></view>
+                  <view class="doc-line doc-line-4"></view>
+                </view>
+                <view class="chart-bars">
+                  <view class="bar bar-1"></view>
+                  <view class="bar bar-2"></view>
+                  <view class="bar bar-3"></view>
+                </view>
+              </view>
+            </view>
+            <view class="banner-float-card banner-card-chart">
+              <view class="trend-line"></view>
+              <view class="trend-dot trend-dot-1"></view>
+              <view class="trend-dot trend-dot-2"></view>
+              <view class="trend-dot trend-dot-3"></view>
+            </view>
+            <view class="banner-robot">
+              <view class="robot-antenna"><view class="antenna-ball"></view></view>
+              <view class="robot-head">
+                <view class="robot-eye robot-eye-l"></view>
+                <view class="robot-eye robot-eye-r"></view>
+                <view class="robot-mouth"></view>
+              </view>
+              <view class="robot-body">
+                <view class="robot-light"></view>
+              </view>
+              <view class="robot-arm robot-arm-l"></view>
+              <view class="robot-arm robot-arm-r">
+                <view class="robot-wave"></view>
+              </view>
+            </view>
+            <view class="banner-text">
+              <view class="banner-tag">限时免费</view>
+              <view class="banner-title">AI智能解析，秒懂招标文件</view>
+              <view class="banner-sub">自动提取关键条款</view>
+              <view class="banner-sub">提升决策效率，解析更全面</view>
+            </view>
+          </view>
+        </swiper-item>
+
+        <!-- 每日签到 -->
+        <swiper-item data-idx="1" bindtap="onBannerTap">
+          <view class="banner-item banner-theme-signin">
+            <view class="banner-glow banner-glow-1 glow-gold"></view>
+            <view class="banner-glow banner-glow-2 glow-gold2"></view>
+            <view class="banner-dots-deco banner-dots-tr"></view>
+            <view class="banner-confetti confetti-1"></view>
+            <view class="banner-confetti confetti-2"></view>
+            <view class="banner-confetti confetti-3"></view>
+            <view class="banner-confetti confetti-4"></view>
+            <view class="banner-confetti confetti-5"></view>
+            <view class="banner-calendar">
+              <view class="cal-top"></view>
+              <view class="cal-body">
+                <view class="cal-check"></view>
+              </view>
+            </view>
+            <view class="banner-coin coin-1">
+              <view class="coin-inner">￥</view>
+            </view>
+            <view class="banner-coin coin-2">
+              <view class="coin-inner">￥</view>
+            </view>
+            <view class="banner-coin coin-3">
+              <view class="coin-inner">￥</view>
+            </view>
+            <view class="banner-gift">
+              <view class="gift-lid"></view>
+              <view class="gift-ribbon-h"></view>
+              <view class="gift-ribbon-v"></view>
+              <view class="gift-bow">
+                <view class="bow-l"></view>
+                <view class="bow-r"></view>
+                <view class="bow-center"></view>
+              </view>
+              <view class="gift-body"></view>
+            </view>
+            <view class="banner-star star-1"></view>
+            <view class="banner-star star-2"></view>
+            <view class="banner-star star-3"></view>
+            <view class="banner-text">
+              <view class="banner-tag tag-gold">每日签到</view>
+              <view class="banner-title">每日签到领积分</view>
+              <view class="banner-sub">每天签到送积分</view>
+              <view class="banner-sub">连续签到额外奖励</view>
+            </view>
+          </view>
+        </swiper-item>
+      </block>
+    </swiper>
   </view>
 
   <!-- 筛选状态条 -->
@@ -25,7 +155,7 @@
       <text class="filter-label">已筛选：</text>
       <text class="filter-value" wx:if="{{selectedProvince}}">{{selectedProvince}}</text>
       <text class="filter-value" wx:if="{{selectedCity}}"> · {{selectedCity}}</text>
-      <text class="filter-count">（{{infoList.length}} 条结果）</text>
+      <text class="filter-count">（{{totalCount > 0 ? totalCount : infoList.length}} 条结果）</text>
     </view>
     <view class="filter-clear" bindtap="onClearFilter">清除</view>
   </view>
@@ -41,21 +171,21 @@
       <view class="region-col">
         <view class="region-col-title">省份</view>
         <scroll-view class="region-list" scroll-y>
-          <view class="region-item {{selectedProvince === '' ? 'active' : ''}}" bindtap="selectProvince" data-province="">
+          <view class="region-item {{tempProvince === '' ? 'active' : ''}}" bindtap="selectProvince" data-province="">
             <text>全国</text>
           </view>
-          <view class="region-item {{selectedProvince === item ? 'active' : ''}}" wx:for="{{provinces}}" wx:key="*this" bindtap="selectProvince" data-province="{{item}}">
+          <view class="region-item {{tempProvince === item ? 'active' : ''}}" wx:for="{{provinces}}" wx:key="*this" bindtap="selectProvince" data-province="{{item}}">
             <text>{{item}}</text>
           </view>
         </scroll-view>
       </view>
       <view class="region-col" wx:if="{{cities.length > 0}}">
-        <view class="region-col-title">{{selectedProvince || '城市'}}</view>
+        <view class="region-col-title">{{tempProvince || '城市'}}</view>
         <scroll-view class="region-list" scroll-y>
-          <view class="region-item {{selectedCity === '' ? 'active' : ''}}" bindtap="selectCity" data-city="">
+          <view class="region-item {{tempCity === '' ? 'active' : ''}}" bindtap="selectCity" data-city="">
             <text>全部</text>
           </view>
-          <view class="region-item {{selectedCity === item ? 'active' : ''}}" wx:for="{{cities}}" wx:key="*this" bindtap="selectCity" data-city="{{item}}">
+          <view class="region-item {{tempCity === item ? 'active' : ''}}" wx:for="{{cities}}" wx:key="*this" bindtap="selectCity" data-city="{{item}}">
             <text>{{item}}</text>
           </view>
         </scroll-view>
@@ -79,14 +209,17 @@
     </view>
   </view>
 
-  <!-- 推广 banner -->
-  <view class="promo-banner" bindtap="onPromoTap">
+  <!-- 邀请好友 banner（open-type="share" 直接调起微信分享） -->
+  <button class="promo-banner" open-type="share" hover-class="none">
+    <view class="promo-decor"></view>
+    <view class="promo-decor-2"></view>
     <view class="promo-text">
-      <view class="promo-subtitle">资质业绩、从业人员、荣誉奖项、信用评价</view>
-      <view class="promo-title">全国建筑企业轻松查询</view>
+      <view class="promo-title">邀请好友 赚积分</view>
+      <view class="promo-subtitle">邀请好友注册，您可获200积分</view>
     </view>
-    <view class="promo-image">📊</view>
-  </view>
+    <view class="promo-emoji">💰</view>
+    <view class="promo-btn">立即邀请</view>
+  </button>
 
   <!-- 标签切换 -->
   <view class="info-tabs">
@@ -102,17 +235,79 @@
       <view class="info-company">招采单位：<text class="company-name">{{item.company}}</text></view>
       <view class="info-bottom">
         <view class="info-tags">
-          <view class="info-tag" style="background: #e0f2fe; color: #0369a1;">{{item.region}}<text wx:if="{{item.region2}}"> · {{item.region2}}</text></view>
+          <view class="info-tag" style="background: #e0f2fe; color: #0369a1;">{{selectedProvince || item.region}}<text wx:if="{{!selectedProvince && item.region2}}"> · {{item.region2}}</text></view>
           <view class="info-tag" wx:if="{{item.tag}}" style="background: {{item.tagBg}}; color: {{item.tagColor}};">{{item.tag}}</view>
         </view>
         <text class="info-time">{{item.time}}</text>
       </view>
     </view>
+    <view class="load-more-tip" wx:if="{{loadingMore}}">加载更多...</view>
+    <view class="load-more-tip" wx:if="{{!hasMore && !loadingMore}}">已加载全部</view>
   </view>
   <view class="empty-state" wx:if="{{!loading && infoList.length === 0}}">
     <text>暂无数据</text>
   </view>
   <view class="loading-state" wx:if="{{loading}}">
-    <text>加载中...</text>
+    <view class="loading-spinner">
+      <view class="spinner-ring"></view>
+    </view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- ====== 每日签到弹窗 ====== -->
+  <view class="signin-mask" wx:if="{{signinPopupShow}}" bindtap="onCloseSigninPopup"></view>
+  <view class="signin-popup" wx:if="{{signinPopupShow}}">
+    <view class="signin-card" catchtap="">
+      <view class="signin-close" bindtap="onCloseSigninPopup">×</view>
+
+      <!-- 顶部蓝色云朵装饰 + 日历图标 -->
+      <view class="signin-header">
+        <view class="signin-cloud signin-cloud-1"></view>
+        <view class="signin-cloud signin-cloud-2"></view>
+        <view class="signin-cloud signin-cloud-3"></view>
+        <view class="signin-calendar">
+          <view class="signin-cal-top"></view>
+          <view class="signin-cal-body">
+            <view class="signin-cal-ring"></view>
+            <view class="signin-cal-stick"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="signin-title">每日签到</view>
+      <view class="signin-subtitle">已连续签到</view>
+      <view class="signin-days">
+        <text class="signin-days-num">{{signinInfo.continuousDays || 0}}</text>
+        <text class="signin-days-unit">天</text>
+      </view>
+
+      <!-- 7 天奖励进度 -->
+      <view class="signin-week">
+        <view class="signin-day {{index === 0 ? 'is-today' : ''}} {{item.signed ? 'is-signed' : ''}} {{item.isReward ? 'is-reward' : ''}}"
+              wx:for="{{signinWeekList}}" wx:key="day">
+          <view class="signin-day-circle">
+            <view class="signin-day-check" wx:if="{{item.signed}}">✓</view>
+            <view class="signin-day-empty" wx:elif="{{item.isReward}}">🎁</view>
+            <view class="signin-day-empty" wx:else></view>
+          </view>
+          <view class="signin-day-tag" wx:if="{{index === 0}}">今日</view>
+          <text class="signin-day-label">{{item.label}}</text>
+          <text class="signin-day-points">+{{item.points}}</text>
+        </view>
+      </view>
+
+      <!-- 签到按钮 / 已签到状态 -->
+      <view class="signin-btn {{signinInfo.signedToday ? 'is-done' : ''}}" bindtap="onSigninTap">
+        <block wx:if="{{signinInfo.signedToday}}">
+          <text>今日已签到</text>
+        </block>
+        <block wx:else>
+          <text>立即签到，领 {{signinInfo.todayPoints || 15}} 积分</text>
+        </block>
+      </view>
+
+      <view class="signin-tip">坚持签到 7 天，积分加倍!</view>
+      <view class="signin-rule-link" bindtap="onSigninRuleTap">查看签到规则 ></view>
+    </view>
   </view>
 </view>
